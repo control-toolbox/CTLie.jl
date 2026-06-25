@@ -1,0 +1,80 @@
+name: Update README with ABOUT.md and INSTALL.md
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'   # every Monday at 06:00 UTC
+  workflow_dispatch:       # manual trigger
+
+env:
+  DOC_URL_OVERRIDE: ""   # optional, e.g. https://my-domain.example/MyApp.jl
+  CITATION_BADGE: ""     # optional, e.g. "[![DOI](https://zenodo.org/badge/....svg)](https://zenodo.org/doi/....)"
+  ASSIGNEE: ""           # optional, GitHub username(s), comma-separated
+
+jobs:
+  check-template:
+    runs-on: ubuntu-latest
+    outputs:
+      has_template: ${{ steps.check.outputs.has_template }}
+      repo_name: ${{ steps.meta.outputs.repo_name }}
+      package_name: ${{ steps.meta.outputs.package_name }}
+      doc_url: ${{ steps.meta.outputs.doc_url }}
+      citation_badge: ${{ steps.config.outputs.citation_badge }}
+      assignee: ${{ steps.config.outputs.assignee }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Compute repository metadata
+        id: meta
+        shell: bash
+        run: |
+          repo_name="${GITHUB_REPOSITORY}"              # owner/repo
+          repo_owner="${GITHUB_REPOSITORY%%/*}"         # owner
+          repo_basename="${GITHUB_REPOSITORY#*/}"       # repo
+          package_name="${repo_basename%.jl}"           # strip .jl suffix if present
+
+          if [[ -n "${DOC_URL_OVERRIDE}" ]]; then
+            doc_url="${DOC_URL_OVERRIDE}"
+          else
+            if [[ "${repo_owner}" == "control-toolbox" ]]; then
+              doc_url="https://control-toolbox.org/${repo_basename}"
+            else
+              doc_url="https://${repo_owner}.github.io/${repo_basename}"
+            fi
+          fi
+
+          echo "repo_name=${repo_name}" >> "$GITHUB_OUTPUT"
+          echo "package_name=${package_name}" >> "$GITHUB_OUTPUT"
+          echo "doc_url=${doc_url}" >> "$GITHUB_OUTPUT"
+
+      - name: Expose config variables as outputs
+        id: config
+        shell: bash
+        run: |
+          echo "citation_badge=${CITATION_BADGE}" >> "$GITHUB_OUTPUT"
+          echo "assignee=${ASSIGNEE}" >> "$GITHUB_OUTPUT"
+
+      - name: Check for README.template.md
+        id: check
+        shell: bash
+        run: |
+          if [[ -f "README.template.md" ]]; then
+            echo "has_template=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_template=false" >> "$GITHUB_OUTPUT"
+            echo "README.template.md not found. Skipping README update." >&2
+          fi
+
+  call-shared:
+    needs: check-template
+    if: ${{ needs.check-template.outputs.has_template == 'true' }}
+    uses: control-toolbox/CTActions/.github/workflows/update-readme.yml@main
+    with:
+      template_file: README.template.md
+      output_file: README.md
+      package_name: ${{ needs.check-template.outputs.package_name }}  # package for INSTALL.md
+      repo_name: ${{ needs.check-template.outputs.repo_name }}        # repository for CONTRIBUTING.md links
+      doc_url: ${{ needs.check-template.outputs.doc_url }}
+      citation_badge: ${{ needs.check-template.outputs.citation_badge }}
+      assignee: ${{ needs.check-template.outputs.assignee }}
+    secrets: inherit

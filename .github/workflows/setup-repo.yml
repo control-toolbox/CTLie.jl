@@ -1,0 +1,189 @@
+name: Setup Repository
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Check if running on the template repository
+        if: github.repository == 'control-toolbox/CTAppTemplate.jl'
+        run: |
+          echo "::error::This workflow is not intended to be run on the template repository itself."
+          exit 1
+
+      - name: Get repository metadata
+        id: meta
+        run: |
+          repo_name="${{ github.repository }}"
+          package_name=$(basename "${{ github.repository }}" .jl)
+          echo "repo_name=$repo_name" >> $GITHUB_OUTPUT
+          echo "package_name=$package_name" >> $GITHUB_OUTPUT
+          echo "actor=${{ github.actor }}" >> $GITHUB_OUTPUT
+
+      - name: Get author info
+        id: author
+        run: |
+          set -e
+          USER_INFO=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/users/${{ github.actor }}")
+          USER_NAME=$(echo "$USER_INFO" | jq -r '.name // ""')
+          USER_EMAIL=$(echo "$USER_INFO" | jq -r '.email // ""')
+          
+          # Construct author string with proper escaping and compact format
+          if [[ -n "$USER_NAME" && -n "$USER_EMAIL" ]]; then
+            AUTHOR_STRING=$(jq -nc --arg name "$USER_NAME" --arg email "$USER_EMAIL" '["\($name) <\($email)>"]')
+          elif [[ -n "$USER_NAME" ]]; then
+            AUTHOR_STRING=$(jq -nc --arg name "$USER_NAME" '["\($name)"]')
+          else
+            AUTHOR_STRING=$(jq -nc --arg actor "${{ github.actor }}" '["\($actor)"]')
+          fi
+          
+          # Output as a single line without leading spaces
+          echo "author_string=$AUTHOR_STRING" >> $GITHUB_OUTPUT
+
+      - name: Run setup script
+        run: |
+          set -e
+          
+          # Variables
+          OLD_REPO="control-toolbox/CTAppTemplate.jl"
+          NEW_REPO="${{ steps.meta.outputs.repo_name }}"
+          OLD_PACKAGE="CTAppTemplate"
+          NEW_PACKAGE="${{ steps.meta.outputs.package_name }}"
+          ACTOR="${{ steps.meta.outputs.actor }}"
+          AUTHOR_STRING='${{ steps.author.outputs.author_string }}'
+          
+          echo "=== Repository Setup ==="
+          echo "Old repo: $OLD_REPO"
+          echo "New repo: $NEW_REPO"
+          echo "Old package: $OLD_PACKAGE"
+          echo "New package: $NEW_PACKAGE"
+          echo "Actor: $ACTOR"
+          echo "Author: $AUTHOR_STRING"
+          
+          # 1. Replace repo name in files (excluding .git and setup-repo.yml)
+          echo "Step 1: Replacing repository name..."
+          find . -type f \
+            -not -path "./.git/*" \
+            -not -path "./.github/workflows/setup-repo.yml" \
+            -exec grep -l "$OLD_REPO" {} \; 2>/dev/null | while read -r file; do
+              sed -i "s|$OLD_REPO|$NEW_REPO|g" "$file"
+              echo "  Updated: $file"
+          done
+          
+          # 2. Replace control-toolbox.org URLs with GitHub Pages URLs for non-control-toolbox repos
+          echo "Step 2: Updating documentation URLs..."
+          REPO_OWNER=$(echo "$NEW_REPO" | cut -d'/' -f1)
+          if [[ "$REPO_OWNER" != "control-toolbox" ]]; then
+            OLD_DOC_URL="control-toolbox.org/CTAppTemplate.jl"
+            NEW_DOC_URL="${REPO_OWNER}.github.io/${NEW_PACKAGE}.jl"
+            find . -type f \
+              -not -path "./.git/*" \
+              -not -path "./.github/workflows/setup-repo.yml" \
+              -exec grep -l "$OLD_DOC_URL" {} \; 2>/dev/null | while read -r file; do
+                sed -i "s|$OLD_DOC_URL|$NEW_DOC_URL|g" "$file"
+                echo "  Updated: $file"
+            done
+          fi
+
+          # 3. Replace package name in files
+          echo "Step 3: Replacing package name..."
+          find . -type f \
+            -not -path "./.git/*" \
+            -not -path "./.github/workflows/setup-repo.yml" \
+            -exec grep -l "$OLD_PACKAGE" {} \; 2>/dev/null | while read -r file; do
+              sed -i "s|$OLD_PACKAGE|$NEW_PACKAGE|g" "$file"
+              echo "  Updated: $file"
+          done
+
+          # 4. Rename source file
+          echo "Step 4: Renaming source file..."
+          if [ -f "src/$OLD_PACKAGE.jl" ]; then
+            mv "src/$OLD_PACKAGE.jl" "src/$NEW_PACKAGE.jl"
+            echo "  Renamed: src/$OLD_PACKAGE.jl -> src/$NEW_PACKAGE.jl"
+          else
+            echo "  Warning: src/$OLD_PACKAGE.jl not found, skipping rename."
+          fi
+
+          # 5. Update Project.toml
+          echo "Step 5: Updating Project.toml..."
+          if [ ! -f "Project.toml" ]; then
+            echo "  Error: Project.toml not found"
+            exit 1
+          fi
+          
+          # Generate new UUID using Python
+          NEW_UUID=$(python3 -c "import uuid; print(str(uuid.uuid4()))")
+          echo "  New UUID: $NEW_UUID"
+          
+          # Update UUID
+          sed -i "s/^uuid = .*/uuid = \"$NEW_UUID\"/" Project.toml
+          
+          # Update authors using a temporary file to handle special characters safely
+          TEMP_FILE=$(mktemp)
+          awk -v authors="$AUTHOR_STRING" '
+            /^authors = / { print "authors = " authors; next }
+            { print }
+          ' Project.toml > "$TEMP_FILE"
+          mv "$TEMP_FILE" Project.toml
+          
+          echo "  Updated UUID and authors in Project.toml"
+          
+          # 6. Remove template instructions from README files
+          echo "Step 6: Removing template instructions..."
+          for readme_file in README.md README.template.md; do
+            if [ -f "$readme_file" ]; then
+              # Remove lines between REMOVE_TEMPLATE_INSTRUCTIONS_START and REMOVE_TEMPLATE_INSTRUCTIONS_END
+              sed -i '/<!-- REMOVE_TEMPLATE_INSTRUCTIONS_START -->/,/<!-- REMOVE_TEMPLATE_INSTRUCTIONS_END -->/d' "$readme_file"
+              echo "  Cleaned: $readme_file"
+            fi
+          done
+          
+          # 7. Update assignees
+          echo "Step 7: Updating assignees..."
+          if [ -d ".github/ISSUE_TEMPLATE" ]; then
+            find .github/ISSUE_TEMPLATE -type f -name "*.md" -exec sed -i "s|assignees: ocots|assignees: $ACTOR|g" {} +
+            echo "  Updated assignees in issue templates"
+          fi
+          
+          echo "=== Setup Complete ==="
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "feat: automate repository setup"
+          branch: "chore/auto-setup"
+          delete-branch: true
+          title: "🔧 Automate repository setup"
+          body: |
+            ## Repository Setup Automation
+            
+            This PR automates the initial setup of the repository from the template.
+            
+            ### Changes made:
+            - ✅ Replaced template names with new repository name
+              - `CTAppTemplate` → `${{ steps.meta.outputs.package_name }}`
+              - `control-toolbox/CTAppTemplate.jl` → `${{ steps.meta.outputs.repo_name }}`
+            - ✅ Renamed main source file
+              - `src/CTAppTemplate.jl` → `src/${{ steps.meta.outputs.package_name }}.jl`
+            - ✅ Generated new UUID for the package
+            - ✅ Updated author information in `Project.toml`
+            - ✅ Set default assignee to `${{ steps.meta.outputs.actor }}`
+            
+            ### Next steps:
+            1. Review the changes carefully
+            2. Verify that all files have been updated correctly
+            3. Merge this PR to finalize the setup
+            4. Delete the `setup-repo.yml` workflow file (optional)
+            
+            ---
+            *This PR was automatically created by the repository setup workflow.*

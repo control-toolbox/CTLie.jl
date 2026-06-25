@@ -1,0 +1,11 @@
+name: coverage
+on:
+  push:
+    branches:
+      - main
+    tags: '*'
+jobs:
+  call:
+    uses: control-toolbox/CTActions/.github/workflows/coverage.yml@main
+    secrets:
+      codecov-secret: ${{ secrets.CODECOV_TOKEN }}
