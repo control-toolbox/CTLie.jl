@@ -32,4 +32,4 @@ Manifest*.toml
 !docs/src/assets/Manifest*.toml
 
 #
-reports/
+.reports/
