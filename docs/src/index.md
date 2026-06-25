@@ -1,6 +1,6 @@
-# CTAppTemplate
+# CTLie
 
-Documentation for [CTAppTemplate](https://github.com/control-toolbox/CTAppTemplate.jl).
+Documentation for [CTLie](https://github.com/control-toolbox/CTLie.jl).
 
 ## Reproducibility
 
