@@ -1,6 +1,6 @@
-name = "CTAppTemplate"
-uuid = "eb604665-d64b-4d02-aa6d-8b42324a08dc"
-authors = ["Olivier Cots <olivier.cots@toulouse-inp.fr>"]
+name = "CTLie"
+uuid = "6880e05b-3a7d-4cac-887c-30cb52c5fdde"
+authors = ["Olivier Cots"]
 version = "0.1.0"
 
 [compat]

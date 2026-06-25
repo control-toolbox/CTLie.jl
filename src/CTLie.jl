@@ -1,4 +1,4 @@
-module CTAppTemplate
+module CTLie
 
 greet() = print("Hello World!")
 
