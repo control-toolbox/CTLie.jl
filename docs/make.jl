@@ -71,7 +71,6 @@ with_api_reference(src_dir) do api_pages
             sidebar_drawer=true,
         ),
         pages=[
-            "Introduction" => "index.md",
             "Hamiltonian lift" => "lift.md",
             "Lie derivative & bracket" => "lie_derivative_bracket.md",
             "Poisson bracket" => "poisson.md",
