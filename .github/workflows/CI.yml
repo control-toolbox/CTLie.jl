@@ -6,7 +6,14 @@ on:
       - main
     tags: '*'
   pull_request:
-    
+    types: [labeled, synchronize, opened, reopened]
+
 jobs:
   call:
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'run ci')
     uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
+    with:
+      runs_on: '["ubuntu-latest", "macos-latest"]'
+      use_ct_registry: true
+    secrets:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
