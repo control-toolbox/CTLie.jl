@@ -1,7 +1,7 @@
 name = "CTLie"
 uuid = "6880e05b-3a7d-4cac-887c-30cb52c5fdde"
 authors = ["Olivier Cots"]
-version = "0.1.0"
+version = "0.1.0-beta"
 
 [deps]
 ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
