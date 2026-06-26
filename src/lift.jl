@@ -99,7 +99,7 @@ $(TYPEDSIGNATURES)
 
 Lift a vector field to a Hamiltonian via the canonical symplectic structure.
 
-Returns a [`Data.Hamiltonian`](@ref) representing `H(x, p) = p' * X(x)`. This overload
+Returns a [`Data.Hamiltonian`](@extref CTBase CTBase.Data.Hamiltonian) representing `H(x, p) = p' * X(x)`. This overload
 allows lifting typed vector fields directly to Hamiltonians.
 
 # Arguments

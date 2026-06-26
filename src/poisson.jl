@@ -184,7 +184,7 @@ $(TYPEDSIGNATURES)
 
 Compute the Poisson bracket of two typed Hamiltonians.
 
-Returns a new [`Data.Hamiltonian`](@ref) representing the Poisson bracket `{H, G}`.
+Returns a new [`Data.Hamiltonian`](@extref CTBase CTBase.Data.Hamiltonian) representing the Poisson bracket `{H, G}`.
 Both Hamiltonians must share the same time dependence and variable dependence.
 
 # Arguments

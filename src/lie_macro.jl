@@ -403,7 +403,7 @@ Transforms bracket expressions into calls to [`CTLie.ad`](@ref) (Lie brackets) o
 # Syntax
 - Lie brackets: `[X, Y]` — computes the Lie bracket or Lie derivative
 - Poisson brackets: `{H, G}` — computes the Poisson bracket
-- Nested brackets: `[[X, Y], Z]` or `{{H, G}, K}` — supported
+- Nested brackets: `[[X, Y], Z]` or `{ {H, G}, K }` — supported
 
 # Arguments
 - `expr::Expr`: Bracket expression using `[...]` for Lie or `{...}` for Poisson.

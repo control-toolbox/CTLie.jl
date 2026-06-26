@@ -65,7 +65,7 @@ $(TYPEDSIGNATURES)
 
 Compute the Lie bracket of two vector fields.
 
-Returns a new [`Data.VectorField`](@ref) representing the Lie bracket `[X, Y] = J_Y(x)*X(x) - J_X(x)*Y(x)`.
+Returns a new [`Data.VectorField`](@extref CTBase CTBase.Data.VectorField) representing the Lie bracket `[X, Y] = J_Y(x)*X(x) - J_X(x)*Y(x)`.
 Both vector fields must share the same time dependence and variable dependence.
 
 # Arguments

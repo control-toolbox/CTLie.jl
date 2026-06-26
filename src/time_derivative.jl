@@ -53,7 +53,7 @@ $(TYPEDSIGNATURES)
 
 Compute the time derivative of a Hamiltonian vector field.
 
-Returns a new [`Data.HamiltonianVectorField`](@ref) with `NonAutonomous` time dependence.
+Returns a new [`Data.HamiltonianVectorField`](@extref CTBase CTBase.Data.HamiltonianVectorField) with `NonAutonomous` time dependence.
 For autonomous vector fields, the derivative is zero.
 
 # Arguments
@@ -134,7 +134,7 @@ $(TYPEDSIGNATURES)
 
 Compute the time derivative of a vector field.
 
-Returns a new [`Data.VectorField`](@ref) with `NonAutonomous` time dependence.
+Returns a new [`Data.VectorField`](@extref CTBase CTBase.Data.VectorField) with `NonAutonomous` time dependence.
 For autonomous vector fields, the derivative is zero.
 
 # Arguments
@@ -201,7 +201,7 @@ $(TYPEDSIGNATURES)
 
 Compute the time derivative of a Hamiltonian.
 
-Returns a new [`Data.Hamiltonian`](@ref) with `NonAutonomous` time dependence.
+Returns a new [`Data.Hamiltonian`](@extref CTBase CTBase.Data.Hamiltonian) with `NonAutonomous` time dependence.
 For autonomous Hamiltonians, the derivative is zero.
 
 # Arguments
