@@ -6,7 +6,13 @@ on:
       - main
     tags: '*'
   pull_request:
-  
+    types: [labeled, synchronize, opened, reopened]
+
 jobs:
   call:
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'run documentation')
     uses: control-toolbox/CTActions/.github/workflows/documentation.yml@main
+    with:
+      use_ct_registry: true
+    secrets:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
