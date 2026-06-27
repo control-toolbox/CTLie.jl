@@ -22,8 +22,7 @@ makedocs(;
     ```@meta
     Draft = false
     ```
-    =#
-    remotes=nothing,
+    =# remotes=nothing,
     warnonly=:cross_references,
     sitename="CTLie",
     format=Documenter.HTML(;
