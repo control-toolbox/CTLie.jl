@@ -35,13 +35,14 @@ B([1.0, 2.0], [0.5, 1.0])  # Returns 1.0
 See also: [`CTLie.Poisson`](@ref), [`CTLie.ad`](@ref), [`CTLie.Lift`](@ref)
 """
 function Poisson(
-    H::Function, G::Function;
-    ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType} = __dg_ad_backend(),
-    is_autonomous::Bool = Data.__is_autonomous(),
-    is_variable::Bool   = Data.__is_variable(),
+    H::Function,
+    G::Function;
+    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
+    is_autonomous::Bool=Data.__is_autonomous(),
+    is_variable::Bool=Data.__is_variable(),
 )
-    TD      = is_autonomous ? Traits.Autonomous : Traits.NonAutonomous
-    VD      = is_variable   ? Traits.NonFixed   : Traits.Fixed
+    TD = is_autonomous ? Traits.Autonomous : Traits.NonAutonomous
+    VD = is_variable ? Traits.NonFixed : Traits.Fixed
     backend = _resolve_backend(ad_backend)
     return _Poisson(H, G, backend, TD, VD)
 end
@@ -79,10 +80,12 @@ B([1.0, 2.0], [0.5, 1.0])  # Returns 1.0
 See also: [`CTLie.Poisson(H::Function, G::Function)`](@ref), [`CTLie.@Lie`](@ref), [`CTLie.ad`](@ref)
 """
 function Poisson(
-    H::Function, G::Function,
-    ::Type{TD}, ::Type{VD};
-    ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType} = __dg_ad_backend(),
-) where {TD, VD}
+    H::Function,
+    G::Function,
+    ::Type{TD},
+    ::Type{VD};
+    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
+) where {TD,VD}
     backend = _resolve_backend(ad_backend)
     return _Poisson(H, G, backend, TD, VD)
 end
@@ -96,14 +99,14 @@ Replaces the four closures previously returned by `_Poisson`. `TD` and `VD` are
 compile-time trait parameters so the correct call method is resolved statically.
 Partial derivatives are computed via `Differentiation.differentiate`.
 """
-struct PoissonBracket{FH, FG, B <: Differentiation.AbstractADBackend, TD, VD} <: Function
+struct PoissonBracket{FH,FG,B<:Differentiation.AbstractADBackend,TD,VD} <: Function
     H::FH
     G::FG
     backend::B
 end
 
 # Autonomous/Fixed: H(x,p) — ∂/∂x = slot 1, ∂/∂p = slot 2
-function (pb::PoissonBracket{FH, FG, B, Traits.Autonomous, Traits.Fixed})(x, p) where {FH, FG, B}
+function (pb::PoissonBracket{FH,FG,B,Traits.Autonomous,Traits.Fixed})(x, p) where {FH,FG,B}
     gxH = Differentiation.differentiate(pb.backend, pb.H, Val(1), x, p)
     gpH = Differentiation.differentiate(pb.backend, pb.H, Val(2), p, x)
     gxG = Differentiation.differentiate(pb.backend, pb.G, Val(1), x, p)
@@ -112,7 +115,9 @@ function (pb::PoissonBracket{FH, FG, B, Traits.Autonomous, Traits.Fixed})(x, p) 
 end
 
 # NonAutonomous/Fixed: H(t,x,p) — ∂/∂x = slot 2, ∂/∂p = slot 3
-function (pb::PoissonBracket{FH, FG, B, Traits.NonAutonomous, Traits.Fixed})(t, x, p) where {FH, FG, B}
+function (pb::PoissonBracket{FH,FG,B,Traits.NonAutonomous,Traits.Fixed})(
+    t, x, p
+) where {FH,FG,B}
     gxH = Differentiation.differentiate(pb.backend, pb.H, Val(2), x, t, p)
     gpH = Differentiation.differentiate(pb.backend, pb.H, Val(3), p, t, x)
     gxG = Differentiation.differentiate(pb.backend, pb.G, Val(2), x, t, p)
@@ -121,7 +126,9 @@ function (pb::PoissonBracket{FH, FG, B, Traits.NonAutonomous, Traits.Fixed})(t, 
 end
 
 # Autonomous/NonFixed: H(x,p,v) — ∂/∂x = slot 1, ∂/∂p = slot 2
-function (pb::PoissonBracket{FH, FG, B, Traits.Autonomous, Traits.NonFixed})(x, p, v) where {FH, FG, B}
+function (pb::PoissonBracket{FH,FG,B,Traits.Autonomous,Traits.NonFixed})(
+    x, p, v
+) where {FH,FG,B}
     gxH = Differentiation.differentiate(pb.backend, pb.H, Val(1), x, p, v)
     gpH = Differentiation.differentiate(pb.backend, pb.H, Val(2), p, x, v)
     gxG = Differentiation.differentiate(pb.backend, pb.G, Val(1), x, p, v)
@@ -130,7 +137,9 @@ function (pb::PoissonBracket{FH, FG, B, Traits.Autonomous, Traits.NonFixed})(x, 
 end
 
 # NonAutonomous/NonFixed: H(t,x,p,v) — ∂/∂x = slot 2, ∂/∂p = slot 3
-function (pb::PoissonBracket{FH, FG, B, Traits.NonAutonomous, Traits.NonFixed})(t, x, p, v) where {FH, FG, B}
+function (pb::PoissonBracket{FH,FG,B,Traits.NonAutonomous,Traits.NonFixed})(
+    t, x, p, v
+) where {FH,FG,B}
     gxH = Differentiation.differentiate(pb.backend, pb.H, Val(2), x, t, p, v)
     gpH = Differentiation.differentiate(pb.backend, pb.H, Val(3), p, t, x, v)
     gxG = Differentiation.differentiate(pb.backend, pb.G, Val(2), x, t, p, v)
@@ -138,8 +147,10 @@ function (pb::PoissonBracket{FH, FG, B, Traits.NonAutonomous, Traits.NonFixed})(
     return (gpH' * gxG - gxH' * gpG)::promote_type(eltype(x), eltype(p))
 end
 
-function _Poisson(H, G, backend::Differentiation.AbstractADBackend, ::Type{TD}, ::Type{VD}) where {TD, VD}
-    return PoissonBracket{typeof(H), typeof(G), typeof(backend), TD, VD}(H, G, backend)
+function _Poisson(
+    H, G, backend::Differentiation.AbstractADBackend, ::Type{TD}, ::Type{VD}
+) where {TD,VD}
+    return PoissonBracket{typeof(H),typeof(G),typeof(backend),TD,VD}(H, G, backend)
 end
 
 # =============================================================================
@@ -163,9 +174,9 @@ PoissonBracket: autonomous, fixed (no variable)
   cache: not prepared
 ```
 """
-function Base.show(io::IO, pb::PoissonBracket{FH, FG, B, TD, VD}) where {FH, FG, B, TD, VD}
+function Base.show(io::IO, pb::PoissonBracket{FH,FG,B,TD,VD}) where {FH,FG,B,TD,VD}
     println(io, "PoissonBracket: $(Data._td_label(TD)), $(Data._vd_label(VD))")
-    print(io, "  backend: ", nameof(typeof(pb.backend)))
+    return print(io, "  backend: ", nameof(typeof(pb.backend)))
 end
 
 """
@@ -175,8 +186,10 @@ Display a `PoissonBracket` in the REPL with the same format as `Base.show(io, pb
 
 See also: [`CTLie.PoissonBracket`](@ref).
 """
-function Base.show(io::IO, ::MIME"text/plain", pb::PoissonBracket{FH, FG, B, TD, VD}) where {FH, FG, B, TD, VD}
-    show(io, pb)
+function Base.show(
+    io::IO, ::MIME"text/plain", pb::PoissonBracket{FH,FG,B,TD,VD}
+) where {FH,FG,B,TD,VD}
+    return show(io, pb)
 end
 
 """
@@ -211,10 +224,10 @@ B([1.0, 2.0], [0.5, 1.0])  # Returns 1.0
 See also: [`CTLie.Poisson(H::Function, G::Function)`](@ref), [`CTLie.ad`](@ref)
 """
 function Poisson(
-    H::Data.AbstractHamiltonian{TD, VD},
-    G::Data.AbstractHamiltonian{TD, VD};
-    ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType} = __dg_ad_backend(),
-) where {TD, VD}
+    H::Data.AbstractHamiltonian{TD,VD},
+    G::Data.AbstractHamiltonian{TD,VD};
+    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
+) where {TD,VD}
     backend = _resolve_backend(ad_backend)
     closure = _Poisson(H, G, backend, TD, VD)
     return Data.Hamiltonian(closure, TD, VD)
@@ -243,16 +256,18 @@ match. Use the matching TD/VD version for valid operations.
 See also: [`CTLie.Poisson`](@ref)
 """
 function Poisson(
-    H::Data.AbstractHamiltonian{TD1, VD1},
-    G::Data.AbstractHamiltonian{TD2, VD2};
-    ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType} = __dg_ad_backend(),
-) where {TD1, VD1, TD2, VD2}
-    throw(Exceptions.PreconditionError(
-        "Poisson: TD/VD mismatch between H and G";
-        reason     = "H: $(TD1)/$(VD1) ≠ G: $(TD2)/$(VD2) — both Hamiltonians must share the same TimeDependence and VariableDependence",
-        suggestion = "Ensure both Hamiltonians have the same time and variable dependence traits",
-        context    = "Poisson on AbstractHamiltonian",
-    ))
+    H::Data.AbstractHamiltonian{TD1,VD1},
+    G::Data.AbstractHamiltonian{TD2,VD2};
+    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
+) where {TD1,VD1,TD2,VD2}
+    return throw(
+        Exceptions.PreconditionError(
+            "Poisson: TD/VD mismatch between H and G";
+            reason="H: $(TD1)/$(VD1) ≠ G: $(TD2)/$(VD2) — both Hamiltonians must share the same TimeDependence and VariableDependence",
+            suggestion="Ensure both Hamiltonians have the same time and variable dependence traits",
+            context="Poisson on AbstractHamiltonian",
+        ),
+    )
 end
 
 """
@@ -269,14 +284,17 @@ arguments are `AbstractVectorField`. It is always an error; use `ad(X, Y)` inste
 See also: [`CTLie.ad`](@ref)
 """
 function Poisson(
-    ::Data.AbstractVectorField, ::Data.AbstractVectorField;
-    ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType} = __dg_ad_backend(),
+    ::Data.AbstractVectorField,
+    ::Data.AbstractVectorField;
+    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
 )
-    throw(Exceptions.IncorrectArgument(
-        "Poisson is not defined for AbstractVectorField operands";
-        suggestion = "Use ad(X, Y) for the Lie bracket of VectorFields",
-        context    = "Poisson on AbstractVectorField",
-    ))
+    return throw(
+        Exceptions.IncorrectArgument(
+            "Poisson is not defined for AbstractVectorField operands";
+            suggestion="Use ad(X, Y) for the Lie bracket of VectorFields",
+            context="Poisson on AbstractVectorField",
+        ),
+    )
 end
 
 """
@@ -288,14 +306,17 @@ Error method for VectorField as first operand in Poisson bracket.
 - `Exceptions.IncorrectArgument`: Always thrown with suggestion to use Lie bracket.
 """
 function Poisson(
-    ::Data.AbstractVectorField, ::Any;
-    ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType} = __dg_ad_backend(),
+    ::Data.AbstractVectorField,
+    ::Any;
+    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
 )
-    throw(Exceptions.IncorrectArgument(
-        "Poisson is not defined for AbstractVectorField operands";
-        suggestion = "Use ad(X, Y) for the Lie bracket of VectorFields",
-        context    = "Poisson on AbstractVectorField",
-    ))
+    return throw(
+        Exceptions.IncorrectArgument(
+            "Poisson is not defined for AbstractVectorField operands";
+            suggestion="Use ad(X, Y) for the Lie bracket of VectorFields",
+            context="Poisson on AbstractVectorField",
+        ),
+    )
 end
 
 """
@@ -317,12 +338,15 @@ where the second argument is a VectorField and the first is some other type.
 See also: [`CTLie.ad`](@ref)
 """
 function Poisson(
-    ::Any, ::Data.AbstractVectorField;
-    ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType} = __dg_ad_backend(),
+    ::Any,
+    ::Data.AbstractVectorField;
+    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
 )
-    throw(Exceptions.IncorrectArgument(
-        "Poisson is not defined for AbstractVectorField operands";
-        suggestion = "Use ad(X, Y) for the Lie bracket of VectorFields",
-        context    = "Poisson on AbstractVectorField",
-    ))
+    return throw(
+        Exceptions.IncorrectArgument(
+            "Poisson is not defined for AbstractVectorField operands";
+            suggestion="Use ad(X, Y) for the Lie bracket of VectorFields",
+            context="Poisson on AbstractVectorField",
+        ),
+    )
 end

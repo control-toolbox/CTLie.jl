@@ -1,16 +1,16 @@
 module TestAdDG
 
-import Test
-import ForwardDiff  # ensure DI ForwardDiff extension is loaded (AutoForwardDiff backend)
+using Test: Test
+using ForwardDiff: ForwardDiff  # ensure DI ForwardDiff extension is loaded (AutoForwardDiff backend)
 import CTBase.Exceptions
-import DifferentiationInterface
-import ADTypes
+using DifferentiationInterface: DifferentiationInterface
+using ADTypes: ADTypes
 import CTBase.Traits: Traits
 import CTBase.Data: Data
 import CTBase.Differentiation
 import CTLie: CTLie
 
-const VERBOSE    = isdefined(Main, :TestData) ? Main.TestData.VERBOSE    : true
+const VERBOSE = isdefined(Main, :TestData) ? Main.TestData.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestData) ? Main.TestData.SHOWTIMING : true
 
 function test_ad_dg()
@@ -51,7 +51,9 @@ function test_ad_dg()
 
         # Check return type
         Test.@test Z isa Data.VectorField
-        Test.@test Z isa Data.AbstractVectorField{Traits.Autonomous, Traits.Fixed, Traits.OutOfPlace}
+        Test.@test Z isa Data.AbstractVectorField{
+            Traits.Autonomous,Traits.Fixed,Traits.OutOfPlace
+        }
 
         # Check correctness
         # J_X = [0 1; -1 0], J_Y = [1 0; 0 1]
@@ -75,14 +77,18 @@ function test_ad_dg()
     end
 
     Test.@testset "ad() - Errors: HVF guard" verbose=VERBOSE showtiming=SHOWTIMING begin
-        hvf = Data.HamiltonianVectorField((x, p) -> (x, -p); is_autonomous=true, is_variable=false)
+        hvf = Data.HamiltonianVectorField(
+            (x, p) -> (x, -p); is_autonomous=true, is_variable=false
+        )
         Y = Data.VectorField(x -> [x[1], x[2]]; is_autonomous=true, is_variable=false)
 
         Test.@test_throws Exceptions.NotImplemented CTLie.ad(hvf, Y)
     end
 
     Test.@testset "ad() - Errors: InPlace guard" verbose=VERBOSE showtiming=SHOWTIMING begin
-        ip_vf = Data.VectorField((dx, x) -> (dx .= [x[2], -x[1]]); is_autonomous=true, is_inplace=true)
+        ip_vf = Data.VectorField(
+            (dx, x) -> (dx .= [x[2], -x[1]]); is_autonomous=true, is_inplace=true
+        )
         Y = Data.VectorField(x -> [x[1], x[2]]; is_autonomous=true, is_variable=false)
 
         Test.@test_throws Exceptions.NotImplemented CTLie.ad(ip_vf, Y)
@@ -187,12 +193,16 @@ function test_ad_dg()
     end
 
     Test.@testset "ad() - VectorField/VectorField NonAutonomous" verbose=VERBOSE showtiming=SHOWTIMING begin
-        X = Data.VectorField((t, x) -> [t * x[2], -x[1]]; is_autonomous=false, is_variable=false)
+        X = Data.VectorField(
+            (t, x) -> [t * x[2], -x[1]]; is_autonomous=false, is_variable=false
+        )
         Y = Data.VectorField((t, x) -> [x[1], x[2]]; is_autonomous=false, is_variable=false)
         Z = CTLie.ad(X, Y)
 
         Test.@test Z isa Data.VectorField
-        Test.@test Z isa Data.AbstractVectorField{Traits.NonAutonomous, Traits.Fixed, Traits.OutOfPlace}
+        Test.@test Z isa Data.AbstractVectorField{
+            Traits.NonAutonomous,Traits.Fixed,Traits.OutOfPlace
+        }
 
         # Check correctness at t=2, x=[1,2]
         # J_X = [[0, t], [-1, 0]], J_Y = I
@@ -203,7 +213,9 @@ function test_ad_dg()
     end
 
     Test.@testset "ad() - VectorField/Function NonAutonomous" verbose=VERBOSE showtiming=SHOWTIMING begin
-        X = Data.VectorField((t, x) -> [t * x[2], -x[1]]; is_autonomous=false, is_variable=false)
+        X = Data.VectorField(
+            (t, x) -> [t * x[2], -x[1]]; is_autonomous=false, is_variable=false
+        )
         f(t, x) = t + x[1]^2
         Xf = CTLie.ad(X, f)
 
@@ -216,12 +228,16 @@ function test_ad_dg()
     end
 
     Test.@testset "ad() - VectorField/VectorField NonFixed" verbose=VERBOSE showtiming=SHOWTIMING begin
-        X = Data.VectorField((x, v) -> [x[2] * v, -x[1]]; is_autonomous=true, is_variable=true)
+        X = Data.VectorField(
+            (x, v) -> [x[2] * v, -x[1]]; is_autonomous=true, is_variable=true
+        )
         Y = Data.VectorField((x, v) -> [x[1], x[2]]; is_autonomous=true, is_variable=true)
         Z = CTLie.ad(X, Y)
 
         Test.@test Z isa Data.VectorField
-        Test.@test Z isa Data.AbstractVectorField{Traits.Autonomous, Traits.NonFixed, Traits.OutOfPlace}
+        Test.@test Z isa Data.AbstractVectorField{
+            Traits.Autonomous,Traits.NonFixed,Traits.OutOfPlace
+        }
 
         # Check correctness at x=[1,2], v=3
         # J_X = [[0, v], [-1, 0]], J_Y = I
@@ -232,7 +248,9 @@ function test_ad_dg()
     end
 
     Test.@testset "ad() - VectorField/Function NonFixed" verbose=VERBOSE showtiming=SHOWTIMING begin
-        X = Data.VectorField((x, v) -> [x[2] * v, -x[1]]; is_autonomous=true, is_variable=true)
+        X = Data.VectorField(
+            (x, v) -> [x[2] * v, -x[1]]; is_autonomous=true, is_variable=true
+        )
         f(x, v) = x[1]^2 + v
         Xf = CTLie.ad(X, f)
 
@@ -331,17 +349,27 @@ function test_ad_dg()
         fad(x) = x[1]^2 + x[2]^2
         a = CTLie.ad(Xad, fad)
         Test.@test a isa CTLie.Ad
-        Test.@test a isa CTLie.Ad{typeof(Xad), typeof(fad),
-            <:Differentiation.AbstractADBackend, Traits.Autonomous, Traits.Fixed}
+        Test.@test a isa CTLie.Ad{
+            typeof(Xad),
+            typeof(fad),
+            <:Differentiation.AbstractADBackend,
+            Traits.Autonomous,
+            Traits.Fixed,
+        }
     end
 
     Test.@testset "ad() - concrete type Ad (Lie bracket, Autonomous/Fixed)" verbose=VERBOSE showtiming=SHOWTIMING begin
         Xad(x) = [x[2], -x[1]]
-        Yad(x) = [x[1],  x[2]]
+        Yad(x) = [x[1], x[2]]
         a = CTLie.ad(Xad, Yad)
         Test.@test a isa CTLie.Ad
-        Test.@test a isa CTLie.Ad{typeof(Xad), typeof(Yad),
-            <:Differentiation.AbstractADBackend, Traits.Autonomous, Traits.Fixed}
+        Test.@test a isa CTLie.Ad{
+            typeof(Xad),
+            typeof(Yad),
+            <:Differentiation.AbstractADBackend,
+            Traits.Autonomous,
+            Traits.Fixed,
+        }
     end
 
     Test.@testset "ad() - @inferred scalar (Lie derivative)" verbose=VERBOSE showtiming=SHOWTIMING begin
@@ -355,7 +383,7 @@ function test_ad_dg()
 
     Test.@testset "ad() - @inferred vector (Lie bracket)" verbose=VERBOSE showtiming=SHOWTIMING begin
         Xad(x) = [x[2], -x[1]]
-        Yad(x) = [x[1],  x[2]]
+        Yad(x) = [x[1], x[2]]
         a = CTLie.ad(Xad, Yad)
         x0 = [1.0, 2.0]
         a(x0)  # warm-up

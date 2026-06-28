@@ -10,14 +10,28 @@ call method is resolved at compile time — no allocation per call.
 Inherits from `Function` so that it satisfies the `F<:Function` constraint of
 `Data.Hamiltonian` and passes existing `isa Function` checks.
 """
-struct LiftedHamiltonianFunction{F, TD, VD} <: Function
+struct LiftedHamiltonianFunction{F,TD,VD} <: Function
     f::F
 end
 
-(h::LiftedHamiltonianFunction{F, Traits.Autonomous,    Traits.Fixed})(x, p)       where {F} = p' * h.f(x)
-(h::LiftedHamiltonianFunction{F, Traits.Autonomous,    Traits.NonFixed})(x, p, v) where {F} = p' * h.f(x, v)
-(h::LiftedHamiltonianFunction{F, Traits.NonAutonomous, Traits.Fixed})(t, x, p)    where {F} = p' * h.f(t, x)
-(h::LiftedHamiltonianFunction{F, Traits.NonAutonomous, Traits.NonFixed})(t, x, p, v) where {F} = p' * h.f(t, x, v)
+function (h::LiftedHamiltonianFunction{F,Traits.Autonomous,Traits.Fixed})(x, p) where {F}
+    return p' * h.f(x)
+end
+function (h::LiftedHamiltonianFunction{F,Traits.Autonomous,Traits.NonFixed})(
+    x, p, v
+) where {F}
+    return p' * h.f(x, v)
+end
+function (h::LiftedHamiltonianFunction{F,Traits.NonAutonomous,Traits.Fixed})(
+    t, x, p
+) where {F}
+    return p' * h.f(t, x)
+end
+function (h::LiftedHamiltonianFunction{F,Traits.NonAutonomous,Traits.NonFixed})(
+    t, x, p, v
+) where {F}
+    return p' * h.f(t, x, v)
+end
 
 """
 $(TYPEDSIGNATURES)
@@ -53,11 +67,11 @@ See also: [`CTLie.Lift`](@ref), [`CTLie.Poisson`](@ref)
 """
 function Lift(
     f::Function;
-    is_autonomous::Bool = Data.__is_autonomous(),
-    is_variable::Bool   = Data.__is_variable(),
+    is_autonomous::Bool=Data.__is_autonomous(),
+    is_variable::Bool=Data.__is_variable(),
 )
     TD = is_autonomous ? Traits.Autonomous : Traits.NonAutonomous
-    VD = is_variable   ? Traits.NonFixed   : Traits.Fixed
+    VD = is_variable ? Traits.NonFixed : Traits.Fixed
     return Lift(f, TD, VD)
 end
 
@@ -90,8 +104,8 @@ H([1.0, 2.0], [0.5, 1.0])  # Returns -1.5
 
 See also: [`CTLie.Lift(f::Function)`](@ref), [`CTLie.@Lie`](@ref)
 """
-function Lift(f::Function, ::Type{TD}, ::Type{VD}) where {TD, VD}
-    return LiftedHamiltonianFunction{typeof(f), TD, VD}(f)
+function Lift(f::Function, ::Type{TD}, ::Type{VD}) where {TD,VD}
+    return LiftedHamiltonianFunction{typeof(f),TD,VD}(f)
 end
 
 """
@@ -125,9 +139,9 @@ H([1.0, 2.0], [0.5, 1.0])  # Returns -1.5
 
 See also: [`CTLie.Lift(f::Function)`](@ref), [`CTLie.Poisson`](@ref)
 """
-function Lift(X::Data.AbstractVectorField{TD, VD}) where {TD, VD}
+function Lift(X::Data.AbstractVectorField{TD,VD}) where {TD,VD}
     _check_not_hvf(X)   # guard from ad_types.jl
-    lh = LiftedHamiltonianFunction{typeof(X), TD, VD}(X)
+    lh = LiftedHamiltonianFunction{typeof(X),TD,VD}(X)
     return Data.Hamiltonian(lh, TD, VD)   # typed constructor (no MD param)
 end
 
@@ -135,10 +149,16 @@ end
 # Base.show
 # =============================================================================
 
-_lh_call_sig(::Type{Traits.Autonomous},    ::Type{Traits.Fixed})    = "h(x, p) = p' * f(x)"
-_lh_call_sig(::Type{Traits.Autonomous},    ::Type{Traits.NonFixed}) = "h(x, p, v) = p' * f(x, v)"
-_lh_call_sig(::Type{Traits.NonAutonomous}, ::Type{Traits.Fixed})    = "h(t, x, p) = p' * f(t, x)"
-_lh_call_sig(::Type{Traits.NonAutonomous}, ::Type{Traits.NonFixed}) = "h(t, x, p, v) = p' * f(t, x, v)"
+_lh_call_sig(::Type{Traits.Autonomous}, ::Type{Traits.Fixed}) = "h(x, p) = p' * f(x)"
+function _lh_call_sig(::Type{Traits.Autonomous}, ::Type{Traits.NonFixed})
+    return "h(x, p, v) = p' * f(x, v)"
+end
+function _lh_call_sig(::Type{Traits.NonAutonomous}, ::Type{Traits.Fixed})
+    return "h(t, x, p) = p' * f(t, x)"
+end
+function _lh_call_sig(::Type{Traits.NonAutonomous}, ::Type{Traits.NonFixed})
+    return "h(t, x, p, v) = p' * f(t, x, v)"
+end
 
 """
 $(TYPEDSIGNATURES)
@@ -156,9 +176,9 @@ LiftedHamiltonianFunction: autonomous, fixed (no variable)
   call: h(x, p) = p' * f(x)
 ```
 """
-function Base.show(io::IO, ::LiftedHamiltonianFunction{F, TD, VD}) where {F, TD, VD}
+function Base.show(io::IO, ::LiftedHamiltonianFunction{F,TD,VD}) where {F,TD,VD}
     println(io, "LiftedHamiltonianFunction: $(Data._td_label(TD)), $(Data._vd_label(VD))")
-    print(io, "  call: ", _lh_call_sig(TD, VD))
+    return print(io, "  call: ", _lh_call_sig(TD, VD))
 end
 
 """
@@ -168,6 +188,8 @@ Display a `LiftedHamiltonianFunction` in the REPL with the same format as `Base.
 
 See also: [`CTLie.LiftedHamiltonianFunction`](@ref).
 """
-function Base.show(io::IO, ::MIME"text/plain", h::LiftedHamiltonianFunction{F, TD, VD}) where {F, TD, VD}
-    show(io, h)
+function Base.show(
+    io::IO, ::MIME"text/plain", h::LiftedHamiltonianFunction{F,TD,VD}
+) where {F,TD,VD}
+    return show(io, h)
 end

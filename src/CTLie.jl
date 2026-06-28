@@ -23,9 +23,9 @@ module CTLie
 # External-package imports (qualified, pollution-free)
 # ==============================================================================
 
-import ADTypes
+using ADTypes: ADTypes
 import DocStringExtensions: TYPEDEF, TYPEDSIGNATURES
-import CTBase
+using CTBase: CTBase
 import CTBase.Data
 import CTBase.Differentiation
 import CTBase.Exceptions

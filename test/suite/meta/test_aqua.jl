@@ -1,8 +1,8 @@
 module TestAqua
 
-import Aqua
-import Test
-import CTLie
+using Aqua: Aqua
+using Test: Test
+using CTLie: CTLie
 
 const VERBOSE = isdefined(Main, :TestData) ? Main.TestData.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestData) ? Main.TestData.SHOWTIMING : true

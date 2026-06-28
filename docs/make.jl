@@ -65,10 +65,7 @@ with_api_reference(src_dir) do api_pages
         warnonly=[:cross_references, :external_cross_references],
         sitename="CTLie.jl",
         format=DocumenterVitepress.MarkdownVitepress(;
-            repo=repo_url,
-            devbranch="main",
-            devurl="dev",
-            sidebar_drawer=true,
+            repo=repo_url, devbranch="main", devurl="dev", sidebar_drawer=true
         ),
         pages=[
             "Hamiltonian lift" => "lift.md",
