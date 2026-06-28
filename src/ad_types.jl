@@ -19,13 +19,15 @@ Throw NotImplemented if mutability type is not OutOfPlace.
 # Throws
 - `Exceptions.NotImplemented`: If mutability is not OutOfPlace.
 """
-function _check_outofplace(::Type{MD}) where {MD <: Traits.AbstractMutabilityTrait}
-    throw(Exceptions.NotImplemented(
-        "ad is not implemented for InPlace vector fields",
-        required_method = "Use an OutOfPlace VectorField",
-        suggestion      = "Reconstruct the VectorField without in-place flag",
-        context         = "ad on AbstractVectorField",
-    ))
+function _check_outofplace(::Type{MD}) where {MD<:Traits.AbstractMutabilityTrait}
+    return throw(
+        Exceptions.NotImplemented(
+            "ad is not implemented for InPlace vector fields";
+            required_method="Use an OutOfPlace VectorField",
+            suggestion="Reconstruct the VectorField without in-place flag",
+            context="ad on AbstractVectorField",
+        ),
+    )
 end
 
 # HVF guard: dispatch on type hierarchy (runtime — MD params don't encode HVF vs plain VF)
@@ -38,7 +40,7 @@ Check that vector field is not a HamiltonianVectorField (runtime check).
 # Returns
 - `nothing`
 """
-_check_not_hvf(::Data.AbstractVectorField)            = nothing
+_check_not_hvf(::Data.AbstractVectorField) = nothing
 
 """
 Throw NotImplemented if vector field is a HamiltonianVectorField.
@@ -53,11 +55,13 @@ with the Lie bracket operations on plain vector fields.
 - `Exceptions.NotImplemented`: Always thrown for HamiltonianVectorFields.
 """
 function _check_not_hvf(X::Data.AbstractHamiltonianVectorField)
-    throw(Exceptions.NotImplemented(
-        "ad on AbstractHamiltonianVectorField is not implemented (signature is (x,p), not (x))",
-        suggestion = "Use ad on a plain VectorField",
-        context    = "ad on AbstractVectorField",
-    ))
+    return throw(
+        Exceptions.NotImplemented(
+            "ad on AbstractHamiltonianVectorField is not implemented (signature is (x,p), not (x))";
+            suggestion="Use ad on a plain VectorField",
+            context="ad on AbstractVectorField",
+        ),
+    )
 end
 
 """
@@ -96,15 +100,16 @@ Z([1.0, 2.0])  # Returns [0.0, 0.0]
 See also: [`CTLie.ad`](@ref)
 """
 function ad(
-    X::Data.AbstractVectorField{TD, VD, MDX},
-    Y::Data.AbstractVectorField{TD, VD, MDY};
-    ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType} = __dg_ad_backend(),
-) where {TD, VD, MDX, MDY}
-    _check_not_hvf(X); _check_not_hvf(Y)
+    X::Data.AbstractVectorField{TD,VD,MDX},
+    Y::Data.AbstractVectorField{TD,VD,MDY};
+    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
+) where {TD,VD,MDX,MDY}
+    _check_not_hvf(X);
+    _check_not_hvf(Y)
     _check_outofplace(MDX)    # static dispatch on type parameter — no runtime call
     _check_outofplace(MDY)
-    backend  = _resolve_backend(ad_backend)
-    closure  = _ad(X, Y, backend, TD, VD)
+    backend = _resolve_backend(ad_backend)
+    closure = _ad(X, Y, backend, TD, VD)
     return Data.VectorField(closure, TD, VD, Traits.OutOfPlace)  # typed constructor, explicit mutability
 end
 
@@ -143,10 +148,10 @@ L([1.0, 2.0])  # Returns 0.0
 See also: [`CTLie.ad`](@ref)
 """
 function ad(
-    X::Data.AbstractVectorField{TD, VD, MDX},
+    X::Data.AbstractVectorField{TD,VD,MDX},
     f::Function;
-    ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType} = __dg_ad_backend(),
-) where {TD, VD, MDX}
+    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
+) where {TD,VD,MDX}
     _check_not_hvf(X)
     _check_outofplace(MDX)    # static dispatch
     backend = _resolve_backend(ad_backend)
@@ -176,16 +181,18 @@ match. Use the matching TD/VD version for valid operations.
 See also: [`CTLie.ad`](@ref)
 """
 function ad(
-    X::Data.AbstractVectorField{TD1, VD1, MDX},
-    Y::Data.AbstractVectorField{TD2, VD2, MDY};
-    ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType} = __dg_ad_backend(),
-) where {TD1, VD1, MDX, TD2, VD2, MDY}
-    throw(Exceptions.PreconditionError(
-        "ad: TD/VD mismatch between X and Y";
-        reason     = "X: $(TD1)/$(VD1) ≠ Y: $(TD2)/$(VD2) — both arguments must share the same TimeDependence and VariableDependence",
-        suggestion = "Ensure both vector fields have the same time and variable dependence traits",
-        context    = "ad on AbstractVectorField",
-    ))
+    X::Data.AbstractVectorField{TD1,VD1,MDX},
+    Y::Data.AbstractVectorField{TD2,VD2,MDY};
+    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
+) where {TD1,VD1,MDX,TD2,VD2,MDY}
+    return throw(
+        Exceptions.PreconditionError(
+            "ad: TD/VD mismatch between X and Y";
+            reason="X: $(TD1)/$(VD1) ≠ Y: $(TD2)/$(VD2) — both arguments must share the same TimeDependence and VariableDependence",
+            suggestion="Ensure both vector fields have the same time and variable dependence traits",
+            context="ad on AbstractVectorField",
+        ),
+    )
 end
 
 """
@@ -202,14 +209,17 @@ arguments are `AbstractHamiltonian`. It is always an error; use `Poisson(H, G)` 
 See also: [`CTLie.Poisson`](@ref)
 """
 function ad(
-    ::Data.AbstractHamiltonian, ::Data.AbstractHamiltonian;
-    ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType} = __dg_ad_backend(),
+    ::Data.AbstractHamiltonian,
+    ::Data.AbstractHamiltonian;
+    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
 )
-    throw(Exceptions.IncorrectArgument(
-        "ad is not defined for AbstractHamiltonian operands";
-        suggestion = "Use Poisson(H, G) for the Poisson bracket of Hamiltonians",
-        context    = "ad on AbstractHamiltonian",
-    ))
+    return throw(
+        Exceptions.IncorrectArgument(
+            "ad is not defined for AbstractHamiltonian operands";
+            suggestion="Use Poisson(H, G) for the Poisson bracket of Hamiltonians",
+            context="ad on AbstractHamiltonian",
+        ),
+    )
 end
 
 """
@@ -221,14 +231,17 @@ Error method for Hamiltonian as first operand in Lie bracket.
 - `Exceptions.IncorrectArgument`: Always thrown with suggestion to use Poisson bracket.
 """
 function ad(
-    ::Data.AbstractHamiltonian, ::Any;
-    ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType} = __dg_ad_backend(),
+    ::Data.AbstractHamiltonian,
+    ::Any;
+    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
 )
-    throw(Exceptions.IncorrectArgument(
-        "ad is not defined for AbstractHamiltonian operands";
-        suggestion = "Use Poisson(H, G) for the Poisson bracket of Hamiltonians",
-        context    = "ad on AbstractHamiltonian",
-    ))
+    return throw(
+        Exceptions.IncorrectArgument(
+            "ad is not defined for AbstractHamiltonian operands";
+            suggestion="Use Poisson(H, G) for the Poisson bracket of Hamiltonians",
+            context="ad on AbstractHamiltonian",
+        ),
+    )
 end
 
 """
@@ -250,12 +263,15 @@ where the second argument is a Hamiltonian and the first is some other type.
 See also: [`CTLie.Poisson`](@ref)
 """
 function ad(
-    ::Any, ::Data.AbstractHamiltonian;
-    ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType} = __dg_ad_backend(),
+    ::Any,
+    ::Data.AbstractHamiltonian;
+    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
 )
-    throw(Exceptions.IncorrectArgument(
-        "ad is not defined for AbstractHamiltonian operands";
-        suggestion = "Use Poisson(H, G) for the Poisson bracket of Hamiltonians",
-        context    = "ad on AbstractHamiltonian",
-    ))
+    return throw(
+        Exceptions.IncorrectArgument(
+            "ad is not defined for AbstractHamiltonian operands";
+            suggestion="Use Poisson(H, G) for the Poisson bracket of Hamiltonians",
+            context="ad on AbstractHamiltonian",
+        ),
+    )
 end
