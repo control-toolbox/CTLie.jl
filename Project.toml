@@ -1,7 +1,7 @@
 name = "CTLie"
 uuid = "6880e05b-3a7d-4cac-887c-30cb52c5fdde"
 authors = ["Olivier Cots"]
-version = "0.1.1-beta"
+version = "0.1.2-beta"
 
 [deps]
 ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
@@ -11,7 +11,7 @@ MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
 
 [compat]
 ADTypes = "1"
-CTBase = "0.25, 0.26"
+CTBase = "0.25, 0.26, 0.27"
 DocStringExtensions = "0.9"
 MacroTools = "0.5"
 julia = "1.10"
