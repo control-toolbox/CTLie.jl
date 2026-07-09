@@ -1,16 +1,16 @@
 module TestPoissonDG
 
-import Test
-import ForwardDiff  # ensure DI ForwardDiff extension is loaded (AutoForwardDiff backend)
+using Test: Test
+using ForwardDiff: ForwardDiff  # ensure DI ForwardDiff extension is loaded (AutoForwardDiff backend)
 import CTBase.Exceptions
-import DifferentiationInterface
+using DifferentiationInterface: DifferentiationInterface
 import ADTypes: ADTypes
 import CTBase.Traits: Traits
 import CTBase.Data: Data
 import CTLie: CTLie
 import CTBase.Differentiation
 
-const VERBOSE    = isdefined(Main, :TestData) ? Main.TestData.VERBOSE    : true
+const VERBOSE = isdefined(Main, :TestData) ? Main.TestData.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestData) ? Main.TestData.SHOWTIMING : true
 
 function test_poisson_dg()
@@ -20,7 +20,8 @@ function test_poisson_dg()
         G(x, p) = p[2]^2 / 2 + x[2]
         PH = CTLie.Poisson(H, G)
         PG = CTLie.Poisson(G, H)
-        x0 = [1.0, 2.0]; p0 = [0.5, 1.0]
+        x0 = [1.0, 2.0];
+        p0 = [0.5, 1.0]
         Test.@test PH(x0, p0) ≈ -PG(x0, p0) atol=1e-6
     end
 
@@ -30,7 +31,8 @@ function test_poisson_dg()
         G(x, p) = p[1]   # ∇pG = [1,0], ∇xG = 0
         # {H,G} = ∇pH · ∇xG - ∇xH · ∇pG = 0·0 - [1,0]·[1,0] = -1
         PB = CTLie.Poisson(H, G)
-        x0 = [1.0, 2.0]; p0 = [0.5, 1.0]
+        x0 = [1.0, 2.0];
+        p0 = [0.5, 1.0]
         Test.@test PB(x0, p0) ≈ -1.0 atol=1e-6
     end
 
@@ -39,7 +41,13 @@ function test_poisson_dg()
         G(x, p) = p[2]^2 / 2 + x[2]
         PB = CTLie.Poisson(H, G)
         Test.@test PB isa CTLie.PoissonBracket
-        Test.@test PB isa CTLie.PoissonBracket{typeof(H), typeof(G), <:Differentiation.AbstractADBackend, Traits.Autonomous, Traits.Fixed}
+        Test.@test PB isa CTLie.PoissonBracket{
+            typeof(H),
+            typeof(G),
+            <:Differentiation.AbstractADBackend,
+            Traits.Autonomous,
+            Traits.Fixed,
+        }
     end
 
     Test.@testset "Poisson() - valeur correcte NonAutonomous/Fixed" verbose=VERBOSE showtiming=SHOWTIMING begin
@@ -49,7 +57,9 @@ function test_poisson_dg()
         H(t, x, p) = t * p[1]
         G(t, x, p) = x[1]
         PB = CTLie.Poisson(H, G; is_autonomous=false, is_variable=false)
-        t0 = 3.0; x0 = [1.0, 2.0]; p0 = [0.5, 1.0]
+        t0 = 3.0;
+        x0 = [1.0, 2.0];
+        p0 = [0.5, 1.0]
         Test.@test PB(t0, x0, p0) ≈ t0 atol=1e-6
     end
 
@@ -59,7 +69,9 @@ function test_poisson_dg()
         H(x, p, v) = v[1] * p[1]
         G(x, p, v) = x[1]
         PB = CTLie.Poisson(H, G; is_autonomous=true, is_variable=true)
-        x0 = [1.0, 2.0]; p0 = [0.5, 1.0]; v0 = [2.0]
+        x0 = [1.0, 2.0];
+        p0 = [0.5, 1.0];
+        v0 = [2.0]
         Test.@test PB(x0, p0, v0) ≈ v0[1] atol=1e-6
     end
 
@@ -69,7 +81,10 @@ function test_poisson_dg()
         H(t, x, p, v) = t * v[1] * p[1]
         G(t, x, p, v) = x[1]
         PB = CTLie.Poisson(H, G; is_autonomous=false, is_variable=true)
-        t0 = 3.0; x0 = [1.0, 2.0]; p0 = [0.5, 1.0]; v0 = [2.0]
+        t0 = 3.0;
+        x0 = [1.0, 2.0];
+        p0 = [0.5, 1.0];
+        v0 = [2.0]
         Test.@test PB(t0, x0, p0, v0) ≈ t0 * v0[1] atol=1e-6
     end
 
@@ -79,7 +94,7 @@ function test_poisson_dg()
         PB = CTLie.Poisson(H, G)
 
         Test.@test PB isa Data.Hamiltonian
-        Test.@test PB isa Data.AbstractHamiltonian{Traits.Autonomous, Traits.Fixed}
+        Test.@test PB isa Data.AbstractHamiltonian{Traits.Autonomous,Traits.Fixed}
     end
 
     Test.@testset "Poisson() - TD/VD mismatch → PreconditionError" verbose=VERBOSE showtiming=SHOWTIMING begin
@@ -92,7 +107,8 @@ function test_poisson_dg()
         H(x, p) = p[1]^2 / 2 + x[1]^2
         G(x, p) = x[1] * p[1]
         PB = CTLie.Poisson(H, G)
-        x0 = [1.0, 2.0]; p0 = [0.5, 1.0]
+        x0 = [1.0, 2.0];
+        p0 = [0.5, 1.0]
         Test.@test (Test.@inferred PB(x0, p0)) isa Float64
     end
 
@@ -100,7 +116,9 @@ function test_poisson_dg()
         H(x, p, v) = v[1] * p[1]^2 / 2 + x[1]^2
         G(x, p, v) = x[1] * p[1]
         PB = CTLie.Poisson(H, G; is_autonomous=true, is_variable=true)
-        x0 = [1.0, 2.0]; p0 = [0.5, 1.0]; v0 = [2.0]
+        x0 = [1.0, 2.0];
+        p0 = [0.5, 1.0];
+        v0 = [2.0]
         Test.@test (Test.@inferred PB(x0, p0, v0)) isa Float64
     end
 
@@ -109,7 +127,8 @@ function test_poisson_dg()
         G(x, p) = p[2]^2 / 2 + x[2]
         backend = ADTypes.AutoForwardDiff()
         PB = CTLie.Poisson(H, G; ad_backend=backend)
-        x0 = [1.0, 2.0]; p0 = [0.5, 1.0]
+        x0 = [1.0, 2.0];
+        p0 = [0.5, 1.0]
         val = PB(x0, p0)
         Test.@test val isa Number
     end
@@ -121,7 +140,8 @@ function test_poisson_dg()
         # Autonomous, Fixed
         PB_af_typed = CTLie.Poisson(H, G, Traits.Autonomous, Traits.Fixed)
         PB_af_kwargs = CTLie.Poisson(H, G; is_autonomous=true, is_variable=false)
-        x0 = [1.0, 2.0]; p0 = [0.5, 1.0]
+        x0 = [1.0, 2.0];
+        p0 = [0.5, 1.0]
         Test.@test PB_af_typed(x0, p0) ≈ PB_af_kwargs(x0, p0) atol=1e-6
 
         # NonAutonomous, Fixed
@@ -144,7 +164,9 @@ function test_poisson_dg()
         H_nanf(t, x, p, v) = t * v[1] * p[1]^2 / 2 + x[1]
         G_nanf(t, x, p, v) = t * v[1] * p[2]^2 / 2 + x[2]
         PB_nanf_typed = CTLie.Poisson(H_nanf, G_nanf, Traits.NonAutonomous, Traits.NonFixed)
-        PB_nanf_kwargs = CTLie.Poisson(H_nanf, G_nanf; is_autonomous=false, is_variable=true)
+        PB_nanf_kwargs = CTLie.Poisson(
+            H_nanf, G_nanf; is_autonomous=false, is_variable=true
+        )
         Test.@test PB_nanf_typed(t0, x0, p0, v0) ≈ PB_nanf_kwargs(t0, x0, p0, v0) atol=1e-6
     end
 
@@ -152,7 +174,8 @@ function test_poisson_dg()
         H(x, p) = 0.5 * (p^2 + x^2)
         G(x, p) = x
         PB = CTLie.Poisson(H, G)
-        x0 = 1.0; p0 = 3.0
+        x0 = 1.0;
+        p0 = 3.0
         # {H, G} = ∂H/∂p * ∂G/∂x - ∂H/∂x * ∂G/∂p = p * 1 - x * 0 = p
         Test.@test PB(x0, p0) ≈ 3.0 atol=1e-6
     end
@@ -225,11 +248,11 @@ function test_poisson_dg()
 
         # Poisson of Lifts should equal Poisson of explicit Hamiltonians
         Test.@test CTLie.Poisson(F, G)(x_test, p_test) ≈
-              CTLie.Poisson(F_explicit, G_explicit)(x_test, p_test) atol=1e-6
+            CTLie.Poisson(F_explicit, G_explicit)(x_test, p_test) atol=1e-6
 
         # Mixed case: Lift + explicit
         Test.@test CTLie.Poisson(F, G_explicit)(x_test, p_test) ≈
-              CTLie.Poisson(F_explicit, G)(x_test, p_test) atol=1e-6
+            CTLie.Poisson(F_explicit, G)(x_test, p_test) atol=1e-6
 
         # Non-autonomous case
         f_na(t, x) = [t * x[1] + x[2]^2, x[1], 0]
@@ -242,9 +265,10 @@ function test_poisson_dg()
 
         t_test = 2.0
         Test.@test CTLie.Poisson(F_na, G_na; is_autonomous=false)(t_test, x_test, p_test) ≈
-              CTLie.Poisson(F_na_explicit, G_na_explicit; is_autonomous=false)(t_test, x_test, p_test) atol=1e-6
+            CTLie.Poisson(F_na_explicit, G_na_explicit; is_autonomous=false)(
+            t_test, x_test, p_test
+        ) atol=1e-6
     end
-
 end
 
 end # module TestPoissonDG

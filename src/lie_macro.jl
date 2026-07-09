@@ -13,8 +13,9 @@ Normalize a function to a VectorField or pass through existing VectorField.
 # Returns
 - `Data.VectorField`: Wrapped function or original VectorField.
 """
-_as_vf(f::Function, ::Type{TD}, ::Type{VD}) where {TD, VD} =
-    Data.VectorField(f, TD, VD, Traits.OutOfPlace)
+function _as_vf(f::Function, ::Type{TD}, ::Type{VD}) where {TD,VD}
+    return Data.VectorField(f, TD, VD, Traits.OutOfPlace)
+end
 _as_vf(vf::Data.AbstractVectorField, ::Type, ::Type) = vf
 
 """
@@ -28,7 +29,7 @@ Normalize a function to a Hamiltonian or pass through existing Hamiltonian.
 # Returns
 - `Data.Hamiltonian`: Wrapped function or original Hamiltonian.
 """
-_as_ham(f::Function, ::Type{TD}, ::Type{VD}) where {TD, VD} = Data.Hamiltonian(f, TD, VD)
+_as_ham(f::Function, ::Type{TD}, ::Type{VD}) where {TD,VD} = Data.Hamiltonian(f, TD, VD)
 _as_ham(h::Data.AbstractHamiltonian, ::Type, ::Type) = h
 
 # =============================================================================
@@ -65,9 +66,13 @@ Check time dependence consistency when `is_autonomous` is specified.
 function _check_td(x, ::Type{TDu}, ::Val{true}) where {TDu}
     x isa Function && return nothing  # Functions have no traits to check
     TD2 = Traits.time_dependence(x)
-    TD2 === TDu || throw(Exceptions.PreconditionError(
-        "@Lie: is_autonomous conflicts with operand trait";
-        reason="`is_autonomous` specifies $(TDu) but operand has $(TD2)", context="@Lie consistency check"))
+    TD2 === TDu || throw(
+        Exceptions.PreconditionError(
+            "@Lie: is_autonomous conflicts with operand trait";
+            reason="`is_autonomous` specifies $(TDu) but operand has $(TD2)",
+            context="@Lie consistency check",
+        ),
+    )
     return nothing  # Explicitly return nothing when traits match
 end
 
@@ -101,9 +106,13 @@ Check variable dependence consistency when `is_variable` is specified.
 function _check_vd(x, ::Type{VDu}, ::Val{true}) where {VDu}
     x isa Function && return nothing  # Functions have no traits to check
     VD2 = Traits.variable_dependence(x)
-    VD2 === VDu || throw(Exceptions.PreconditionError(
-        "@Lie: is_variable conflicts with operand trait";
-        reason="`is_variable` specifies $(VDu) but operand has $(VD2)", context="@Lie consistency check"))
+    VD2 === VDu || throw(
+        Exceptions.PreconditionError(
+            "@Lie: is_variable conflicts with operand trait";
+            reason="`is_variable` specifies $(VDu) but operand has $(VD2)",
+            context="@Lie consistency check",
+        ),
+    )
     return nothing  # Explicitly return nothing when traits match
 end
 
@@ -126,7 +135,7 @@ wrapped vector fields in Lie bracket computations.
 
 See also: [`CTLie.@Lie`](@ref), [`CTLie.ad`](@ref), [`CTBase.Data.AbstractVectorField`](@extref CTBase).
 """
-const _Bracketable = Union{Function, Data.AbstractVectorField}
+const _Bracketable = Union{Function,Data.AbstractVectorField}
 
 """
 Runtime dispatch for Lie bracket macro expansion — typed method.
@@ -145,10 +154,19 @@ Normalizes operands, checks trait consistency, and calls [`CTLie.ad`](@ref).
 # Returns
 - Result of [`CTLie.ad`](@ref) call.
 """
-function _lie_mac(a::_Bracketable, b::_Bracketable,
-                  ::Type{TD}, ::Type{VD}, has_aut::Val, has_var::Val, backend) where {TD, VD}
-    _check_td(a, TD, has_aut); _check_td(b, TD, has_aut)
-    _check_vd(a, VD, has_var); _check_vd(b, VD, has_var)
+function _lie_mac(
+    a::_Bracketable,
+    b::_Bracketable,
+    ::Type{TD},
+    ::Type{VD},
+    has_aut::Val,
+    has_var::Val,
+    backend,
+) where {TD,VD}
+    _check_td(a, TD, has_aut);
+    _check_td(b, TD, has_aut)
+    _check_vd(a, VD, has_var);
+    _check_vd(b, VD, has_var)
     return ad(_as_vf(a, TD, VD), _as_vf(b, TD, VD); ad_backend=backend)
 end
 
@@ -161,13 +179,16 @@ which would otherwise be ambiguous between the two one-sided error overloads.
 # Throws
 - `Exceptions.IncorrectArgument`: Always thrown with suggestion to use Poisson bracket.
 """
-function _lie_mac(::Data.AbstractHamiltonian, ::Data.AbstractHamiltonian,
-                  ::Type, ::Type, ::Val, ::Val, _)
-    throw(Exceptions.IncorrectArgument(
-        "@Lie: AbstractHamiltonian cannot be a Lie bracket operand";
-        suggestion = "Use {H, G} (Poisson bracket) for Hamiltonians",
-        context    = "@Lie macro runtime dispatch",
-    ))
+function _lie_mac(
+    ::Data.AbstractHamiltonian, ::Data.AbstractHamiltonian, ::Type, ::Type, ::Val, ::Val, _
+)
+    return throw(
+        Exceptions.IncorrectArgument(
+            "@Lie: AbstractHamiltonian cannot be a Lie bracket operand";
+            suggestion="Use {H, G} (Poisson bracket) for Hamiltonians",
+            context="@Lie macro runtime dispatch",
+        ),
+    )
 end
 
 """
@@ -176,13 +197,14 @@ Runtime dispatch for Lie bracket macro expansion — error for Hamiltonian as fi
 # Throws
 - `Exceptions.IncorrectArgument`: Always thrown with suggestion to use Poisson bracket.
 """
-function _lie_mac(::Data.AbstractHamiltonian, ::Any,
-                  ::Type, ::Type, ::Val, ::Val, _)
-    throw(Exceptions.IncorrectArgument(
-        "@Lie: AbstractHamiltonian cannot be a Lie bracket operand";
-        suggestion = "Use {H, G} (Poisson bracket) for Hamiltonians",
-        context    = "@Lie macro runtime dispatch",
-    ))
+function _lie_mac(::Data.AbstractHamiltonian, ::Any, ::Type, ::Type, ::Val, ::Val, _)
+    return throw(
+        Exceptions.IncorrectArgument(
+            "@Lie: AbstractHamiltonian cannot be a Lie bracket operand";
+            suggestion="Use {H, G} (Poisson bracket) for Hamiltonians",
+            context="@Lie macro runtime dispatch",
+        ),
+    )
 end
 
 """
@@ -191,13 +213,14 @@ Runtime dispatch for Lie bracket macro expansion — error for Hamiltonian as se
 # Throws
 - `Exceptions.IncorrectArgument`: Always thrown with suggestion to use Poisson bracket.
 """
-function _lie_mac(::Any, ::Data.AbstractHamiltonian,
-                  ::Type, ::Type, ::Val, ::Val, _)
-    throw(Exceptions.IncorrectArgument(
-        "@Lie: AbstractHamiltonian cannot be a Lie bracket operand";
-        suggestion = "Use {H, G} (Poisson bracket) for Hamiltonians",
-        context    = "@Lie macro runtime dispatch",
-    ))
+function _lie_mac(::Any, ::Data.AbstractHamiltonian, ::Type, ::Type, ::Val, ::Val, _)
+    return throw(
+        Exceptions.IncorrectArgument(
+            "@Lie: AbstractHamiltonian cannot be a Lie bracket operand";
+            suggestion="Use {H, G} (Poisson bracket) for Hamiltonians",
+            context="@Lie macro runtime dispatch",
+        ),
+    )
 end
 
 """
@@ -234,7 +257,7 @@ wrapped Hamiltonians in Poisson bracket computations.
 
 See also: [`CTLie.@Lie`](@ref), [`CTLie.Poisson`](@ref), [`CTBase.Data.AbstractHamiltonian`](@extref CTBase).
 """
-const _Poissonable = Union{Function, Data.AbstractHamiltonian}
+const _Poissonable = Union{Function,Data.AbstractHamiltonian}
 
 """
 Runtime dispatch for Poisson bracket macro expansion — typed method.
@@ -253,10 +276,19 @@ Normalizes operands, checks trait consistency, and calls [`CTLie.Poisson`](@ref)
 # Returns
 - Result of [`CTLie.Poisson`](@ref) call.
 """
-function _poisson_mac(h::_Poissonable, g::_Poissonable,
-                      ::Type{TD}, ::Type{VD}, has_aut::Val, has_var::Val, backend) where {TD, VD}
-    _check_td(h, TD, has_aut); _check_td(g, TD, has_aut)
-    _check_vd(h, VD, has_var); _check_vd(g, VD, has_var)
+function _poisson_mac(
+    h::_Poissonable,
+    g::_Poissonable,
+    ::Type{TD},
+    ::Type{VD},
+    has_aut::Val,
+    has_var::Val,
+    backend,
+) where {TD,VD}
+    _check_td(h, TD, has_aut);
+    _check_td(g, TD, has_aut)
+    _check_vd(h, VD, has_var);
+    _check_vd(g, VD, has_var)
     return Poisson(_as_ham(h, TD, VD), _as_ham(g, TD, VD); ad_backend=backend)
 end
 
@@ -269,13 +301,16 @@ which would otherwise be ambiguous between the two one-sided error overloads.
 # Throws
 - `Exceptions.IncorrectArgument`: Always thrown with suggestion to use Lie bracket.
 """
-function _poisson_mac(::Data.AbstractVectorField, ::Data.AbstractVectorField,
-                      ::Type, ::Type, ::Val, ::Val, _)
-    throw(Exceptions.IncorrectArgument(
-        "@Lie: AbstractVectorField cannot be a Poisson bracket operand";
-        suggestion = "Use [X, Y] (Lie bracket) for VectorFields",
-        context    = "@Lie macro runtime dispatch",
-    ))
+function _poisson_mac(
+    ::Data.AbstractVectorField, ::Data.AbstractVectorField, ::Type, ::Type, ::Val, ::Val, _
+)
+    return throw(
+        Exceptions.IncorrectArgument(
+            "@Lie: AbstractVectorField cannot be a Poisson bracket operand";
+            suggestion="Use [X, Y] (Lie bracket) for VectorFields",
+            context="@Lie macro runtime dispatch",
+        ),
+    )
 end
 
 """
@@ -284,13 +319,14 @@ Runtime dispatch for Poisson bracket macro expansion — error for VectorField a
 # Throws
 - `Exceptions.IncorrectArgument`: Always thrown with suggestion to use Lie bracket.
 """
-function _poisson_mac(::Data.AbstractVectorField, ::Any,
-                      ::Type, ::Type, ::Val, ::Val, _)
-    throw(Exceptions.IncorrectArgument(
-        "@Lie: AbstractVectorField cannot be a Poisson bracket operand";
-        suggestion = "Use [X, Y] (Lie bracket) for VectorFields",
-        context    = "@Lie macro runtime dispatch",
-    ))
+function _poisson_mac(::Data.AbstractVectorField, ::Any, ::Type, ::Type, ::Val, ::Val, _)
+    return throw(
+        Exceptions.IncorrectArgument(
+            "@Lie: AbstractVectorField cannot be a Poisson bracket operand";
+            suggestion="Use [X, Y] (Lie bracket) for VectorFields",
+            context="@Lie macro runtime dispatch",
+        ),
+    )
 end
 
 """
@@ -299,13 +335,14 @@ Runtime dispatch for Poisson bracket macro expansion — error for VectorField a
 # Throws
 - `Exceptions.IncorrectArgument`: Always thrown with suggestion to use Lie bracket.
 """
-function _poisson_mac(::Any, ::Data.AbstractVectorField,
-                      ::Type, ::Type, ::Val, ::Val, _)
-    throw(Exceptions.IncorrectArgument(
-        "@Lie: AbstractVectorField cannot be a Poisson bracket operand";
-        suggestion = "Use [X, Y] (Lie bracket) for VectorFields",
-        context    = "@Lie macro runtime dispatch",
-    ))
+function _poisson_mac(::Any, ::Data.AbstractVectorField, ::Type, ::Type, ::Val, ::Val, _)
+    return throw(
+        Exceptions.IncorrectArgument(
+            "@Lie: AbstractVectorField cannot be a Poisson bracket operand";
+            suggestion="Use [X, Y] (Lie bracket) for VectorFields",
+            context="@Lie macro runtime dispatch",
+        ),
+    )
 end
 
 # =============================================================================
@@ -323,41 +360,52 @@ Parse keyword arguments for the @Lie macro.
 - `Expr`: Error expression if parsing failed, otherwise `nothing`.
 """
 function __parse_lie_opts(args...)
-    is_autonomous = Data.__is_autonomous(); has_aut = false
-    is_variable   = Data.__is_variable();   has_var = false
-    backend_expr  = :(CTLie.__dg_ad_backend())
+    is_autonomous = Data.__is_autonomous();
+    has_aut = false
+    is_variable = Data.__is_variable();
+    has_var = false
+    backend_expr = :(CTLie.__dg_ad_backend())
 
     for arg in args
         if arg isa Expr && (arg.head === :(=) || arg.head === :kw)
             key, val = arg.args[1], arg.args[2]
             if key === :is_autonomous
-                is_autonomous = val; has_aut = true
+                is_autonomous = val;
+                has_aut = true
             elseif key === :is_variable
-                is_variable   = val; has_var = true
+                is_variable = val;
+                has_var = true
             elseif key === :ad_backend
-                backend_expr  = val
+                backend_expr = val
             else
                 msg = "@Lie: unknown keyword argument"
                 got = string(key)
                 exp = "is_autonomous, is_variable, or ad_backend"
                 ctx = "@Lie macro keyword parsing"
-                return nothing, :(throw(CTBase.Exceptions.IncorrectArgument(
-                    $msg; got=$got, expected=$exp, context=$ctx)))
+                return nothing,
+                :(throw(
+                    CTBase.Exceptions.IncorrectArgument(
+                        $msg; got=($got), expected=($exp), context=($ctx)
+                    ),
+                ))
             end
         else
             msg = "@Lie: invalid argument"
             got = string(arg)
             exp = "a keyword=value argument (e.g. is_autonomous=false)"
             ctx = "@Lie macro argument parsing"
-            return nothing, :(throw(CTBase.Exceptions.IncorrectArgument(
-                $msg; got=$got, expected=$exp, context=$ctx)))
+            return nothing,
+            :(throw(
+                CTBase.Exceptions.IncorrectArgument(
+                    $msg; got=($got), expected=($exp), context=($ctx)
+                ),
+            ))
         end
     end
     TD = is_autonomous ? :Autonomous : :NonAutonomous
-    VD = is_variable   ? :NonFixed   : :Fixed
+    VD = is_variable ? :NonFixed : :Fixed
     return (TD=TD, VD=VD, has_aut=has_aut, has_var=has_var, backend=backend_expr), nothing
 end
-
 
 """
 Transform bracket expressions into macro dispatch calls.
@@ -376,12 +424,24 @@ function __transform_brackets(expr, opts)
     postwalk(expr) do x
         if @capture(x, [a_, b_])
             return :(CTLie._lie_mac(
-                $a, $b, CTBase.Traits.$TD, CTBase.Traits.$VD,
-                Val($has_aut), Val($has_var), $backend))
+                $a,
+                $b,
+                CTBase.Traits.$TD,
+                CTBase.Traits.$VD,
+                Val($has_aut),
+                Val($has_var),
+                $backend,
+            ))
         elseif @capture(x, {c_, d_})
             return :(CTLie._poisson_mac(
-                $c, $d, CTBase.Traits.$TD, CTBase.Traits.$VD,
-                Val($has_aut), Val($has_var), $backend))
+                $c,
+                $d,
+                CTBase.Traits.$TD,
+                CTBase.Traits.$VD,
+                Val($has_aut),
+                Val($has_var),
+                $backend,
+            ))
         else
             return x
         end

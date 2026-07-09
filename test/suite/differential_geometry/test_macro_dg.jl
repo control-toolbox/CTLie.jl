@@ -1,28 +1,30 @@
 module TestMacroDG
 
-import Test
-import ForwardDiff  # ensure DI ForwardDiff extension is loaded (AutoForwardDiff backend)
+using Test: Test
+using ForwardDiff: ForwardDiff  # ensure DI ForwardDiff extension is loaded (AutoForwardDiff backend)
 import CTBase: CTBase  # for Exceptions prefix in @Lie macro
 import CTBase.Exceptions
 import CTBase.Traits: Traits
 import CTBase.Data: Data
 import CTLie: CTLie
-import DifferentiationInterface  # triggers CTBaseDifferentiationInterface extension
+using DifferentiationInterface: DifferentiationInterface  # triggers CTBaseDifferentiationInterface extension
 
-const VERBOSE    = isdefined(Main, :TestData) ? Main.TestData.VERBOSE    : true
+const VERBOSE = isdefined(Main, :TestData) ? Main.TestData.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestData) ? Main.TestData.SHOWTIMING : true
 
 # ─── Shared constants used across many testsets ────────────────────────────
-const _Γ = 2; const _γ = 1; const _δ = _γ - _Γ  # δ = -1
+const _Γ = 2;
+const _γ = 1;
+const _δ = _γ - _Γ  # δ = -1
 const _t = 1.0
 const _x3 = [1.0, 2.0, 3.0]
 const _x2 = [1.0, 2.0]
 const _p3 = [1.0, 0.0, 7.0]
 const _p2 = [2.0, 1.0]
-const _v  = 1.0
+const _v = 1.0
 
 _VF(f, td, vd) = Data.VectorField(f, td, vd, Traits.OutOfPlace)
-_H(f, td, vd)  = Data.Hamiltonian(f, td, vd)
+_H(f, td, vd) = Data.Hamiltonian(f, td, vd)
 
 function test_macro_dg()
 
@@ -39,13 +41,13 @@ function test_macro_dg()
         Test.@test mac(_x2) ≈ [7.0, -14.0] atol=1e-6
 
         # Nested: [[X, Y], Y]
-        ref2  = CTLie.ad(ref, Y)
-        mac2  = CTLie.@Lie [[X, Y], Y]
+        ref2 = CTLie.ad(ref, Y)
+        mac2 = CTLie.@Lie [[X, Y], Y]
         Test.@test mac2(_x2) ≈ ref2(_x2) atol=1e-6
 
         # get_X() — function call as operand
         get_X = () -> X
-        mac3  = CTLie.@Lie [[get_X(), Y], Y]
+        mac3 = CTLie.@Lie [[get_X(), Y], Y]
         Test.@test mac3(_x2) ≈ ref2(_x2) atol=1e-6
     end
 
@@ -66,7 +68,7 @@ function test_macro_dg()
         Test.@test mac2(_t, _x2) ≈ ref2(_t, _x2) atol=1e-6
 
         get_X = () -> X
-        mac3  = CTLie.@Lie [[get_X(), Y], Y]
+        mac3 = CTLie.@Lie [[get_X(), Y], Y]
         Test.@test mac3(_t, _x2) ≈ ref2(_t, _x2) atol=1e-6
     end
 
@@ -112,7 +114,7 @@ function test_macro_dg()
         Y = _VF(g, Traits.Autonomous, Traits.Fixed)
         ref = CTLie.ad(X, Y)
 
-        mac  = CTLie.@Lie [f, g]
+        mac = CTLie.@Lie [f, g]
         mac2 = CTLie.@Lie [[f, g], g]
         Test.@test mac(_x2) ≈ ref(_x2) atol=1e-6
         Test.@test mac2(_x2) ≈ CTLie.ad(ref, Y)(_x2) atol=1e-6
@@ -130,9 +132,9 @@ function test_macro_dg()
         Y = _VF(g, Traits.NonAutonomous, Traits.Fixed)
         ref = CTLie.ad(X, Y)
 
-        mac     = CTLie.@Lie [f, g] is_autonomous=false
+        mac = CTLie.@Lie [f, g] is_autonomous=false
         mac_val = CTLie.@Lie [f, g](_t, _x2) is_autonomous=false
-        mac2    = CTLie.@Lie [[f, g], g] is_autonomous=false
+        mac2 = CTLie.@Lie [[f, g], g] is_autonomous=false
         Test.@test mac(_t, _x2) ≈ ref(_t, _x2) atol=1e-6
         Test.@test mac_val ≈ ref(_t, _x2) atol=1e-6
         Test.@test mac2(_t, _x2) ≈ CTLie.ad(ref, Y)(_t, _x2) atol=1e-6
@@ -150,7 +152,7 @@ function test_macro_dg()
         Y = _VF(g, Traits.Autonomous, Traits.NonFixed)
         ref = CTLie.ad(X, Y)
 
-        mac  = CTLie.@Lie [f, g] is_variable=true
+        mac = CTLie.@Lie [f, g] is_variable=true
         mac2 = CTLie.@Lie [[f, g], g] is_variable=true
         Test.@test mac(_x2, _v) ≈ ref(_x2, _v) atol=1e-6
         Test.@test mac2(_x2, _v) ≈ CTLie.ad(ref, Y)(_x2, _v) atol=1e-6
@@ -164,7 +166,7 @@ function test_macro_dg()
         Y = _VF(g, Traits.NonAutonomous, Traits.NonFixed)
         ref = CTLie.ad(X, Y)
 
-        mac  = CTLie.@Lie [f, g] is_autonomous=false is_variable=true
+        mac = CTLie.@Lie [f, g] is_autonomous=false is_variable=true
         mac2 = CTLie.@Lie [[f, g], g] is_autonomous=false is_variable=true
         Test.@test mac(_t, _x2, _v) ≈ ref(_t, _x2, _v) atol=1e-6
         Test.@test mac2(_t, _x2, _v) ≈ CTLie.ad(ref, Y)(_t, _x2, _v) atol=1e-6
@@ -179,46 +181,48 @@ function test_macro_dg()
 
         mac1 = CTLie.@Lie [f0, F1]
         mac2 = CTLie.@Lie [F0, f1]
-        ref  = CTLie.ad(F0, F1)
+        ref = CTLie.ad(F0, F1)
         Test.@test mac1(_x3) ≈ ref(_x3) atol=1e-6
         Test.@test mac2(_x3) ≈ ref(_x3) atol=1e-6
 
         # Nonautonomous
         f0_na = (t, x) -> [t + x[2], -x[1], 0.0]
         F1_na = _VF((t, x) -> [0.0, -x[3], x[2]], Traits.NonAutonomous, Traits.Fixed)
-        mac3  = CTLie.@Lie [f0_na, F1_na] is_autonomous=false
-        ref3  = CTLie.ad(_VF(f0_na, Traits.NonAutonomous, Traits.Fixed), F1_na)
+        mac3 = CTLie.@Lie [f0_na, F1_na] is_autonomous=false
+        ref3 = CTLie.ad(_VF(f0_na, Traits.NonAutonomous, Traits.Fixed), F1_na)
         Test.@test mac3(_t, _x3) ≈ ref3(_t, _x3) atol=1e-6
 
         # VF + Function, nonautonomous
         F0_na = _VF((t, x) -> [t + x[2], -x[1], 0.0], Traits.NonAutonomous, Traits.Fixed)
         f1_na = (t, x) -> [0.0, -x[3], x[2]]
-        mac5  = CTLie.@Lie [F0_na, f1_na] is_autonomous=false
-        ref5  = CTLie.ad(F0_na, _VF(f1_na, Traits.NonAutonomous, Traits.Fixed))
+        mac5 = CTLie.@Lie [F0_na, f1_na] is_autonomous=false
+        ref5 = CTLie.ad(F0_na, _VF(f1_na, Traits.NonAutonomous, Traits.Fixed))
         Test.@test mac5(_t, _x3) ≈ ref5(_t, _x3) atol=1e-6
 
         # Nonfixed
         f0_v = (x, v) -> [v + x[2], -x[1], 0.0]
         F1_v = _VF((x, v) -> [0.0, -x[3], x[2]], Traits.Autonomous, Traits.NonFixed)
-        mac4  = CTLie.@Lie [f0_v, F1_v] is_variable=true
-        ref4  = CTLie.ad(_VF(f0_v, Traits.Autonomous, Traits.NonFixed), F1_v)
+        mac4 = CTLie.@Lie [f0_v, F1_v] is_variable=true
+        ref4 = CTLie.ad(_VF(f0_v, Traits.Autonomous, Traits.NonFixed), F1_v)
         Test.@test mac4(_x3, _v) ≈ ref4(_x3, _v) atol=1e-6
 
         # VF + Function, nonfixed
         F0_v = _VF((x, v) -> [v + x[2], -x[1], 0.0], Traits.Autonomous, Traits.NonFixed)
         f1_v = (x, v) -> [0.0, -x[3], x[2]]
-        mac6  = CTLie.@Lie [F0_v, f1_v] is_variable=true
-        ref6  = CTLie.ad(F0_v, _VF(f1_v, Traits.Autonomous, Traits.NonFixed))
+        mac6 = CTLie.@Lie [F0_v, f1_v] is_variable=true
+        ref6 = CTLie.ad(F0_v, _VF(f1_v, Traits.Autonomous, Traits.NonFixed))
         Test.@test mac6(_x3, _v) ≈ ref6(_x3, _v) atol=1e-6
 
         # Function + VF and VF + Function, nonautonomous nonfixed
         f0_tv = (t, x, v) -> [t + v + x[2], -x[1], 0.0]
         F1_tv = _VF((t, x, v) -> [0.0, -x[3], x[2]], Traits.NonAutonomous, Traits.NonFixed)
-        F0_tv = _VF((t, x, v) -> [t + v + x[2], -x[1], 0.0], Traits.NonAutonomous, Traits.NonFixed)
+        F0_tv = _VF(
+            (t, x, v) -> [t + v + x[2], -x[1], 0.0], Traits.NonAutonomous, Traits.NonFixed
+        )
         f1_tv = (t, x, v) -> [0.0, -x[3], x[2]]
-        mac7  = CTLie.@Lie [f0_tv, F1_tv] is_autonomous=false is_variable=true
-        mac8  = CTLie.@Lie [F0_tv, f1_tv] is_autonomous=false is_variable=true
-        ref7  = CTLie.ad(F0_tv, F1_tv)
+        mac7 = CTLie.@Lie [f0_tv, F1_tv] is_autonomous=false is_variable=true
+        mac8 = CTLie.@Lie [F0_tv, f1_tv] is_autonomous=false is_variable=true
+        ref7 = CTLie.ad(F0_tv, F1_tv)
         Test.@test mac7(_t, _x3, _v) ≈ ref7(_t, _x3, _v) atol=1e-6
         Test.@test mac8(_t, _x3, _v) ≈ ref7(_t, _x3, _v) atol=1e-6
     end
@@ -226,8 +230,8 @@ function test_macro_dg()
     # =========================================================================
     Test.@testset "lie macro — MRI Bloch equations" verbose=VERBOSE showtiming=SHOWTIMING begin
         F0 = _VF(x -> [-_Γ*x[1], -_Γ*x[2], _γ*(1-x[3])], Traits.Autonomous, Traits.Fixed)
-        F1 = _VF(x -> [0.0, -x[3], x[2]],                 Traits.Autonomous, Traits.Fixed)
-        F2 = _VF(x -> [x[3], 0.0, -x[1]],                 Traits.Autonomous, Traits.Fixed)
+        F1 = _VF(x -> [0.0, -x[3], x[2]], Traits.Autonomous, Traits.Fixed)
+        F2 = _VF(x -> [x[3], 0.0, -x[1]], Traits.Autonomous, Traits.Fixed)
 
         F01 = CTLie.ad(F0, F1)
         F02 = CTLie.ad(F0, F2)
@@ -242,7 +246,7 @@ function test_macro_dg()
         Test.@test F12_mac(_x3) ≈ F12(_x3) atol=1e-6
         Test.@test F01_mac(_x3) ≈ -[0.0, _γ - _δ*_x3[3], -_δ*_x3[2]] atol=1e-6
         Test.@test F02_mac(_x3) ≈ -[-_γ + _δ*_x3[3], 0.0, _δ*_x3[1]] atol=1e-6
-        Test.@test F12_mac(_x3) ≈ -[-_x3[2], _x3[1], 0.0]             atol=1e-6
+        Test.@test F12_mac(_x3) ≈ -[-_x3[2], _x3[1], 0.0] atol=1e-6
 
         # Nested: [[F0,F1], F1]
         F011 = CTLie.ad(F01, F1)
@@ -270,11 +274,11 @@ function test_macro_dg()
         f = (x, p) -> x[2]^2 + 2x[1]^2 + p[1]^2
         g = (x, p) -> 3x[2]^2 - x[1]^2 + p[2]^2 + p[1]
         h = (x, p) -> x[2]^2 - 2x[1]^2 + p[1]^2 - 2p[2]^2
-        F   = _H(f, Traits.Autonomous, Traits.Fixed)
-        G   = _H(g, Traits.Autonomous, Traits.Fixed)
-        H   = _H(h, Traits.Autonomous, Traits.Fixed)
-        Fph = _H((x, p) -> f(x,p)+g(x,p), Traits.Autonomous, Traits.Fixed)
-        FG  = _H((x, p) -> f(x,p)*g(x,p), Traits.Autonomous, Traits.Fixed)
+        F = _H(f, Traits.Autonomous, Traits.Fixed)
+        G = _H(g, Traits.Autonomous, Traits.Fixed)
+        H = _H(h, Traits.Autonomous, Traits.Fixed)
+        Fph = _H((x, p) -> f(x, p)+g(x, p), Traits.Autonomous, Traits.Fixed)
+        FG = _H((x, p) -> f(x, p)*g(x, p), Traits.Autonomous, Traits.Fixed)
 
         ref = CTLie.Poisson(F, G)
         mac = CTLie.@Lie {F, G}
@@ -283,21 +287,18 @@ function test_macro_dg()
         Test.@test mac(_x2, _p2) ≈ -20.0 atol=1e-6
 
         # Anticommutativity
-        Test.@test CTLie.Poisson(F, G)(_x2, _p2) ≈
-            -CTLie.Poisson(G, F)(_x2, _p2) atol=1e-6
+        Test.@test CTLie.Poisson(F, G)(_x2, _p2) ≈ -CTLie.Poisson(G, F)(_x2, _p2) atol=1e-6
         # Bilinearity
         Test.@test CTLie.Poisson(Fph, H)(_x2, _p2) ≈
-            CTLie.Poisson(F, H)(_x2, _p2) +
-            CTLie.Poisson(G, H)(_x2, _p2) atol=1e-6
+            CTLie.Poisson(F, H)(_x2, _p2) + CTLie.Poisson(G, H)(_x2, _p2) atol=1e-6
         # Leibniz rule
         Test.@test CTLie.Poisson(FG, H)(_x2, _p2) ≈
             CTLie.Poisson(F, H)(_x2, _p2)*G(_x2, _p2) +
-            F(_x2, _p2)*CTLie.Poisson(G, H)(_x2, _p2) atol=1e-6
+                   F(_x2, _p2)*CTLie.Poisson(G, H)(_x2, _p2) atol=1e-6
         # Jacobi identity
         Test.@test CTLie.Poisson(F, CTLie.Poisson(G, H))(_x2, _p2) +
                    CTLie.Poisson(G, CTLie.Poisson(H, F))(_x2, _p2) +
-                   CTLie.Poisson(H, CTLie.Poisson(F, G))(_x2, _p2) ≈
-            0.0 atol=1e-6
+                   CTLie.Poisson(H, CTLie.Poisson(F, G))(_x2, _p2) ≈ 0.0 atol=1e-6
 
         # Nested: {{F,G},G}
         mac2 = CTLie.@Lie {{F, G}, G}
@@ -324,8 +325,7 @@ function test_macro_dg()
         Test.@test mac(t2, _x2, _p2) ≈ -28.0 atol=1e-6
 
         # Anticommutativity
-        Test.@test CTLie.Poisson(F, G)(t2, _x2, _p2) ≈
-            -CTLie.Poisson(G, F)(t2, _x2, _p2) atol=1e-6
+        Test.@test CTLie.Poisson(F, G)(t2, _x2, _p2) ≈ -CTLie.Poisson(G, F)(t2, _x2, _p2) atol=1e-6
 
         # Nested
         mac2 = CTLie.@Lie {{F, G}, G}
@@ -333,7 +333,7 @@ function test_macro_dg()
         Test.@test mac2(t2, _x2, _p2) ≈ ref2(t2, _x2, _p2) atol=1e-6
 
         get_F = () -> F
-        mac3  = CTLie.@Lie {{get_F(), G}, G}
+        mac3 = CTLie.@Lie {{get_F(), G}, G}
         Test.@test mac3(t2, _x2, _p2) ≈ ref2(t2, _x2, _p2) atol=1e-6
     end
 
@@ -352,8 +352,7 @@ function test_macro_dg()
         Test.@test mac(_x2, _p2, vv) ≈ -44.0 atol=1e-6
 
         # Anticommutativity
-        Test.@test CTLie.Poisson(F, G)(_x2, _p2, vv) ≈
-            -CTLie.Poisson(G, F)(_x2, _p2, vv) atol=1e-6
+        Test.@test CTLie.Poisson(F, G)(_x2, _p2, vv) ≈ -CTLie.Poisson(G, F)(_x2, _p2, vv) atol=1e-6
 
         # Nested
         mac2 = CTLie.@Lie {{F, G}, G}
@@ -363,7 +362,8 @@ function test_macro_dg()
 
     # =========================================================================
     Test.@testset "poisson macro — Hamiltonians, nonautonomous nonfixed" verbose=VERBOSE showtiming=SHOWTIMING begin
-        t2 = 2.0; vv = [4.0, 4.0]
+        t2 = 2.0;
+        vv = [4.0, 4.0]
         f = (t, x, p, v) -> t*v[1]*x[2]^2 + 2x[1]^2 + p[1]^2 + v[2]
         g = (t, x, p, v) -> 3x[2]^2 - x[1]^2 + p[2]^2 + p[1] + t - v[2]
         F = _H(f, Traits.NonAutonomous, Traits.NonFixed)
@@ -380,11 +380,11 @@ function test_macro_dg()
             -CTLie.Poisson(G, F)(t2, _x2, _p2, vv) atol=1e-6
 
         # Nested + get_F()
-        mac2   = CTLie.@Lie {{F, G}, G}
-        ref2   = CTLie.Poisson(ref, G)
+        mac2 = CTLie.@Lie {{F, G}, G}
+        ref2 = CTLie.Poisson(ref, G)
         Test.@test mac2(t2, _x2, _p2, vv) ≈ ref2(t2, _x2, _p2, vv) atol=1e-6
-        get_F  = () -> F
-        mac3   = CTLie.@Lie {{get_F(), G}, G}
+        get_F = () -> F
+        mac3 = CTLie.@Lie {{get_F(), G}, G}
         Test.@test mac3(t2, _x2, _p2, vv) ≈ ref2(t2, _x2, _p2, vv) atol=1e-6
     end
 
@@ -396,7 +396,7 @@ function test_macro_dg()
         G = _H(g, Traits.Autonomous, Traits.Fixed)
         ref = CTLie.Poisson(F, G)
 
-        mac  = CTLie.@Lie {f, g}
+        mac = CTLie.@Lie {f, g}
         mac2 = CTLie.@Lie {{f, g}, g}
         Test.@test mac(_x2, _p2) ≈ ref(_x2, _p2) atol=1e-6
         Test.@test mac2(_x2, _p2) ≈ CTLie.Poisson(ref, G)(_x2, _p2) atol=1e-6
@@ -415,9 +415,9 @@ function test_macro_dg()
         G = _H(g, Traits.NonAutonomous, Traits.Fixed)
         ref = CTLie.Poisson(F, G)
 
-        mac     = CTLie.@Lie {f, g} is_autonomous=false
+        mac = CTLie.@Lie {f, g} is_autonomous=false
         mac_val = CTLie.@Lie {f, g}(t2, _x2, _p2) is_autonomous=false
-        mac2    = CTLie.@Lie {{f, g}, g} is_autonomous=false
+        mac2 = CTLie.@Lie {{f, g}, g} is_autonomous=false
         Test.@test mac(t2, _x2, _p2) ≈ ref(t2, _x2, _p2) atol=1e-6
         Test.@test mac_val ≈ ref(t2, _x2, _p2) atol=1e-6
         Test.@test mac2(t2, _x2, _p2) ≈ CTLie.Poisson(ref, G)(t2, _x2, _p2) atol=1e-6
@@ -436,7 +436,7 @@ function test_macro_dg()
         G = _H(g, Traits.Autonomous, Traits.NonFixed)
         ref = CTLie.Poisson(F, G)
 
-        mac  = CTLie.@Lie {f, g} is_variable=true
+        mac = CTLie.@Lie {f, g} is_variable=true
         mac2 = CTLie.@Lie {{f, g}, g} is_variable=true
         Test.@test mac(_x2, _p2, vv) ≈ ref(_x2, _p2, vv) atol=1e-6
         Test.@test mac2(_x2, _p2, vv) ≈ CTLie.Poisson(ref, G)(_x2, _p2, vv) atol=1e-6
@@ -444,14 +444,15 @@ function test_macro_dg()
 
     # =========================================================================
     Test.@testset "poisson macro — plain functions, nonautonomous nonfixed" verbose=VERBOSE showtiming=SHOWTIMING begin
-        t2 = 2.0; vv = 2.0
+        t2 = 2.0;
+        vv = 2.0
         f = (t, x, p, v) -> 0.5*(x[1]^2 + x[2]^2 + p[1]^2 + v)
         g = (t, x, p, v) -> 0.5*(x[1]^2 + x[2]^2 + p[2]^2 + v)
         F = _H(f, Traits.NonAutonomous, Traits.NonFixed)
         G = _H(g, Traits.NonAutonomous, Traits.NonFixed)
         ref = CTLie.Poisson(F, G)
 
-        mac  = CTLie.@Lie {f, g} is_autonomous=false is_variable=true
+        mac = CTLie.@Lie {f, g} is_autonomous=false is_variable=true
         mac2 = CTLie.@Lie {{f, g}, g} is_autonomous=false is_variable=true
         Test.@test mac(t2, _x2, _p2, vv) ≈ ref(t2, _x2, _p2, vv) atol=1e-6
         Test.@test mac2(t2, _x2, _p2, vv) ≈ CTLie.Poisson(ref, G)(t2, _x2, _p2, vv) atol=1e-6
@@ -500,7 +501,8 @@ function test_macro_dg()
         Test.@test mac_Hf_v(_x2, _p2, vv) ≈ ref_v(_x2, _p2, vv) atol=1e-6
 
         # Function + Hamiltonian, nonautonomous nonfixed
-        t2 = 2.0; vv = 2.0
+        t2 = 2.0;
+        vv = 2.0
         h_tv = (t, x, p, v) -> t*x[2]^2 + 2x[1]^2 + p[1]^2 + v
         g_tv = (t, x, p, v) -> 3x[2]^2 - x[1]^2 + p[2]^2 + v
         F_tv = _H(h_tv, Traits.NonAutonomous, Traits.NonFixed)
@@ -545,23 +547,29 @@ function test_macro_dg()
     # =========================================================================
     Test.@testset "lie and poisson macro — arithmetic operations" verbose=VERBOSE showtiming=SHOWTIMING begin
         F0 = _VF(x -> [-_Γ*x[1], -_Γ*x[2], _γ*(1-x[3])], Traits.Autonomous, Traits.Fixed)
-        F1 = _VF(x -> [0.0, -x[3], x[2]],                 Traits.Autonomous, Traits.Fixed)
-        F2 = _VF(x -> [x[3], 0.0, -x[1]],                 Traits.Autonomous, Traits.Fixed)
+        F1 = _VF(x -> [0.0, -x[3], x[2]], Traits.Autonomous, Traits.Fixed)
+        F2 = _VF(x -> [x[3], 0.0, -x[1]], Traits.Autonomous, Traits.Fixed)
 
         # [F0,F1](_x3) = [0,-4,-2], [F1,F2](_x3) = [2,-1,0]
         Test.@test (CTLie.@Lie [F0, F1](_x3) + 4 * [F1, F2](_x3)) ≈ [8.0, -8.0, -2.0] atol=1e-6
         Test.@test (CTLie.@Lie [F0, F1](_x3) - [F1, F2](_x3)) ≈ [-2.0, -3.0, -2.0] atol=1e-6
         Test.@test (CTLie.@Lie [F0, F1](_x3) .* [F1, F2](_x3)) ≈ [0.0, 4.0, 0.0] atol=1e-6
-        Test.@test (CTLie.@Lie [1.0, 1.0, 1.0] + ([[F0, F1], F1](_x3) + [F1, F2](_x3) + [1.0, 1.0, 1.0])) ≈ [4.0, 5.0, -5.0] atol=1e-6
+        Test.@test (CTLie.@Lie [1.0, 1.0, 1.0] +
+            ([[F0, F1], F1](_x3) + [F1, F2](_x3) + [1.0, 1.0, 1.0])) ≈ [4.0, 5.0, -5.0] atol=1e-6
 
         # Poisson operations — autonomous
         H0 = _H((x, p) -> 0.5*(2x[1]^2 + x[2]^2 + p[1]^2), Traits.Autonomous, Traits.Fixed)
         H1 = _H((x, p) -> 0.5*(3x[1]^2 + x[2]^2 + p[2]^2), Traits.Autonomous, Traits.Fixed)
-        H2 = _H((x, p) -> 0.5*(4x[1]^2 + x[2]^2 + p[1]^3 + p[2]^2), Traits.Autonomous, Traits.Fixed)
+        H2 = _H(
+            (x, p) -> 0.5*(4x[1]^2 + x[2]^2 + p[1]^3 + p[2]^2),
+            Traits.Autonomous,
+            Traits.Fixed,
+        )
         Test.@test (CTLie.@Lie {H0, H1}(_x2, _p2) + 4 * {H1, H2}(_x2, _p2)) ≈ -68.0 atol=1e-6
         Test.@test (CTLie.@Lie {H0, H1}(_x2, _p2) - {H1, H2}(_x2, _p2)) ≈ 22.0 atol=1e-6
         Test.@test (CTLie.@Lie {H0, H1}(_x2, _p2) * {H1, H2}(_x2, _p2)) ≈ -72.0 atol=1e-6
-        Test.@test (CTLie.@Lie 4 + ({{H0, H1}, H1}(_x2, _p2) + -2*{H1, H2}(_x2, _p2) + 21)) ≈ 67.0 atol=1e-6
+        Test.@test (CTLie.@Lie 4 +
+            ({{H0, H1}, H1}(_x2, _p2) + -2*{H1, H2}(_x2, _p2) + 21)) ≈ 67.0 atol=1e-6
     end
 
     # =========================================================================
@@ -593,7 +601,8 @@ function test_macro_dg()
         H1 = _H((x, p) -> 0.5*(3x[1]^2 + x[2]^2 + p[2]^2), Traits.Autonomous, Traits.Fixed)
         ref = CTLie.Poisson(H0, H1)
         # Two 2-element literal arguments (former source of the bug)
-        Test.@test (CTLie.@Lie {H0, H1}([1.0, 2.0], [2.0, 1.0])) ≈ ref([1.0, 2.0], [2.0, 1.0]) atol=1e-6
+        Test.@test (CTLie.@Lie {H0, H1}([1.0, 2.0], [2.0, 1.0])) ≈
+            ref([1.0, 2.0], [2.0, 1.0]) atol=1e-6
     end
 
     # =========================================================================
@@ -640,10 +649,10 @@ function test_macro_dg()
 
     # =========================================================================
     Test.@testset "error — trait mismatches in Lie brackets" verbose=VERBOSE showtiming=SHOWTIMING begin
-        F_aut  = _VF(x -> [x[2], -x[1]],           Traits.Autonomous,    Traits.Fixed)
-        F_naut = _VF((t, x) -> [x[2], -x[1]],      Traits.NonAutonomous, Traits.Fixed)
-        F_fix  = _VF(x -> [x[2], -x[1]],           Traits.Autonomous,    Traits.Fixed)
-        F_nfix = _VF((x, v) -> [x[2]+v, -x[1]],    Traits.Autonomous,    Traits.NonFixed)
+        F_aut = _VF(x -> [x[2], -x[1]], Traits.Autonomous, Traits.Fixed)
+        F_naut = _VF((t, x) -> [x[2], -x[1]], Traits.NonAutonomous, Traits.Fixed)
+        F_fix = _VF(x -> [x[2], -x[1]], Traits.Autonomous, Traits.Fixed)
+        F_nfix = _VF((x, v) -> [x[2]+v, -x[1]], Traits.Autonomous, Traits.NonFixed)
 
         # Time-dependence mismatch between operands
         Test.@test_throws Exceptions.PreconditionError CTLie.@Lie [F_aut, F_naut]
@@ -666,10 +675,10 @@ function test_macro_dg()
 
     # =========================================================================
     Test.@testset "error — trait mismatches in Poisson brackets" verbose=VERBOSE showtiming=SHOWTIMING begin
-        H_aut  = _H((x, p) -> x[1]^2+p[1]^2,          Traits.Autonomous,    Traits.Fixed)
-        H_naut = _H((t, x, p) -> x[1]^2+p[1]^2,       Traits.NonAutonomous, Traits.Fixed)
-        H_fix  = _H((x, p) -> x[1]^2+p[1]^2,          Traits.Autonomous,    Traits.Fixed)
-        H_nfix = _H((x, p, v) -> x[1]^2+p[1]^2+v,     Traits.Autonomous,    Traits.NonFixed)
+        H_aut = _H((x, p) -> x[1]^2+p[1]^2, Traits.Autonomous, Traits.Fixed)
+        H_naut = _H((t, x, p) -> x[1]^2+p[1]^2, Traits.NonAutonomous, Traits.Fixed)
+        H_fix = _H((x, p) -> x[1]^2+p[1]^2, Traits.Autonomous, Traits.Fixed)
+        H_nfix = _H((x, p, v) -> x[1]^2+p[1]^2+v, Traits.Autonomous, Traits.NonFixed)
 
         # Time-dependence mismatch
         Test.@test_throws Exceptions.PreconditionError CTLie.@Lie {H_aut, H_naut}
@@ -692,11 +701,11 @@ function test_macro_dg()
 
     # =========================================================================
     Test.@testset "valid cases — typed operands, consistent flags" verbose=VERBOSE showtiming=SHOWTIMING begin
-        F_aut  = _VF(x -> [x[2], -x[1]],         Traits.Autonomous,    Traits.Fixed)
-        F_naut = _VF((t, x) -> [x[2], -x[1]],    Traits.NonAutonomous, Traits.Fixed)
-        F_nfix = _VF((x, v) -> [x[2]+v, -x[1]],  Traits.Autonomous,    Traits.NonFixed)
-        H_aut  = _H((x, p) -> x[1]^2+p[1]^2,     Traits.Autonomous,    Traits.Fixed)
-        H_naut = _H((t, x, p) -> x[1]^2+p[1]^2,  Traits.NonAutonomous, Traits.Fixed)
+        F_aut = _VF(x -> [x[2], -x[1]], Traits.Autonomous, Traits.Fixed)
+        F_naut = _VF((t, x) -> [x[2], -x[1]], Traits.NonAutonomous, Traits.Fixed)
+        F_nfix = _VF((x, v) -> [x[2]+v, -x[1]], Traits.Autonomous, Traits.NonFixed)
+        H_aut = _H((x, p) -> x[1]^2+p[1]^2, Traits.Autonomous, Traits.Fixed)
+        H_naut = _H((t, x, p) -> x[1]^2+p[1]^2, Traits.NonAutonomous, Traits.Fixed)
 
         f_func = x -> [x[2], -x[1]]
         h_func = (x, p) -> x[1]^2+p[1]^2
@@ -736,7 +745,6 @@ function test_macro_dg()
         mac_fd = CTLie.@Lie [f, g] ad_backend=CTLie.__dg_ad_backend()
         Test.@test mac_fd(_x2) ≈ ref(_x2) atol=1e-6
     end
-
 end
 
 end # module TestMacroDG
