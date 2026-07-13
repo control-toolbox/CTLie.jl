@@ -149,6 +149,14 @@ end
 # Base.show
 # =============================================================================
 
+"""
+$(TYPEDSIGNATURES)
+
+Return the human-readable call-signature string for a [`LiftedHamiltonianFunction`](@ref)
+given its `TD`/`VD` traits, used by `Base.show`.
+
+See also: [`CTLie.LiftedHamiltonianFunction`](@ref)
+"""
 _lh_call_sig(::Type{Traits.Autonomous}, ::Type{Traits.Fixed}) = "h(x, p) = p' * f(x)"
 function _lh_call_sig(::Type{Traits.Autonomous}, ::Type{Traits.NonFixed})
     return "h(x, p, v) = p' * f(x, v)"

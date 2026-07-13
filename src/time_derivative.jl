@@ -90,6 +90,42 @@ function ∂ₜ(
     return Data.HamiltonianVectorField(closure, Traits.NonAutonomous, VD, Traits.OutOfPlace)
 end
 
+# HVF returns a tuple (ẋ, ṗ); DI.derivative does not extract derivatives from tuple-of-array
+# outputs, so we project onto each component before differentiating.
+
+"""
+$(TYPEDEF)
+
+Component projector for the first output (ẋ) of a HamiltonianVectorField.
+
+Used to differentiate tuple-valued outputs slot-by-slot, since
+`Differentiation.differentiate` does not extract derivatives from tuple-of-array outputs.
+
+See also: [`CTLie.TimeDeriv_HVF`](@ref), [`CTLie._HVFComp2`](@ref)
+"""
+struct _HVFComp1{F} <: Function
+    ;
+    X::F;
+end
+
+"""
+$(TYPEDEF)
+
+Component projector for the second output (ṗ) of a HamiltonianVectorField.
+
+Used to differentiate tuple-valued outputs slot-by-slot, since
+`Differentiation.differentiate` does not extract derivatives from tuple-of-array outputs.
+
+See also: [`CTLie.TimeDeriv_HVF`](@ref), [`CTLie._HVFComp1`](@ref)
+"""
+struct _HVFComp2{F} <: Function
+    ;
+    X::F;
+end
+
+(_c::_HVFComp1)(args...) = _c.X(args...)[1]
+(_c::_HVFComp2)(args...) = _c.X(args...)[2]
+
 """
 $(TYPEDEF)
 
@@ -99,19 +135,6 @@ Callable struct for `∂ₜ(X::AbstractHamiltonianVectorField)`.
 - **NonAutonomous** (TD=NonAutonomous): differentiates `X` w.r.t. slot 1 (time) via
   `Differentiation.differentiate`, eliminating the inner `s -> X(s,...)` closure.
 """
-# HVF returns a tuple (ẋ, ṗ); DI.derivative does not extract derivatives from tuple-of-array
-# outputs, so we project onto each component before differentiating.
-struct _HVFComp1{F} <: Function
-    ;
-    X::F;
-end
-struct _HVFComp2{F} <: Function
-    ;
-    X::F;
-end
-(_c::_HVFComp1)(args...) = _c.X(args...)[1]
-(_c::_HVFComp2)(args...) = _c.X(args...)[2]
-
 struct TimeDeriv_HVF{FX,B<:Differentiation.AbstractADBackend,TD,VD} <: Function
     X::FX
     b::B
@@ -140,6 +163,13 @@ function (dtd::TimeDeriv_HVF{FX,B,Traits.NonAutonomous,Traits.NonFixed})(
     )
 end
 
+"""
+$(TYPEDSIGNATURES)
+
+Internal constructor for [`TimeDeriv_HVF`](@ref) with compile-time `TD`/`VD` trait parameters.
+
+See also: [`CTLie.TimeDeriv_HVF`](@ref), [`CTLie.∂ₜ`](@ref)
+"""
 function _∂ₜ_hvf(
     X, b::Differentiation.AbstractADBackend, ::Type{TD}, ::Type{VD}
 ) where {TD,VD}
@@ -216,6 +246,13 @@ function (dtd::TimeDeriv_VF{FX,B,Traits.NonAutonomous,Traits.NonFixed})(
     return Differentiation.differentiate(dtd.b, dtd.X, Val(1), t, x, v)
 end
 
+"""
+$(TYPEDSIGNATURES)
+
+Internal constructor for [`TimeDeriv_VF`](@ref) with compile-time `TD`/`VD` trait parameters.
+
+See also: [`CTLie.TimeDeriv_VF`](@ref), [`CTLie.∂ₜ`](@ref)
+"""
 function _∂ₜ_vf(
     X, b::Differentiation.AbstractADBackend, ::Type{TD}, ::Type{VD}
 ) where {TD,VD}
@@ -290,6 +327,13 @@ function (dtd::TimeDeriv_Ham{FH,B,Traits.NonAutonomous,Traits.NonFixed})(
     return Differentiation.differentiate(dtd.b, dtd.H, Val(1), t, x, p, v)
 end
 
+"""
+$(TYPEDSIGNATURES)
+
+Internal constructor for [`TimeDeriv_Ham`](@ref) with compile-time `TD`/`VD` trait parameters.
+
+See also: [`CTLie.TimeDeriv_Ham`](@ref), [`CTLie.∂ₜ`](@ref)
+"""
 function _∂ₜ_ham(
     H, b::Differentiation.AbstractADBackend, ::Type{TD}, ::Type{VD}
 ) where {TD,VD}

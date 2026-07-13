@@ -21,6 +21,13 @@ using DifferentiationInterface
 # ═══════════════════════════════════════════════════════════════════════════════
 # Configuration
 # ═══════════════════════════════════════════════════════════════════════════════
+# if draft is true, then the julia code from .md is not executed
+# to disable the draft mode in a specific markdown file, use the following:
+#=
+```@meta
+Draft = false
+```
+=#
 draft = false # Draft mode: if true, @example blocks in markdown are not executed
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -28,9 +35,8 @@ draft = false # Draft mode: if true, @example blocks in markdown are not execute
 # ═══════════════════════════════════════════════════════════════════════════════
 links = InterLinks(
     "CTBase" => (
-        "https://control-toolbox.org/CTBase.jl/stable/",
-        "https://control-toolbox.org/CTBase.jl/stable/objects.inv",
-        joinpath(@__DIR__, "inventories", "CTBase.toml"),
+        "https://control-toolbox.org/CTBase.jl/dev/",
+        "https://control-toolbox.org/CTBase.jl/dev/objects.inv",
     ),
 )
 
@@ -60,8 +66,6 @@ with_api_reference(src_dir) do api_pages
     return makedocs(;
         draft=draft,
         remotes=nothing, # Disable remote links. Needed for DocumenterReference
-        # external_cross_references: the published CTBase inventory is stable (0.24);
-        # CTLie targets unreleased CTBase 0.25, so @extref links resolve once 0.25 ships.
         warnonly=[:cross_references, :external_cross_references],
         sitename="CTLie.jl",
         format=DocumenterVitepress.MarkdownVitepress(;

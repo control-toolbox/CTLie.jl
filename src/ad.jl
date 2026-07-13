@@ -146,6 +146,13 @@ function (a::Ad{TX,TF,B,Traits.NonAutonomous,Traits.NonFixed})(t, x, v) where {T
     return _ad_bracket(a.X, a.foo, dfoo, a.backend, Val(2), x, t, v)
 end
 
+"""
+$(TYPEDSIGNATURES)
+
+Internal constructor for [`Ad`](@ref) with compile-time `TD`/`VD` trait parameters.
+
+See also: [`CTLie.Ad`](@ref), [`CTLie.ad`](@ref)
+"""
 function _ad(
     X, foo, backend::Differentiation.AbstractADBackend, ::Type{TD}, ::Type{VD}
 ) where {TD,VD}
@@ -189,7 +196,18 @@ function Base.show(io::IO, ::MIME"text/plain", a::Ad{TX,TF,B,TD,VD}) where {TX,T
     return show(io, a)
 end
 
-# Lie derivative (scalar): directional derivative already computed — nothing more to do
+"""
+$(TYPEDSIGNATURES)
+
+Dispatch on the return type of `foo` to finalize the Lie derivative or Lie bracket.
+
+- **Scalar `foo`** (Lie derivative): the directional derivative `dfoo` is already
+  computed by the caller; return it directly.
+- **Vector `foo`** (Lie bracket): compute the second pushforward
+  `J_X(x)·foo(x)` and return `dfoo - dX = J_foo(x)·X(x) - J_X(x)·foo(x)`.
+
+See also: [`CTLie.Ad`](@ref), [`CTLie.ad`](@ref)
+"""
 _ad_bracket(_, _, dfoo::Number, _, ::Val{Slot}, x, consts...) where {Slot} = dfoo
 
 # Lie bracket (vector): J_foo(x)·X(x) - J_X(x)·foo(x)
