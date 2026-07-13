@@ -29,9 +29,6 @@ export default defineConfig({
   description: 'REPLACE_ME_DOCUMENTER_VITEPRESS',
   lastUpdated: true,
   cleanUrls: true,
-  // CTLie targets unreleased CTBase 0.25, whose docs/inventory are not yet
-  // published, so @extref CTBase cross-links cannot resolve yet. They become
-  // live once CTBase 0.25 is released; until then, do not fail the build on them.
   ignoreDeadLinks: true,
   outDir: 'REPLACE_ME_DOCUMENTER_VITEPRESS', // This is required for MarkdownVitepress to work correctly...
   head: [

@@ -147,6 +147,13 @@ function (pb::PoissonBracket{FH,FG,B,Traits.NonAutonomous,Traits.NonFixed})(
     return (gpH' * gxG - gxH' * gpG)::promote_type(eltype(x), eltype(p))
 end
 
+"""
+$(TYPEDSIGNATURES)
+
+Internal constructor for [`PoissonBracket`](@ref) with compile-time `TD`/`VD` trait parameters.
+
+See also: [`CTLie.PoissonBracket`](@ref), [`CTLie.Poisson`](@ref)
+"""
 function _Poisson(
     H, G, backend::Differentiation.AbstractADBackend, ::Type{TD}, ::Type{VD}
 ) where {TD,VD}
