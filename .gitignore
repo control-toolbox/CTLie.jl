@@ -33,3 +33,4 @@ Manifest*.toml
 
 #
 .reports/
+.claude/
