@@ -69,6 +69,25 @@ function (m::_LieDerivMirror)(x)
     return Differentiation.pushforward(m.backend, m.foo, Val(1), x, m.X(x))
 end
 
+# Hand-specialized mirror of `Ad`'s Autonomous/Fixed vector-`foo` call operator
+# (ad.jl), i.e. the Lie *bracket*: two pushforwards + subtraction, written
+# straight-line without the general `_ad_bracket`/`Val(Slot)`/`ntuple`
+# machinery. The wrapper must allocate exactly this much — this guard is what
+# caught (and now locks in the fix for) the pass-through-function
+# specialization gap in `_ad_bracket` (`X::TX where {TX}`, see ad.jl).
+struct _LieBracketMirror{TX,TY,B}
+    X::TX
+    Y::TY
+    backend::B
+end
+function (m::_LieBracketMirror)(x)
+    Xx = m.X(x)
+    dfoo = Differentiation.pushforward(m.backend, m.Y, Val(1), x, Xx)
+    Yx = m.Y(x)
+    dX = Differentiation.pushforward(m.backend, m.X, Val(1), x, Yx)
+    return dfoo - dX
+end
+
 # Hand-specialized mirror of `PoissonBracket`'s Autonomous/Fixed call operator
 # (poisson.jl): four partial derivatives via `Differentiation.differentiate`.
 struct _PoissonMirror{FH,FG,B}
@@ -140,6 +159,16 @@ function test_performance()
             Test.@test (BenchmarkTools.@ballocated $L($x0)) ==
                 (BenchmarkTools.@ballocated $mL($x0))
 
+            # ad(X, Y) — Lie bracket: two pushforwards + subtraction. This
+            # equality holds because `_ad_bracket` forces specialization on its
+            # pass-through `X` argument (`X::TX where {TX}`, ad.jl); without
+            # that annotation Julia compiles it unspecialized on `typeof(X)`
+            # and the wrapper allocates 32–48 B more than this raw floor.
+            Bk = CTLie.ad(_X_raw, _Y_raw)
+            mBk = _LieBracketMirror(_X_raw, _Y_raw, bk)
+            Test.@test (BenchmarkTools.@ballocated $Bk($x0)) ==
+                (BenchmarkTools.@ballocated $mBk($x0))
+
             # Poisson(H, G) — four partial derivatives.
             PB = CTLie.Poisson(_H_raw, _G_raw)
             mPB = _PoissonMirror(_H_raw, _G_raw, bk)
@@ -153,25 +182,6 @@ function test_performance()
             Test.@test (BenchmarkTools.@ballocated $dXvf_na($t0, $x0)) ==
                 (BenchmarkTools.@ballocated $mDt($t0, $x0))
         end
-
-        # ======================================================================
-        # 4. Known, accepted trade-off — NOT a zero-overhead guard
-        # ======================================================================
-        # `ad(X, Y)` (vector `foo`, i.e. the Lie *bracket*) routes its second
-        # pushforward through `_ad_bracket`'s `Val(Slot)`/`ntuple` machinery
-        # (ad.jl), which exists to handle the general N-ary Slot/consts pattern
-        # uniformly across all four TD×VD signatures. Verified at the REPL
-        # (2026-07-15, Julia 1.12.6): the wrapper allocates a small, fixed
-        # amount more than a hand-specialized two-pushforward sequence for the
-        # Autonomous/Fixed case (816 B vs. 784 B) — reproducible across two
-        # independent hand-written comparators, so it is real overhead from
-        # that generality, not a benchmarking artifact. Per performance.md, a
-        # guard must assert a *true* invariant or it becomes a permanently red
-        # assertion; asserting `==` here would be false, and hard-coding the
-        # observed delta would be exactly the kind of Julia-version-dependent
-        # magic constant the Handbook forbids. So this call operator is left
-        # to its `Test.@inferred` guard (test_ad_dg.jl) only; no byte-count
-        # guard is asserted for it here.
     end
     return nothing
 end
