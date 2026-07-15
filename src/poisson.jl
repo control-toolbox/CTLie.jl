@@ -85,7 +85,7 @@ function Poisson(
     ::Type{TD},
     ::Type{VD};
     ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
-) where {TD,VD}
+) where {TD<:Traits.TimeDependence,VD<:Traits.VariableDependence}
     backend = _resolve_backend(ad_backend)
     return _Poisson(H, G, backend, TD, VD)
 end
@@ -106,7 +106,9 @@ struct PoissonBracket{FH,FG,B<:Differentiation.AbstractADBackend,TD,VD} <: Funct
 end
 
 # Autonomous/Fixed: H(x,p) — ∂/∂x = slot 1, ∂/∂p = slot 2
-function (pb::PoissonBracket{FH,FG,B,Traits.Autonomous,Traits.Fixed})(x, p) where {FH,FG,B}
+function (pb::PoissonBracket{FH,FG,B,Traits.Autonomous,Traits.Fixed})(
+    x, p
+) where {FH,FG,B<:Differentiation.AbstractADBackend}
     gxH = Differentiation.differentiate(pb.backend, pb.H, Val(1), x, p)
     gpH = Differentiation.differentiate(pb.backend, pb.H, Val(2), p, x)
     gxG = Differentiation.differentiate(pb.backend, pb.G, Val(1), x, p)
@@ -117,7 +119,7 @@ end
 # NonAutonomous/Fixed: H(t,x,p) — ∂/∂x = slot 2, ∂/∂p = slot 3
 function (pb::PoissonBracket{FH,FG,B,Traits.NonAutonomous,Traits.Fixed})(
     t, x, p
-) where {FH,FG,B}
+) where {FH,FG,B<:Differentiation.AbstractADBackend}
     gxH = Differentiation.differentiate(pb.backend, pb.H, Val(2), x, t, p)
     gpH = Differentiation.differentiate(pb.backend, pb.H, Val(3), p, t, x)
     gxG = Differentiation.differentiate(pb.backend, pb.G, Val(2), x, t, p)
@@ -128,7 +130,7 @@ end
 # Autonomous/NonFixed: H(x,p,v) — ∂/∂x = slot 1, ∂/∂p = slot 2
 function (pb::PoissonBracket{FH,FG,B,Traits.Autonomous,Traits.NonFixed})(
     x, p, v
-) where {FH,FG,B}
+) where {FH,FG,B<:Differentiation.AbstractADBackend}
     gxH = Differentiation.differentiate(pb.backend, pb.H, Val(1), x, p, v)
     gpH = Differentiation.differentiate(pb.backend, pb.H, Val(2), p, x, v)
     gxG = Differentiation.differentiate(pb.backend, pb.G, Val(1), x, p, v)
@@ -139,7 +141,7 @@ end
 # NonAutonomous/NonFixed: H(t,x,p,v) — ∂/∂x = slot 2, ∂/∂p = slot 3
 function (pb::PoissonBracket{FH,FG,B,Traits.NonAutonomous,Traits.NonFixed})(
     t, x, p, v
-) where {FH,FG,B}
+) where {FH,FG,B<:Differentiation.AbstractADBackend}
     gxH = Differentiation.differentiate(pb.backend, pb.H, Val(2), x, t, p, v)
     gpH = Differentiation.differentiate(pb.backend, pb.H, Val(3), p, t, x, v)
     gxG = Differentiation.differentiate(pb.backend, pb.G, Val(2), x, t, p, v)
@@ -181,7 +183,9 @@ PoissonBracket: autonomous, fixed (no variable)
   cache: not prepared
 ```
 """
-function Base.show(io::IO, pb::PoissonBracket{FH,FG,B,TD,VD}) where {FH,FG,B,TD,VD}
+function Base.show(
+    io::IO, pb::PoissonBracket{FH,FG,B,TD,VD}
+) where {FH,FG,B<:Differentiation.AbstractADBackend,TD,VD}
     println(io, "PoissonBracket: $(Data._td_label(TD)), $(Data._vd_label(VD))")
     return print(io, "  backend: ", nameof(typeof(pb.backend)))
 end
@@ -195,7 +199,7 @@ See also: [`CTLie.PoissonBracket`](@ref).
 """
 function Base.show(
     io::IO, ::MIME"text/plain", pb::PoissonBracket{FH,FG,B,TD,VD}
-) where {FH,FG,B,TD,VD}
+) where {FH,FG,B<:Differentiation.AbstractADBackend,TD,VD}
     return show(io, pb)
 end
 
@@ -234,7 +238,7 @@ function Poisson(
     H::Data.AbstractHamiltonian{TD,VD},
     G::Data.AbstractHamiltonian{TD,VD};
     ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
-) where {TD,VD}
+) where {TD<:Traits.TimeDependence,VD<:Traits.VariableDependence}
     backend = _resolve_backend(ad_backend)
     closure = _Poisson(H, G, backend, TD, VD)
     return Data.Hamiltonian(closure, TD, VD)
@@ -266,7 +270,12 @@ function Poisson(
     H::Data.AbstractHamiltonian{TD1,VD1},
     G::Data.AbstractHamiltonian{TD2,VD2};
     ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
-) where {TD1,VD1,TD2,VD2}
+) where {
+    TD1<:Traits.TimeDependence,
+    VD1<:Traits.VariableDependence,
+    TD2<:Traits.TimeDependence,
+    VD2<:Traits.VariableDependence,
+}
     return throw(
         Exceptions.PreconditionError(
             "Poisson: TD/VD mismatch between H and G";

@@ -103,7 +103,12 @@ function ad(
     X::Data.AbstractVectorField{TD,VD,MDX},
     Y::Data.AbstractVectorField{TD,VD,MDY};
     ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
-) where {TD,VD,MDX,MDY}
+) where {
+    TD<:Traits.TimeDependence,
+    VD<:Traits.VariableDependence,
+    MDX<:Traits.AbstractMutabilityTrait,
+    MDY<:Traits.AbstractMutabilityTrait,
+}
     _check_not_hvf(X);
     _check_not_hvf(Y)
     _check_outofplace(MDX)    # static dispatch on type parameter — no runtime call
@@ -151,7 +156,11 @@ function ad(
     X::Data.AbstractVectorField{TD,VD,MDX},
     f::Function;
     ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
-) where {TD,VD,MDX}
+) where {
+    TD<:Traits.TimeDependence,
+    VD<:Traits.VariableDependence,
+    MDX<:Traits.AbstractMutabilityTrait,
+}
     _check_not_hvf(X)
     _check_outofplace(MDX)    # static dispatch
     backend = _resolve_backend(ad_backend)
@@ -184,7 +193,14 @@ function ad(
     X::Data.AbstractVectorField{TD1,VD1,MDX},
     Y::Data.AbstractVectorField{TD2,VD2,MDY};
     ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
-) where {TD1,VD1,MDX,TD2,VD2,MDY}
+) where {
+    TD1<:Traits.TimeDependence,
+    VD1<:Traits.VariableDependence,
+    MDX<:Traits.AbstractMutabilityTrait,
+    TD2<:Traits.TimeDependence,
+    VD2<:Traits.VariableDependence,
+    MDY<:Traits.AbstractMutabilityTrait,
+}
     return throw(
         Exceptions.PreconditionError(
             "ad: TD/VD mismatch between X and Y";

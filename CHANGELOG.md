@@ -9,6 +9,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### 🐛 Fixed
+
+- **Restored dropped type-parameter bounds in `where` clauses (42 sites).**
+  Several call-operator, `Base.show`, and dispatch methods named a type
+  parameter bare in their `where` clause, silently widening its declared bound
+  to `Any`. Two families were affected:
+  - The AD-backend parameter `B<:Differentiation.AbstractADBackend` carried by
+    `Ad`, `PoissonBracket`, `TimeDeriv_F`, `TimeDeriv_HVF`, `TimeDeriv_VF` and
+    `TimeDeriv_Ham` (33 methods).
+  - The CTBase trait bounds `TD<:Traits.TimeDependence`,
+    `VD<:Traits.VariableDependence` and `MD<:Traits.AbstractMutabilityTrait` on
+    methods dispatching over `Data.AbstractVectorField`,
+    `Data.AbstractHamiltonianVectorField` and `Data.AbstractHamiltonian`
+    (9 methods, in `ad`, `Poisson`, `Lift` and `∂ₜ`).
+
+  A dropped bound is a latent dispatch hazard: `<:` is a purely structural
+  comparison, so the affected signatures stopped being formal subtypes of the
+  types they specialize. No live ambiguity existed today
+  (`Aqua.test_ambiguities` already passed), but a future overlapping method
+  could have mis-ranked or thrown a `MethodError: ... is ambiguous`. Tightening
+  a `where`-clause bound cannot invalidate a previously-valid call, so there is
+  no behavior change. See the CTLie audit report
+  (`.reports/2026-07-12_alias-where-bounds-audit.md`) and the Handbook rule
+  *"Aliases and `where`: never let a bound default to `Any`"*.
+
+### 🔧 Changed
+
+- **Consistency:** the typed `::Type{TD}, ::Type{VD}` entry points of `Poisson`
+  and `Lift` now carry `TD<:Traits.TimeDependence, VD<:Traits.VariableDependence`,
+  matching the already-bounded `ad` entry point.
+
+---
+
 ## [0.1.3-beta] - 2026-07-13
 
 ### 🔧 Changed

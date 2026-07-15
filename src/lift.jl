@@ -104,7 +104,9 @@ H([1.0, 2.0], [0.5, 1.0])  # Returns -1.5
 
 See also: [`CTLie.Lift(f::Function)`](@ref), [`CTLie.@Lie`](@ref)
 """
-function Lift(f::Function, ::Type{TD}, ::Type{VD}) where {TD,VD}
+function Lift(
+    f::Function, ::Type{TD}, ::Type{VD}
+) where {TD<:Traits.TimeDependence,VD<:Traits.VariableDependence}
     return LiftedHamiltonianFunction{typeof(f),TD,VD}(f)
 end
 
@@ -139,7 +141,9 @@ H([1.0, 2.0], [0.5, 1.0])  # Returns -1.5
 
 See also: [`CTLie.Lift(f::Function)`](@ref), [`CTLie.Poisson`](@ref)
 """
-function Lift(X::Data.AbstractVectorField{TD,VD}) where {TD,VD}
+function Lift(
+    X::Data.AbstractVectorField{TD,VD}
+) where {TD<:Traits.TimeDependence,VD<:Traits.VariableDependence}
     _check_not_hvf(X)   # guard from ad_types.jl
     lh = LiftedHamiltonianFunction{typeof(X),TD,VD}(X)
     return Data.Hamiltonian(lh, TD, VD)   # typed constructor (no MD param)
