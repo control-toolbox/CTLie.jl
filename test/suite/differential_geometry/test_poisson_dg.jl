@@ -122,6 +122,27 @@ function test_poisson_dg()
         Test.@test (Test.@inferred PB(x0, p0, v0)) isa Float64
     end
 
+    Test.@testset "Poisson() - type stability (NonAutonomous/Fixed)" verbose=VERBOSE showtiming=SHOWTIMING begin
+        H(t, x, p) = t * p[1]
+        G(t, x, p) = x[1]
+        PB = CTLie.Poisson(H, G; is_autonomous=false, is_variable=false)
+        t0 = 3.0;
+        x0 = [1.0, 2.0];
+        p0 = [0.5, 1.0]
+        Test.@test (Test.@inferred PB(t0, x0, p0)) isa Float64
+    end
+
+    Test.@testset "Poisson() - type stability (NonAutonomous/NonFixed)" verbose=VERBOSE showtiming=SHOWTIMING begin
+        H(t, x, p, v) = t * v[1] * p[1]^2 / 2 + x[1]
+        G(t, x, p, v) = x[1] * p[1]
+        PB = CTLie.Poisson(H, G; is_autonomous=false, is_variable=true)
+        t0 = 3.0;
+        x0 = [1.0, 2.0];
+        p0 = [0.5, 1.0];
+        v0 = [2.0]
+        Test.@test (Test.@inferred PB(t0, x0, p0, v0)) isa Float64
+    end
+
     Test.@testset "Poisson() - ad_backend parameter" verbose=VERBOSE showtiming=SHOWTIMING begin
         H(x, p) = p[1]^2 / 2 + x[1]
         G(x, p) = p[2]^2 / 2 + x[2]

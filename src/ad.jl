@@ -223,9 +223,16 @@ See also: [`CTLie.Ad`](@ref), [`CTLie.ad`](@ref)
 _ad_bracket(_, _, dfoo::Number, _, ::Val{Slot}, x, consts...) where {Slot} = dfoo
 
 # Lie bracket (vector): J_foo(x)·X(x) - J_X(x)·foo(x)
+#
+# `X::TX` forces specialization. `X` is only *passed through* to `pushforward`,
+# never called in this body, so Julia's specialization heuristic would otherwise
+# compile the method unspecialized on `typeof(X)` — a hidden 32–48 B boxing cost
+# on every bracket evaluation (measured on Julia 1.12.6; guarded by the
+# wrapper-vs-raw equality in test/suite/meta/test_performance.jl). `foo` needs
+# no annotation: it is called in the body, so it is specialized already.
 function _ad_bracket(
-    X, foo, dfoo::AbstractVector, backend, ::Val{Slot}, x, consts::Vararg{Any,N}
-) where {Slot,N}
+    X::TX, foo, dfoo::AbstractVector, backend, ::Val{Slot}, x, consts::Vararg{Any,N}
+) where {TX,Slot,N}
     Y_x = foo(ntuple(i -> i == Slot ? x : consts[i < Slot ? i : i - 1], Val(N + 1))...)
     dX = Differentiation.pushforward(backend, X, Val(Slot), x, Y_x, consts...)
     return dfoo - dX
