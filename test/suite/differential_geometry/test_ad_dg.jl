@@ -389,6 +389,16 @@ function test_ad_dg()
         a(x0)  # warm-up
         Test.@test_nowarn Test.@inferred a(x0)
     end
+
+    Test.@testset "ad() - @inferred scalar (Lie derivative, NonAutonomous/Fixed)" verbose=VERBOSE showtiming=SHOWTIMING begin
+        X_na(t, x) = [t * x[2], -x[1]]
+        f_na(t, x) = t + x[1]^2
+        a = CTLie.ad(X_na, f_na; is_autonomous=false)
+        t0 = 2.0
+        x0 = [1.0, 2.0]
+        a(t0, x0)  # warm-up
+        Test.@test_nowarn Test.@inferred a(t0, x0)
+    end
 end
 
 end # module TestAdDG

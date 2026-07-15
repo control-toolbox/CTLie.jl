@@ -24,6 +24,8 @@ function test_time_derivative_dg()
         Test.@test df isa CTLie.TimeDeriv_F
         # ∂f/∂t = 2t → at t=3, x=[1,2]: 6.0
         Test.@test df(3.0, [1.0, 2.0]) ≈ 6.0 atol=1e-6
+        df(3.0, [1.0, 2.0])  # warm-up
+        Test.@test_nowarn Test.@inferred df(3.0, [1.0, 2.0])
     end
 
     # ====================================================================
@@ -57,6 +59,8 @@ function test_time_derivative_dg()
             Traits.NonAutonomous,Traits.Fixed,Traits.OutOfPlace
         }
         Test.@test isapprox(dX(1.0, [1.0, 2.0]), [0.0, 0.0]; atol=1e-10)
+        dX(1.0, [1.0, 2.0])  # warm-up
+        Test.@test_nowarn Test.@inferred dX(1.0, [1.0, 2.0])
     end
 
     Test.@testset "∂ₜ() - Autonomous NonFixed VectorField → zero" verbose=VERBOSE showtiming=SHOWTIMING begin
@@ -97,6 +101,8 @@ function test_time_derivative_dg()
         x0 = [1.0, 2.0];
         p0 = [3.0, 4.0]
         Test.@test dH(2.0, x0, p0) ≈ p0' * x0 atol=1e-6
+        dH(2.0, x0, p0)  # warm-up
+        Test.@test_nowarn Test.@inferred dH(2.0, x0, p0)
     end
 
     Test.@testset "∂ₜ() - Autonomous Fixed Hamiltonian → zero" verbose=VERBOSE showtiming=SHOWTIMING begin
@@ -104,6 +110,8 @@ function test_time_derivative_dg()
         dH = CTLie.∂ₜ(H)
         Test.@test dH isa Data.AbstractHamiltonian{Traits.NonAutonomous,Traits.Fixed}
         Test.@test dH(1.0, [1.0, 2.0], [3.0, 4.0]) ≈ 0.0 atol=1e-10
+        dH(1.0, [1.0, 2.0], [3.0, 4.0])  # warm-up
+        Test.@test_nowarn Test.@inferred dH(1.0, [1.0, 2.0], [3.0, 4.0])
     end
 
     Test.@testset "∂ₜ() - Autonomous NonFixed Hamiltonian → zero" verbose=VERBOSE showtiming=SHOWTIMING begin
@@ -161,6 +169,8 @@ function test_time_derivative_dg()
         dx, dp = dX(1.0, [1.0], [3.0])
         Test.@test dx ≈ [0.0] atol=1e-10
         Test.@test dp ≈ [0.0] atol=1e-10
+        dX(1.0, [1.0], [3.0])  # warm-up
+        Test.@test_nowarn Test.@inferred dX(1.0, [1.0], [3.0])
     end
 
     Test.@testset "∂ₜ() - Autonomous NonFixed HamiltonianVectorField → zero" verbose=VERBOSE showtiming=SHOWTIMING begin
