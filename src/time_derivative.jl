@@ -9,7 +9,7 @@ struct TimeDeriv_F{F,B<:Differentiation.AbstractADBackend} <: Function
     f::F
     b::B
 end
-function (dtd::TimeDeriv_F{F,B})(t, args...) where {F,B}
+function (dtd::TimeDeriv_F{F,B})(t, args...) where {F,B<:Differentiation.AbstractADBackend}
     return Differentiation.differentiate(dtd.b, dtd.f, Val(1), t, args...)
 end
 
@@ -83,7 +83,11 @@ See also: [`CTLie.∂ₜ`](@ref)
 function ∂ₜ(
     X::Data.AbstractHamiltonianVectorField{TD,VD,MD};
     ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
-) where {TD,VD,MD}
+) where {
+    TD<:Traits.TimeDependence,
+    VD<:Traits.VariableDependence,
+    MD<:Traits.AbstractMutabilityTrait,
+}
     _check_outofplace(MD)
     backend = _resolve_backend(ad_backend)
     closure = _∂ₜ_hvf(X, backend, TD, VD)
@@ -140,15 +144,19 @@ struct TimeDeriv_HVF{FX,B<:Differentiation.AbstractADBackend,TD,VD} <: Function
     b::B
 end
 
-function (dtd::TimeDeriv_HVF{FX,B,Traits.Autonomous,Traits.Fixed})(_, x, p) where {FX,B}
+function (dtd::TimeDeriv_HVF{FX,B,Traits.Autonomous,Traits.Fixed})(
+    _, x, p
+) where {FX,B<:Differentiation.AbstractADBackend}
     return zero.(dtd.X(x, p))
 end
 function (dtd::TimeDeriv_HVF{FX,B,Traits.Autonomous,Traits.NonFixed})(
     _, x, p, v
-) where {FX,B}
+) where {FX,B<:Differentiation.AbstractADBackend}
     return zero.(dtd.X(x, p, v))
 end
-function (dtd::TimeDeriv_HVF{FX,B,Traits.NonAutonomous,Traits.Fixed})(t, x, p) where {FX,B}
+function (dtd::TimeDeriv_HVF{FX,B,Traits.NonAutonomous,Traits.Fixed})(
+    t, x, p
+) where {FX,B<:Differentiation.AbstractADBackend}
     return (
         Differentiation.differentiate(dtd.b, _HVFComp1(dtd.X), Val(1), t, x, p),
         Differentiation.differentiate(dtd.b, _HVFComp2(dtd.X), Val(1), t, x, p),
@@ -156,7 +164,7 @@ function (dtd::TimeDeriv_HVF{FX,B,Traits.NonAutonomous,Traits.Fixed})(t, x, p) w
 end
 function (dtd::TimeDeriv_HVF{FX,B,Traits.NonAutonomous,Traits.NonFixed})(
     t, x, p, v
-) where {FX,B}
+) where {FX,B<:Differentiation.AbstractADBackend}
     return (
         Differentiation.differentiate(dtd.b, _HVFComp1(dtd.X), Val(1), t, x, p, v),
         Differentiation.differentiate(dtd.b, _HVFComp2(dtd.X), Val(1), t, x, p, v),
@@ -211,7 +219,11 @@ See also: [`CTLie.∂ₜ`](@ref)
 function ∂ₜ(
     X::Data.AbstractVectorField{TD,VD,MD};
     ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
-) where {TD,VD,MD}
+) where {
+    TD<:Traits.TimeDependence,
+    VD<:Traits.VariableDependence,
+    MD<:Traits.AbstractMutabilityTrait,
+}
     _check_outofplace(MD)
     backend = _resolve_backend(ad_backend)
     closure = _∂ₜ_vf(X, backend, TD, VD)
@@ -231,18 +243,24 @@ struct TimeDeriv_VF{FX,B<:Differentiation.AbstractADBackend,TD,VD} <: Function
     b::B
 end
 
-function (dtd::TimeDeriv_VF{FX,B,Traits.Autonomous,Traits.Fixed})(_, x) where {FX,B}
+function (dtd::TimeDeriv_VF{FX,B,Traits.Autonomous,Traits.Fixed})(
+    _, x
+) where {FX,B<:Differentiation.AbstractADBackend}
     return zero.(dtd.X(x))
 end
-function (dtd::TimeDeriv_VF{FX,B,Traits.Autonomous,Traits.NonFixed})(_, x, v) where {FX,B}
+function (dtd::TimeDeriv_VF{FX,B,Traits.Autonomous,Traits.NonFixed})(
+    _, x, v
+) where {FX,B<:Differentiation.AbstractADBackend}
     return zero.(dtd.X(x, v))
 end
-function (dtd::TimeDeriv_VF{FX,B,Traits.NonAutonomous,Traits.Fixed})(t, x) where {FX,B}
+function (dtd::TimeDeriv_VF{FX,B,Traits.NonAutonomous,Traits.Fixed})(
+    t, x
+) where {FX,B<:Differentiation.AbstractADBackend}
     return Differentiation.differentiate(dtd.b, dtd.X, Val(1), t, x)
 end
 function (dtd::TimeDeriv_VF{FX,B,Traits.NonAutonomous,Traits.NonFixed})(
     t, x, v
-) where {FX,B}
+) where {FX,B<:Differentiation.AbstractADBackend}
     return Differentiation.differentiate(dtd.b, dtd.X, Val(1), t, x, v)
 end
 
@@ -291,7 +309,7 @@ See also: [`CTLie.∂ₜ`](@ref)
 function ∂ₜ(
     H::Data.AbstractHamiltonian{TD,VD};
     ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
-) where {TD,VD}
+) where {TD<:Traits.TimeDependence,VD<:Traits.VariableDependence}
     backend = _resolve_backend(ad_backend)
     closure = _∂ₜ_ham(H, backend, TD, VD)
     return Data.Hamiltonian(closure, Traits.NonAutonomous, VD)
@@ -310,20 +328,24 @@ struct TimeDeriv_Ham{FH,B<:Differentiation.AbstractADBackend,TD,VD} <: Function
     b::B
 end
 
-function (dtd::TimeDeriv_Ham{FH,B,Traits.Autonomous,Traits.Fixed})(_, x, p) where {FH,B}
+function (dtd::TimeDeriv_Ham{FH,B,Traits.Autonomous,Traits.Fixed})(
+    _, x, p
+) where {FH,B<:Differentiation.AbstractADBackend}
     return zero(dtd.H(x, p))
 end
 function (dtd::TimeDeriv_Ham{FH,B,Traits.Autonomous,Traits.NonFixed})(
     _, x, p, v
-) where {FH,B}
+) where {FH,B<:Differentiation.AbstractADBackend}
     return zero(dtd.H(x, p, v))
 end
-function (dtd::TimeDeriv_Ham{FH,B,Traits.NonAutonomous,Traits.Fixed})(t, x, p) where {FH,B}
+function (dtd::TimeDeriv_Ham{FH,B,Traits.NonAutonomous,Traits.Fixed})(
+    t, x, p
+) where {FH,B<:Differentiation.AbstractADBackend}
     return Differentiation.differentiate(dtd.b, dtd.H, Val(1), t, x, p)
 end
 function (dtd::TimeDeriv_Ham{FH,B,Traits.NonAutonomous,Traits.NonFixed})(
     t, x, p, v
-) where {FH,B}
+) where {FH,B<:Differentiation.AbstractADBackend}
     return Differentiation.differentiate(dtd.b, dtd.H, Val(1), t, x, p, v)
 end
 
@@ -361,7 +383,9 @@ julia> df = ∂ₜ((t, x) -> t * x[1])
   cache: not prepared
 ```
 """
-function Base.show(io::IO, dtd::TimeDeriv_F{F,B}) where {F,B}
+function Base.show(
+    io::IO, dtd::TimeDeriv_F{F,B}
+) where {F,B<:Differentiation.AbstractADBackend}
     println(io, "∂ₜ (generic function)")
     return print(io, "  backend: ", nameof(typeof(dtd.b)))
 end
@@ -373,7 +397,9 @@ Display a `TimeDeriv_F` in the REPL with the same format as `Base.show(io, dtd)`
 
 See also: [`CTLie.∂ₜ`](@ref).
 """
-function Base.show(io::IO, ::MIME"text/plain", dtd::TimeDeriv_F{F,B}) where {F,B}
+function Base.show(
+    io::IO, ::MIME"text/plain", dtd::TimeDeriv_F{F,B}
+) where {F,B<:Differentiation.AbstractADBackend}
     return show(io, dtd)
 end
 
@@ -394,7 +420,9 @@ julia> dX = ∂ₜ(HamiltonianVectorField((t, x, p) -> (t * p, -x), Traits.NonAu
   cache: not prepared
 ```
 """
-function Base.show(io::IO, dtd::TimeDeriv_HVF{FX,B,TD,VD}) where {FX,B,TD,VD}
+function Base.show(
+    io::IO, dtd::TimeDeriv_HVF{FX,B,TD,VD}
+) where {FX,B<:Differentiation.AbstractADBackend,TD,VD}
     println(io, "∂ₜ (HamiltonianVectorField): $(Data._td_label(TD)), $(Data._vd_label(VD))")
     return print(io, "  backend: ", nameof(typeof(dtd.b)))
 end
@@ -408,7 +436,7 @@ See also: [`CTLie.∂ₜ`](@ref).
 """
 function Base.show(
     io::IO, ::MIME"text/plain", dtd::TimeDeriv_HVF{FX,B,TD,VD}
-) where {FX,B,TD,VD}
+) where {FX,B<:Differentiation.AbstractADBackend,TD,VD}
     return show(io, dtd)
 end
 
@@ -429,7 +457,9 @@ julia> dX = ∂ₜ(VectorField((t, x) -> t * x, Traits.NonAutonomous, Traits.Fix
   cache: not prepared
 ```
 """
-function Base.show(io::IO, dtd::TimeDeriv_VF{FX,B,TD,VD}) where {FX,B,TD,VD}
+function Base.show(
+    io::IO, dtd::TimeDeriv_VF{FX,B,TD,VD}
+) where {FX,B<:Differentiation.AbstractADBackend,TD,VD}
     println(io, "∂ₜ (VectorField): $(Data._td_label(TD)), $(Data._vd_label(VD))")
     return print(io, "  backend: ", nameof(typeof(dtd.b)))
 end
@@ -443,7 +473,7 @@ See also: [`CTLie.∂ₜ`](@ref).
 """
 function Base.show(
     io::IO, ::MIME"text/plain", dtd::TimeDeriv_VF{FX,B,TD,VD}
-) where {FX,B,TD,VD}
+) where {FX,B<:Differentiation.AbstractADBackend,TD,VD}
     return show(io, dtd)
 end
 
@@ -464,7 +494,9 @@ julia> dH = ∂ₜ(Hamiltonian((t, x, p) -> t * p[1] + x[1]^2, Traits.NonAutonom
   cache: not prepared
 ```
 """
-function Base.show(io::IO, dtd::TimeDeriv_Ham{FH,B,TD,VD}) where {FH,B,TD,VD}
+function Base.show(
+    io::IO, dtd::TimeDeriv_Ham{FH,B,TD,VD}
+) where {FH,B<:Differentiation.AbstractADBackend,TD,VD}
     println(io, "∂ₜ (Hamiltonian): $(Data._td_label(TD)), $(Data._vd_label(VD))")
     return print(io, "  backend: ", nameof(typeof(dtd.b)))
 end
@@ -478,6 +510,6 @@ See also: [`CTLie.∂ₜ`](@ref).
 """
 function Base.show(
     io::IO, ::MIME"text/plain", dtd::TimeDeriv_Ham{FH,B,TD,VD}
-) where {FH,B,TD,VD}
+) where {FH,B<:Differentiation.AbstractADBackend,TD,VD}
     return show(io, dtd)
 end

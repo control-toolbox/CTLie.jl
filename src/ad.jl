@@ -122,25 +122,33 @@ struct Ad{TX,TF,B<:Differentiation.AbstractADBackend,TD,VD} <: Function
     backend::B
 end
 
-function (a::Ad{TX,TF,B,Traits.Autonomous,Traits.Fixed})(x) where {TX,TF,B}
+function (a::Ad{TX,TF,B,Traits.Autonomous,Traits.Fixed})(
+    x
+) where {TX,TF,B<:Differentiation.AbstractADBackend}
     X_x = a.X(x)
     dfoo = Differentiation.pushforward(a.backend, a.foo, Val(1), x, X_x)
     return _ad_bracket(a.X, a.foo, dfoo, a.backend, Val(1), x)
 end
 
-function (a::Ad{TX,TF,B,Traits.NonAutonomous,Traits.Fixed})(t, x) where {TX,TF,B}
+function (a::Ad{TX,TF,B,Traits.NonAutonomous,Traits.Fixed})(
+    t, x
+) where {TX,TF,B<:Differentiation.AbstractADBackend}
     X_x = a.X(t, x)
     dfoo = Differentiation.pushforward(a.backend, a.foo, Val(2), x, X_x, t)
     return _ad_bracket(a.X, a.foo, dfoo, a.backend, Val(2), x, t)
 end
 
-function (a::Ad{TX,TF,B,Traits.Autonomous,Traits.NonFixed})(x, v) where {TX,TF,B}
+function (a::Ad{TX,TF,B,Traits.Autonomous,Traits.NonFixed})(
+    x, v
+) where {TX,TF,B<:Differentiation.AbstractADBackend}
     X_x = a.X(x, v)
     dfoo = Differentiation.pushforward(a.backend, a.foo, Val(1), x, X_x, v)
     return _ad_bracket(a.X, a.foo, dfoo, a.backend, Val(1), x, v)
 end
 
-function (a::Ad{TX,TF,B,Traits.NonAutonomous,Traits.NonFixed})(t, x, v) where {TX,TF,B}
+function (a::Ad{TX,TF,B,Traits.NonAutonomous,Traits.NonFixed})(
+    t, x, v
+) where {TX,TF,B<:Differentiation.AbstractADBackend}
     X_x = a.X(t, x, v)
     dfoo = Differentiation.pushforward(a.backend, a.foo, Val(2), x, X_x, t, v)
     return _ad_bracket(a.X, a.foo, dfoo, a.backend, Val(2), x, t, v)
@@ -180,7 +188,9 @@ Ad: autonomous, fixed (no variable)
   cache: not prepared
 ```
 """
-function Base.show(io::IO, a::Ad{TX,TF,B,TD,VD}) where {TX,TF,B,TD,VD}
+function Base.show(
+    io::IO, a::Ad{TX,TF,B,TD,VD}
+) where {TX,TF,B<:Differentiation.AbstractADBackend,TD,VD}
     println(io, "Ad: $(Data._td_label(TD)), $(Data._vd_label(VD))")
     return print(io, "  backend: ", nameof(typeof(a.backend)))
 end
@@ -192,7 +202,9 @@ Display an `Ad` callable in the REPL with the same format as `Base.show(io, a)`.
 
 See also: [`CTLie.Ad`](@ref).
 """
-function Base.show(io::IO, ::MIME"text/plain", a::Ad{TX,TF,B,TD,VD}) where {TX,TF,B,TD,VD}
+function Base.show(
+    io::IO, ::MIME"text/plain", a::Ad{TX,TF,B,TD,VD}
+) where {TX,TF,B<:Differentiation.AbstractADBackend,TD,VD}
     return show(io, a)
 end
 
