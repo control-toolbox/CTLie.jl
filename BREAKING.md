@@ -6,6 +6,21 @@ This document describes breaking changes in CTLie.jl releases and how to migrate
 
 ---
 
+## [0.1.4-beta] - 2026-07-15
+
+### No Breaking Changes
+
+This release restores dropped type-parameter bounds in `where` clauses (42 sites)
+and adds consistency bounds to `Poisson` and `Lift` entry points. Tightening a
+`where`-clause bound cannot invalidate a previously-valid call, so there is no
+behavior change.
+
+### Migration
+
+**No action required.** All existing code continues to work without changes.
+
+---
+
 ## [0.1.3-beta] - 2026-07-13
 
 ### No Breaking Changes
