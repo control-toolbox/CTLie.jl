@@ -166,8 +166,10 @@ function test_performance()
             # and the wrapper allocates 32–48 B more than this raw floor.
             Bk = CTLie.ad(_X_raw, _Y_raw)
             mBk = _LieBracketMirror(_X_raw, _Y_raw, bk)
-            Test.@test (BenchmarkTools.@ballocated $Bk($x0)) ==
-                (BenchmarkTools.@ballocated $mBk($x0))
+            if VERSION >= v"1.11"
+                Test.@test (BenchmarkTools.@ballocated $Bk($x0)) ==
+                    (BenchmarkTools.@ballocated $mBk($x0))
+            end
 
             # Poisson(H, G) — four partial derivatives.
             PB = CTLie.Poisson(_H_raw, _G_raw)
