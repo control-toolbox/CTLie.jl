@@ -1,10 +1,9 @@
 name = "CTLie"
 uuid = "6880e05b-3a7d-4cac-887c-30cb52c5fdde"
 authors = ["Olivier Cots"]
-version = "0.1.4-beta"
+version = "0.1.5-beta"
 
 [deps]
-ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
 CTBase = "54762871-cc72-4466-b8e8-f6c8b58076cd"
 DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
@@ -23,6 +22,7 @@ Test = "1"
 julia = "1.10"
 
 [extras]
+ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 DifferentiationInterface = "a0c0ee7d-e4b9-4e03-894e-1c5f64a51d63"
@@ -31,4 +31,4 @@ JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "BenchmarkTools", "DifferentiationInterface", "ForwardDiff", "JET", "Test"]
+test = ["ADTypes", "Aqua", "BenchmarkTools", "DifferentiationInterface", "ForwardDiff", "JET", "Test"]

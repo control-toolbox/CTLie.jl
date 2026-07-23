@@ -80,14 +80,25 @@ loaded** for gradients/derivatives to be available:
 import DifferentiationInterface   # activates the CTBaseDifferentiationInterface extension
 ```
 
+`ad_backend` takes a [`Differentiation.AbstractADBackend`](@extref CTBase) — never a raw
+`ADTypes.AbstractADType` — so that the choice of execution device (CPU or GPU) and the
+choice of underlying AD implementation are both explicit and swappable without
+touching CTLie itself:
+
+```julia
+import CTBase: Differentiation
+
+cpu_backend = Differentiation.DifferentiationInterface()                       # CPU, AutoForwardDiff
+gpu_backend = Differentiation.DifferentiationInterface{CTBase.Strategies.GPU}() # GPU, AutoMooncake
+```
+
 The global default backend is read and set with
 [`dg_ad_backend`](@ref CTLie.dg_ad_backend) /
 [`dg_ad_backend!`](@ref CTLie.dg_ad_backend!):
 
 ```julia
-using ADTypes
-dg_ad_backend!(AutoForwardDiff())   # set global default
-dg_ad_backend()                     # query it
+dg_ad_backend!(cpu_backend)   # set global default
+dg_ad_backend()               # query it
 ```
 
 Every operator also accepts a per-call `ad_backend` keyword that overrides the global
@@ -95,8 +106,8 @@ default for that call only — including [`@Lie`](@ref CTLie.@Lie)
 via `ad_backend=…`:
 
 ```julia
-ad(X, Y; ad_backend=AutoForwardDiff())
-@Lie [X, Y] ad_backend=AutoForwardDiff()
+ad(X, Y; ad_backend=cpu_backend)
+@Lie [X, Y] ad_backend=cpu_backend
 ```
 
 ### Code generation by `@Lie`

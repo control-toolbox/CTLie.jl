@@ -146,7 +146,7 @@ function test_poisson_dg()
     Test.@testset "Poisson() - ad_backend parameter" verbose=VERBOSE showtiming=SHOWTIMING begin
         H(x, p) = p[1]^2 / 2 + x[1]
         G(x, p) = p[2]^2 / 2 + x[2]
-        backend = ADTypes.AutoForwardDiff()
+        backend = Differentiation.DifferentiationInterface(; ad_backend=ADTypes.AutoForwardDiff())
         PB = CTLie.Poisson(H, G; ad_backend=backend)
         x0 = [1.0, 2.0];
         p0 = [0.5, 1.0]

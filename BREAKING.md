@@ -6,6 +6,50 @@ This document describes breaking changes in CTLie.jl releases and how to migrate
 
 ---
 
+## [0.1.5-beta] - 2026-07-23
+
+### Breaking Changes: `ad_backend` now takes `Differentiation.AbstractADBackend`
+
+#### What Changed
+
+- `ad`, `Poisson`, `∂ₜ`, and `dg_ad_backend!` no longer accept a raw
+  `ADTypes.AbstractADType` for the `ad_backend` keyword; they now require a
+  `CTBase.Differentiation.AbstractADBackend` instance.
+- `ADTypes` is removed from CTLie's hard dependencies (moved to test-only in
+  `Project.toml`).
+- This is a side effect of fixing a load-time bug: `Differentiation.build_ad_backend`
+  (used internally to build the global default backend) was removed from CTBase in
+  `0.28.3-beta`, breaking `using CTLie`.
+
+#### Migration
+
+```julia
+# Before
+using ADTypes
+ad(X, Y; ad_backend=AutoForwardDiff())
+dg_ad_backend!(AutoForwardDiff())
+
+# After
+import CTBase: Differentiation
+import ADTypes
+
+ad(X, Y; ad_backend=Differentiation.DifferentiationInterface(; ad_backend=ADTypes.AutoForwardDiff()))
+dg_ad_backend!(Differentiation.DifferentiationInterface())   # CPU default: AutoForwardDiff
+
+# GPU execution:
+dg_ad_backend!(Differentiation.DifferentiationInterface{CTBase.Strategies.GPU}())
+```
+
+#### Rationale
+
+CTLie should depend on CTBase's differentiation *abstraction*
+(`Differentiation.AbstractADBackend`, parameterized over the CPU/GPU execution
+device) rather than on one concrete implementation's underlying `ADTypes` type.
+This lets users pick CPU or GPU execution explicitly, and means a future
+non-`ADTypes`-based backend can be dropped in without any change to CTLie.
+
+---
+
 ## [0.1.4-beta] - 2026-07-15
 
 ### No Breaking Changes

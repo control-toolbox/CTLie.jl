@@ -75,7 +75,7 @@ Both vector fields must share the same time dependence and variable dependence.
 # Arguments
 - `X::Data.AbstractVectorField{TD, VD, MDX}`: First vector field.
 - `Y::Data.AbstractVectorField{TD, VD, MDY}`: Second vector field.
-- `ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType}`: AD backend to use (default: global backend).
+- `ad_backend::Union{Differentiation.AbstractADBackend, CTBase.Core.NotProvidedType}`: AD backend to use (default: global backend).
 
 # Returns
 - `Data.VectorField{TD, VD, Traits.OutOfPlace}`: The Lie bracket as a vector field.
@@ -102,7 +102,7 @@ See also: [`CTLie.ad`](@ref)
 function ad(
     X::Data.AbstractVectorField{TD,VD,MDX},
     Y::Data.AbstractVectorField{TD,VD,MDY};
-    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
+    ad_backend::Union{Differentiation.AbstractADBackend,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
 ) where {
     TD<:Traits.TimeDependence,
     VD<:Traits.VariableDependence,
@@ -128,7 +128,7 @@ Returns a plain function representing the directional derivative `∇f(x)'*X(x)`
 # Arguments
 - `X::Data.AbstractVectorField{TD, VD, MDX}`: Vector field.
 - `f::Function`: Scalar function.
-- `ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType}`: AD backend to use (default: global backend).
+- `ad_backend::Union{Differentiation.AbstractADBackend, CTBase.Core.NotProvidedType}`: AD backend to use (default: global backend).
 
 # Returns
 - A function with signature depending on TD/VD that returns a scalar.
@@ -155,7 +155,7 @@ See also: [`CTLie.ad`](@ref)
 function ad(
     X::Data.AbstractVectorField{TD,VD,MDX},
     f::Function;
-    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
+    ad_backend::Union{Differentiation.AbstractADBackend,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
 ) where {
     TD<:Traits.TimeDependence,
     VD<:Traits.VariableDependence,
@@ -178,7 +178,7 @@ dependence types, which is not allowed for the Lie bracket operation.
 # Arguments
 - `X::Data.AbstractVectorField{TD1, VD1, MDX}`: First vector field.
 - `Y::Data.AbstractVectorField{TD2, VD2, MDY}`: Second vector field with mismatched TD/VD.
-- `ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType}`: AD backend (unused).
+- `ad_backend::Union{Differentiation.AbstractADBackend, CTBase.Core.NotProvidedType}`: AD backend (unused).
 
 # Throws
 - `Exceptions.PreconditionError`: Always thrown with details about the TD/VD mismatch.
@@ -192,7 +192,7 @@ See also: [`CTLie.ad`](@ref)
 function ad(
     X::Data.AbstractVectorField{TD1,VD1,MDX},
     Y::Data.AbstractVectorField{TD2,VD2,MDY};
-    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
+    ad_backend::Union{Differentiation.AbstractADBackend,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
 ) where {
     TD1<:Traits.TimeDependence,
     VD1<:Traits.VariableDependence,
@@ -227,7 +227,7 @@ See also: [`CTLie.Poisson`](@ref)
 function ad(
     ::Data.AbstractHamiltonian,
     ::Data.AbstractHamiltonian;
-    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
+    ad_backend::Union{Differentiation.AbstractADBackend,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
 )
     return throw(
         Exceptions.IncorrectArgument(
@@ -249,7 +249,7 @@ Error method for Hamiltonian as first operand in Lie bracket.
 function ad(
     ::Data.AbstractHamiltonian,
     ::Any;
-    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
+    ad_backend::Union{Differentiation.AbstractADBackend,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
 )
     return throw(
         Exceptions.IncorrectArgument(
@@ -271,7 +271,7 @@ where the second argument is a Hamiltonian and the first is some other type.
 # Arguments
 - `::Any`: First operand.
 - `::Data.AbstractHamiltonian`: Hamiltonian second operand (not allowed in Lie bracket).
-- `ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType}`: AD backend (unused).
+- `ad_backend::Union{Differentiation.AbstractADBackend, CTBase.Core.NotProvidedType}`: AD backend (unused).
 
 # Throws
 - `Exceptions.IncorrectArgument`: Always thrown with suggestion to use Poisson bracket.
@@ -281,7 +281,7 @@ See also: [`CTLie.Poisson`](@ref)
 function ad(
     ::Any,
     ::Data.AbstractHamiltonian;
-    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
+    ad_backend::Union{Differentiation.AbstractADBackend,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
 )
     return throw(
         Exceptions.IncorrectArgument(

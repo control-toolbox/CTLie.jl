@@ -33,14 +33,14 @@ This `Ref` holds the current AD backend that is used by [`CTLie.ad`](@ref),
 - `Ref{Differentiation.AbstractADBackend}`: Mutable reference to an AD backend.
 
 # Notes
-- Initialized at module load time with `AutoForwardDiff` via [`CTBase.Differentiation.build_ad_backend`](@extref CTBase).
+- Initialized at module load time with a CPU [`CTBase.Differentiation.DifferentiationInterface`](@extref CTBase) (`AutoForwardDiff` under the hood).
 - Modified via [`CTLie.dg_ad_backend!`](@ref).
 - Accessed via [`CTLie.dg_ad_backend`](@ref).
 
 See also: [`CTLie.dg_ad_backend`](@ref), [`CTLie.dg_ad_backend!`](@ref), [`CTLie.__dg_ad_backend`](@ref).
 """
 const DG_AD_BACKEND = Ref{Differentiation.AbstractADBackend}(
-    Differentiation.build_ad_backend(),   # AutoForwardDiff via CTBase.Differentiation.__ad_backend()
+    Differentiation.DifferentiationInterface(),   # CPU default: AutoForwardDiff
 )
 
 """
@@ -70,12 +70,12 @@ $(TYPEDSIGNATURES)
 
 Set the global automatic differentiation backend used by CTLie operations.
 
-This function rebuilds the backend from an ADTypes backend type. The new backend will be
-used by [`CTLie.ad`](@ref), [`CTLie.Poisson`](@ref), and [`CTLie.∂ₜ`](@ref) when no explicit `ad_backend`
-keyword argument is provided.
+The new backend will be used by [`CTLie.ad`](@ref), [`CTLie.Poisson`](@ref), and
+[`CTLie.∂ₜ`](@ref) when no explicit `ad_backend` keyword argument is provided.
 
 # Arguments
-- `ad_backend::ADTypes.AbstractADType`: The ADTypes backend type to use (e.g., `AutoForwardDiff()`).
+- `ad_backend::Differentiation.AbstractADBackend`: The AD backend to use, e.g. a CPU or
+  GPU [`CTBase.Differentiation.DifferentiationInterface`](@extref CTBase).
 
 # Returns
 - `nothing`
@@ -83,33 +83,31 @@ keyword argument is provided.
 # Example
 ```julia
 using CTLie
-using ADTypes
+import CTBase: Differentiation
 
-dg_ad_backend!(AutoForwardDiff())
+dg_ad_backend!(Differentiation.DifferentiationInterface())
 ```
 
 See also: [`CTLie.dg_ad_backend`](@ref), [`CTLie.ad`](@ref), [`CTLie.Poisson`](@ref), [`CTLie.∂ₜ`](@ref)
 """
-function dg_ad_backend!(ad_backend::ADTypes.AbstractADType)
-    DG_AD_BACKEND[] = Differentiation.build_ad_backend(; ad_backend=ad_backend)
+function dg_ad_backend!(ad_backend::Differentiation.AbstractADBackend)
+    DG_AD_BACKEND[] = ad_backend
     return nothing
 end
 
-# Resolution: NotProvided → global ref; ADTypes.AbstractADType → build fresh backend
+# Resolution: NotProvided → global ref; AbstractADBackend → itself
 """
 Resolve the AD backend from a keyword argument.
 
-If `NotProvided`, returns the global backend. If an ADTypes backend,
-builds a fresh backend from the ADType.
+If `NotProvided`, returns the global backend. If an `AbstractADBackend`, returns it
+unchanged.
 
 # Arguments
 - `::CTBase.Core.NotProvidedType`: Sentinel value indicating no backend specified.
-- `ad_backend::ADTypes.AbstractADType`: ADTypes backend type to build.
+- `ad_backend::Differentiation.AbstractADBackend`: Backend to use as-is.
 
 # Returns
 - `Differentiation.AbstractADBackend`: The resolved backend.
 """
 _resolve_backend(::CTBase.Core.NotProvidedType) = DG_AD_BACKEND[]
-function _resolve_backend(ad_backend::ADTypes.AbstractADType)
-    return Differentiation.build_ad_backend(; ad_backend=ad_backend)
-end
+_resolve_backend(ad_backend::Differentiation.AbstractADBackend) = ad_backend
