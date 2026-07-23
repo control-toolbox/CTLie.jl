@@ -23,7 +23,7 @@ The input function must accept time as its first argument.
 
 # Arguments
 - `f::Function`: Function that takes time as the first argument.
-- `ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType}`: AD backend to use (default: global backend).
+- `ad_backend::Union{Differentiation.AbstractADBackend, CTBase.Core.NotProvidedType}`: AD backend to use (default: global backend).
 
 # Returns
 - A [`TimeDeriv_F`](@ref) callable `(t, args...) -> ∂f/∂t(t, args...)`.
@@ -42,7 +42,7 @@ See also: [`CTLie.∂ₜ`](@ref)
 """
 function ∂ₜ(
     f::Function;
-    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
+    ad_backend::Union{Differentiation.AbstractADBackend,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
 )
     backend = _resolve_backend(ad_backend)
     return TimeDeriv_F{typeof(f),typeof(backend)}(f, backend)
@@ -58,7 +58,7 @@ For autonomous vector fields, the derivative is zero.
 
 # Arguments
 - `X::Data.AbstractHamiltonianVectorField{TD, VD, MD}`: Hamiltonian vector field.
-- `ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType}`: AD backend to use (default: global backend).
+- `ad_backend::Union{Differentiation.AbstractADBackend, CTBase.Core.NotProvidedType}`: AD backend to use (default: global backend).
 
 # Returns
 - `Data.HamiltonianVectorField{Traits.NonAutonomous, VD, Traits.OutOfPlace}`: Time derivative.
@@ -82,7 +82,7 @@ See also: [`CTLie.∂ₜ`](@ref)
 """
 function ∂ₜ(
     X::Data.AbstractHamiltonianVectorField{TD,VD,MD};
-    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
+    ad_backend::Union{Differentiation.AbstractADBackend,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
 ) where {
     TD<:Traits.TimeDependence,
     VD<:Traits.VariableDependence,
@@ -194,7 +194,7 @@ For autonomous vector fields, the derivative is zero.
 
 # Arguments
 - `X::Data.AbstractVectorField{TD, VD, MD}`: Vector field.
-- `ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType}`: AD backend to use (default: global backend).
+- `ad_backend::Union{Differentiation.AbstractADBackend, CTBase.Core.NotProvidedType}`: AD backend to use (default: global backend).
 
 # Returns
 - `Data.VectorField{Traits.NonAutonomous, VD, Traits.OutOfPlace}`: Time derivative.
@@ -218,7 +218,7 @@ See also: [`CTLie.∂ₜ`](@ref)
 """
 function ∂ₜ(
     X::Data.AbstractVectorField{TD,VD,MD};
-    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
+    ad_backend::Union{Differentiation.AbstractADBackend,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
 ) where {
     TD<:Traits.TimeDependence,
     VD<:Traits.VariableDependence,
@@ -287,7 +287,7 @@ For autonomous Hamiltonians, the derivative is zero.
 
 # Arguments
 - `H::Data.AbstractHamiltonian{TD, VD}`: Hamiltonian.
-- `ad_backend::Union{ADTypes.AbstractADType, CTBase.Core.NotProvidedType}`: AD backend to use (default: global backend).
+- `ad_backend::Union{Differentiation.AbstractADBackend, CTBase.Core.NotProvidedType}`: AD backend to use (default: global backend).
 
 # Returns
 - `Data.Hamiltonian{Traits.NonAutonomous, VD}`: Time derivative.
@@ -308,7 +308,7 @@ See also: [`CTLie.∂ₜ`](@ref)
 """
 function ∂ₜ(
     H::Data.AbstractHamiltonian{TD,VD};
-    ad_backend::Union{ADTypes.AbstractADType,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
+    ad_backend::Union{Differentiation.AbstractADBackend,CTBase.Core.NotProvidedType}=__dg_ad_backend(),
 ) where {TD<:Traits.TimeDependence,VD<:Traits.VariableDependence}
     backend = _resolve_backend(ad_backend)
     closure = _∂ₜ_ham(H, backend, TD, VD)

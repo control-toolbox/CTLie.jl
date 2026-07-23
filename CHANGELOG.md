@@ -13,6 +13,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.5-beta] - 2026-07-23
+
+### 🐛 Fixed
+
+- **Restored package loading.** `CTBase.Differentiation.build_ad_backend` was removed
+  in CTBase `0.28.3-beta` (it was a trivial wrapper around
+  `Differentiation.DifferentiationInterface(; kwargs...)`). CTLie's `DG_AD_BACKEND`
+  global was still built by calling it at module load time, so `using CTLie` failed.
+  Replaced with `Differentiation.DifferentiationInterface()`.
+
+### 🔧 Changed
+
+- **Breaking: `ad_backend` keyword now takes `Differentiation.AbstractADBackend`,
+  not `ADTypes.AbstractADType`.** `ad`, `Poisson`, `∂ₜ`, and `dg_ad_backend!` now
+  accept a fully-constructed backend — built via
+  `CTBase.Differentiation.DifferentiationInterface(...)` (CPU) or
+  `DifferentiationInterface{CTBase.Strategies.GPU}(...)` (GPU) — instead of a raw
+  `ADTypes` object. This depends on CTBase's differentiation *abstraction* rather
+  than one concrete implementation's underlying type, and lets users pick CPU or GPU
+  execution explicitly. `ADTypes` is no longer a hard dependency of CTLie (moved to
+  test-only in `Project.toml`). See `BREAKING.md` for migration.
+
+---
+
 ## [0.1.4-beta] - 2026-07-15
 
 ### 🐛 Fixed

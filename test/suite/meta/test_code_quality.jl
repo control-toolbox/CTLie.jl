@@ -20,8 +20,8 @@ const SHOWTIMING = isdefined(Main, :TestData) ? Main.TestData.SHOWTIMING : true
 # Handbook's performance guide, "hot path vs. setup path").
 #
 # CTLie has no such construction — every one-time constructor (`ad`, `Poisson`,
-# `Lift`, `∂ₜ`) resolves a `Union{ADTypes.AbstractADType,NotProvidedType}` keyword
-# once via `_resolve_backend` and captures a concrete backend into the returned
+# `Lift`, `∂ₜ`) resolves a `Union{Differentiation.AbstractADBackend,NotProvidedType}`
+# keyword once via `_resolve_backend` and captures a concrete backend into the returned
 # callable struct's `B<:AbstractADBackend` field; nothing downstream stays a
 # runtime union. A one-off `JET.report_package(CTLie; target_modules=(CTLie,))`
 # scan (2026-07-15) confirmed this empirically: 0 reports, "No errors detected".

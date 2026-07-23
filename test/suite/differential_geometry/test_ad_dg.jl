@@ -109,7 +109,7 @@ function test_ad_dg()
         Xf1 = CTLie.ad(X, f)
 
         # With custom backend (should give same result)
-        Xf2 = CTLie.ad(X, f; ad_backend=Differentiation.ad_backend(CTLie.dg_ad_backend()))
+        Xf2 = CTLie.ad(X, f; ad_backend=CTLie.dg_ad_backend())
 
         x0 = [1.0, 2.0]
         Test.@test isapprox(Xf1(x0), Xf2(x0); atol=1e-5)
@@ -124,7 +124,7 @@ function test_ad_dg()
 
         try
             # Change global backend
-            CTLie.dg_ad_backend!(Differentiation.ad_backend(original_backend))
+            CTLie.dg_ad_backend!(original_backend)
 
             # Call without explicit backend kwarg — should use global
             Z = CTLie.ad(X, Y)
@@ -134,7 +134,7 @@ function test_ad_dg()
             Test.@test isapprox(Z(x0), [0.0, 0.0]; atol=1e-6)
         finally
             # Restore original backend
-            CTLie.dg_ad_backend!(Differentiation.ad_backend(original_backend))
+            CTLie.dg_ad_backend!(original_backend)
         end
     end
 
@@ -263,7 +263,7 @@ function test_ad_dg()
     end
 
     Test.@testset "ad() - Backend: fake ADType" verbose=VERBOSE showtiming=SHOWTIMING begin
-        # Use AutoForwardDiff as a concrete ADType
+        # Use AutoForwardDiff as a concrete ADType, wrapped in a DifferentiationInterface
         X(x) = [x[2], -x[1]]
         f(x) = x[1]^2 + x[2]^2
 
@@ -271,7 +271,9 @@ function test_ad_dg()
         Xf1 = CTLie.ad(X, f)
 
         # With explicit fake backend (AutoForwardDiff)
-        Xf2 = CTLie.ad(X, f; ad_backend=ADTypes.AutoForwardDiff())
+        Xf2 = CTLie.ad(
+            X, f; ad_backend=Differentiation.DifferentiationInterface(; ad_backend=ADTypes.AutoForwardDiff())
+        )
 
         x0 = [1.0, 2.0]
         Test.@test isapprox(Xf1(x0), Xf2(x0); atol=1e-5)
