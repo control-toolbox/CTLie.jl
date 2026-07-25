@@ -272,7 +272,11 @@ function test_ad_dg()
 
         # With explicit fake backend (AutoForwardDiff)
         Xf2 = CTLie.ad(
-            X, f; ad_backend=Differentiation.DifferentiationInterface(; ad_backend=ADTypes.AutoForwardDiff())
+            X,
+            f;
+            ad_backend=Differentiation.DifferentiationInterface(;
+                ad_backend=ADTypes.AutoForwardDiff()
+            ),
         )
 
         x0 = [1.0, 2.0]
