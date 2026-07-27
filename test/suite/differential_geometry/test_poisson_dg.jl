@@ -20,7 +20,7 @@ function test_poisson_dg()
         G(x, p) = p[2]^2 / 2 + x[2]
         PH = CTLie.Poisson(H, G)
         PG = CTLie.Poisson(G, H)
-        x0 = [1.0, 2.0];
+        x0 = [1.0, 2.0]
         p0 = [0.5, 1.0]
         Test.@test PH(x0, p0) ≈ -PG(x0, p0) atol=1e-6
     end
@@ -31,7 +31,7 @@ function test_poisson_dg()
         G(x, p) = p[1]   # ∇pG = [1,0], ∇xG = 0
         # {H,G} = ∇pH · ∇xG - ∇xH · ∇pG = 0·0 - [1,0]·[1,0] = -1
         PB = CTLie.Poisson(H, G)
-        x0 = [1.0, 2.0];
+        x0 = [1.0, 2.0]
         p0 = [0.5, 1.0]
         Test.@test PB(x0, p0) ≈ -1.0 atol=1e-6
     end
@@ -57,8 +57,8 @@ function test_poisson_dg()
         H(t, x, p) = t * p[1]
         G(t, x, p) = x[1]
         PB = CTLie.Poisson(H, G; is_autonomous=false, is_variable=false)
-        t0 = 3.0;
-        x0 = [1.0, 2.0];
+        t0 = 3.0
+        x0 = [1.0, 2.0]
         p0 = [0.5, 1.0]
         Test.@test PB(t0, x0, p0) ≈ t0 atol=1e-6
     end
@@ -69,8 +69,8 @@ function test_poisson_dg()
         H(x, p, v) = v[1] * p[1]
         G(x, p, v) = x[1]
         PB = CTLie.Poisson(H, G; is_autonomous=true, is_variable=true)
-        x0 = [1.0, 2.0];
-        p0 = [0.5, 1.0];
+        x0 = [1.0, 2.0]
+        p0 = [0.5, 1.0]
         v0 = [2.0]
         Test.@test PB(x0, p0, v0) ≈ v0[1] atol=1e-6
     end
@@ -81,9 +81,9 @@ function test_poisson_dg()
         H(t, x, p, v) = t * v[1] * p[1]
         G(t, x, p, v) = x[1]
         PB = CTLie.Poisson(H, G; is_autonomous=false, is_variable=true)
-        t0 = 3.0;
-        x0 = [1.0, 2.0];
-        p0 = [0.5, 1.0];
+        t0 = 3.0
+        x0 = [1.0, 2.0]
+        p0 = [0.5, 1.0]
         v0 = [2.0]
         Test.@test PB(t0, x0, p0, v0) ≈ t0 * v0[1] atol=1e-6
     end
@@ -107,7 +107,7 @@ function test_poisson_dg()
         H(x, p) = p[1]^2 / 2 + x[1]^2
         G(x, p) = x[1] * p[1]
         PB = CTLie.Poisson(H, G)
-        x0 = [1.0, 2.0];
+        x0 = [1.0, 2.0]
         p0 = [0.5, 1.0]
         Test.@test (Test.@inferred PB(x0, p0)) isa Float64
     end
@@ -116,8 +116,8 @@ function test_poisson_dg()
         H(x, p, v) = v[1] * p[1]^2 / 2 + x[1]^2
         G(x, p, v) = x[1] * p[1]
         PB = CTLie.Poisson(H, G; is_autonomous=true, is_variable=true)
-        x0 = [1.0, 2.0];
-        p0 = [0.5, 1.0];
+        x0 = [1.0, 2.0]
+        p0 = [0.5, 1.0]
         v0 = [2.0]
         Test.@test (Test.@inferred PB(x0, p0, v0)) isa Float64
     end
@@ -126,8 +126,8 @@ function test_poisson_dg()
         H(t, x, p) = t * p[1]
         G(t, x, p) = x[1]
         PB = CTLie.Poisson(H, G; is_autonomous=false, is_variable=false)
-        t0 = 3.0;
-        x0 = [1.0, 2.0];
+        t0 = 3.0
+        x0 = [1.0, 2.0]
         p0 = [0.5, 1.0]
         Test.@test (Test.@inferred PB(t0, x0, p0)) isa Float64
     end
@@ -136,9 +136,9 @@ function test_poisson_dg()
         H(t, x, p, v) = t * v[1] * p[1]^2 / 2 + x[1]
         G(t, x, p, v) = x[1] * p[1]
         PB = CTLie.Poisson(H, G; is_autonomous=false, is_variable=true)
-        t0 = 3.0;
-        x0 = [1.0, 2.0];
-        p0 = [0.5, 1.0];
+        t0 = 3.0
+        x0 = [1.0, 2.0]
+        p0 = [0.5, 1.0]
         v0 = [2.0]
         Test.@test (Test.@inferred PB(t0, x0, p0, v0)) isa Float64
     end
@@ -150,7 +150,7 @@ function test_poisson_dg()
             ad_backend=ADTypes.AutoForwardDiff()
         )
         PB = CTLie.Poisson(H, G; ad_backend=backend)
-        x0 = [1.0, 2.0];
+        x0 = [1.0, 2.0]
         p0 = [0.5, 1.0]
         val = PB(x0, p0)
         Test.@test val isa Number
@@ -163,7 +163,7 @@ function test_poisson_dg()
         # Autonomous, Fixed
         PB_af_typed = CTLie.Poisson(H, G, Traits.Autonomous, Traits.Fixed)
         PB_af_kwargs = CTLie.Poisson(H, G; is_autonomous=true, is_variable=false)
-        x0 = [1.0, 2.0];
+        x0 = [1.0, 2.0]
         p0 = [0.5, 1.0]
         Test.@test PB_af_typed(x0, p0) ≈ PB_af_kwargs(x0, p0) atol=1e-6
 
@@ -197,7 +197,7 @@ function test_poisson_dg()
         H(x, p) = 0.5 * (p^2 + x^2)
         G(x, p) = x
         PB = CTLie.Poisson(H, G)
-        x0 = 1.0;
+        x0 = 1.0
         p0 = 3.0
         # {H, G} = ∂H/∂p * ∂G/∂x - ∂H/∂x * ∂G/∂p = p * 1 - x * 0 = p
         Test.@test PB(x0, p0) ≈ 3.0 atol=1e-6

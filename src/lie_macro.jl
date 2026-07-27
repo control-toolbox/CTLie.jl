@@ -163,9 +163,9 @@ function _lie_mac(
     has_var::Val,
     backend,
 ) where {TD,VD}
-    _check_td(a, TD, has_aut);
+    _check_td(a, TD, has_aut)
     _check_td(b, TD, has_aut)
-    _check_vd(a, VD, has_var);
+    _check_vd(a, VD, has_var)
     _check_vd(b, VD, has_var)
     return ad(_as_vf(a, TD, VD), _as_vf(b, TD, VD); ad_backend=backend)
 end
@@ -285,9 +285,9 @@ function _poisson_mac(
     has_var::Val,
     backend,
 ) where {TD,VD}
-    _check_td(h, TD, has_aut);
+    _check_td(h, TD, has_aut)
     _check_td(g, TD, has_aut)
-    _check_vd(h, VD, has_var);
+    _check_vd(h, VD, has_var)
     _check_vd(g, VD, has_var)
     return Poisson(_as_ham(h, TD, VD), _as_ham(g, TD, VD); ad_backend=backend)
 end
@@ -360,9 +360,9 @@ Parse keyword arguments for the @Lie macro.
 - `Expr`: Error expression if parsing failed, otherwise `nothing`.
 """
 function __parse_lie_opts(args...)
-    is_autonomous = Data.__is_autonomous();
+    is_autonomous = Data.__is_autonomous()
     has_aut = false
-    is_variable = Data.__is_variable();
+    is_variable = Data.__is_variable()
     has_var = false
     backend_expr = :(CTLie.__dg_ad_backend())
 
@@ -370,10 +370,10 @@ function __parse_lie_opts(args...)
         if arg isa Expr && (arg.head === :(=) || arg.head === :kw)
             key, val = arg.args[1], arg.args[2]
             if key === :is_autonomous
-                is_autonomous = val;
+                is_autonomous = val
                 has_aut = true
             elseif key === :is_variable
-                is_variable = val;
+                is_variable = val
                 has_var = true
             elseif key === :ad_backend
                 backend_expr = val

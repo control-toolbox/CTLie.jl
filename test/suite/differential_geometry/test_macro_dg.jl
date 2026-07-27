@@ -13,8 +13,8 @@ const VERBOSE = isdefined(Main, :TestData) ? Main.TestData.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestData) ? Main.TestData.SHOWTIMING : true
 
 # ─── Shared constants used across many testsets ────────────────────────────
-const _Γ = 2;
-const _γ = 1;
+const _Γ = 2
+const _γ = 1
 const _δ = _γ - _Γ  # δ = -1
 const _t = 1.0
 const _x3 = [1.0, 2.0, 3.0]
@@ -362,7 +362,7 @@ function test_macro_dg()
 
     # =========================================================================
     Test.@testset "poisson macro — Hamiltonians, nonautonomous nonfixed" verbose=VERBOSE showtiming=SHOWTIMING begin
-        t2 = 2.0;
+        t2 = 2.0
         vv = [4.0, 4.0]
         f = (t, x, p, v) -> t*v[1]*x[2]^2 + 2x[1]^2 + p[1]^2 + v[2]
         g = (t, x, p, v) -> 3x[2]^2 - x[1]^2 + p[2]^2 + p[1] + t - v[2]
@@ -444,7 +444,7 @@ function test_macro_dg()
 
     # =========================================================================
     Test.@testset "poisson macro — plain functions, nonautonomous nonfixed" verbose=VERBOSE showtiming=SHOWTIMING begin
-        t2 = 2.0;
+        t2 = 2.0
         vv = 2.0
         f = (t, x, p, v) -> 0.5*(x[1]^2 + x[2]^2 + p[1]^2 + v)
         g = (t, x, p, v) -> 0.5*(x[1]^2 + x[2]^2 + p[2]^2 + v)
@@ -501,7 +501,7 @@ function test_macro_dg()
         Test.@test mac_Hf_v(_x2, _p2, vv) ≈ ref_v(_x2, _p2, vv) atol=1e-6
 
         # Function + Hamiltonian, nonautonomous nonfixed
-        t2 = 2.0;
+        t2 = 2.0
         vv = 2.0
         h_tv = (t, x, p, v) -> t*x[2]^2 + 2x[1]^2 + p[1]^2 + v
         g_tv = (t, x, p, v) -> 3x[2]^2 - x[1]^2 + p[2]^2 + v
