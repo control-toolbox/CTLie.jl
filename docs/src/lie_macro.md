@@ -19,7 +19,8 @@ as `[1.0, 2.0]` — may appear directly inside the macro expression.
 ```@example liemacro
 using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
 using CTBase: CTBase               # @Lie expands to CTBase.Traits.* — CTBase must be in scope
-using CTBase: Data                 # VectorField, Hamiltonian, HamiltonianVectorField
+using CTBase: Data                 # Data submodule
+using CTBase.Data: VectorField, Hamiltonian, HamiltonianVectorField
 using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
 using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
 nothing # hide
