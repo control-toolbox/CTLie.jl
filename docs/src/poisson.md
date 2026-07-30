@@ -19,8 +19,7 @@ computed by automatic differentiation, so the AD backend extension must be loade
 
 ```@example poisson
 using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
-using CTBase: Data                 # Data submodule
-using CTBase.Data: VectorField, Hamiltonian, HamiltonianVectorField
+using CTBase: Data                 # VectorField, Hamiltonian, … (accessed as Data.VectorField, etc.)
 using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
 using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
 nothing # hide
@@ -118,8 +117,8 @@ share the same time- and variable-dependence (see
 [Limitations & configuration](limitations.md)).
 
 ```@example poisson
-F = Hamiltonian((x, p) -> p[1]^2 / 2 + x[1]^2; is_autonomous=true)
-G = Hamiltonian((x, p) -> x[1] * p[1]; is_autonomous=true)
+F = Data.Hamiltonian((x, p) -> p[1]^2 / 2 + x[1]^2; is_autonomous=true)
+G = Data.Hamiltonian((x, p) -> x[1] * p[1]; is_autonomous=true)
 B = Poisson(F, G)
 ```
 
@@ -146,8 +145,8 @@ this package,
 Verified numerically:
 
 ```@example poisson
-X = VectorField(x -> [x[2], 2x[1]]; is_autonomous=true)
-Y = VectorField(x -> [3x[2], -x[1]]; is_autonomous=true)
+X = Data.VectorField(x -> [x[2], 2x[1]]; is_autonomous=true)
+Y = Data.VectorField(x -> [3x[2], -x[1]]; is_autonomous=true)
 x0, p0 = [1.0, 2.0], [0.5, 1.0]
 
 lhs = Poisson(Lift(X), Lift(Y))(x0, p0)   # {H_X, H_Y}

@@ -28,8 +28,7 @@ loaded.
 
 ```@example dt
 using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
-using CTBase: Data                 # Data submodule
-using CTBase.Data: VectorField, Hamiltonian, HamiltonianVectorField
+using CTBase: Data                 # VectorField, Hamiltonian, … (accessed as Data.VectorField, etc.)
 using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
 using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
 nothing # hide
@@ -59,7 +58,7 @@ For a [`VectorField`](@extref CTBase CTBase.Data.VectorField), `∂ₜ` returns 
 that is `NonAutonomous` and `OutOfPlace`.
 
 ```@example dt
-X  = VectorField((t, x) -> t .* x; is_autonomous=false)
+X  = Data.VectorField((t, x) -> t .* x; is_autonomous=false)
 dX = ∂ₜ(X)
 dX(2.0, [1.0, 2.0])      # ∂/∂t (t·x) = x
 ```
@@ -68,7 +67,7 @@ An autonomous field has zero time derivative — but note the result is still re
 leading `t`:
 
 ```@example dt
-Xa  = VectorField(x -> [x[2], -x[1]]; is_autonomous=true)
+Xa  = Data.VectorField(x -> [x[2], -x[1]]; is_autonomous=true)
 dXa = ∂ₜ(Xa)
 dXa(0.0, [1.0, 2.0])     # zero
 ```
@@ -79,7 +78,7 @@ For a [`Hamiltonian`](@extref CTBase CTBase.Data.Hamiltonian), `∂ₜ` returns 
 `Hamiltonian`.
 
 ```@example dt
-H  = Hamiltonian((t, x, p) -> t * p[1] + x[1]^2; is_autonomous=false)
+H  = Data.Hamiltonian((t, x, p) -> t * p[1] + x[1]^2; is_autonomous=false)
 dH = ∂ₜ(H)
 dH(2.0, [1.0], [0.5])    # ∂/∂t (t·p₁ + x₁²) = p₁
 ```
@@ -90,7 +89,7 @@ For a [`HamiltonianVectorField`](@extref CTBase CTBase.Data.HamiltonianVectorFie
 `NonAutonomous` `HamiltonianVectorField`.
 
 ```@example dt
-Z  = HamiltonianVectorField((t, x, p) -> t .* [p[1], -x[1]]; is_autonomous=false)
+Z  = Data.HamiltonianVectorField((t, x, p) -> t .* [p[1], -x[1]]; is_autonomous=false)
 dZ = ∂ₜ(Z)
 dZ(2.0, [1.0], [0.5])    # ∂/∂t t·[p₁, -x₁] = [p₁, -x₁]
 ```
