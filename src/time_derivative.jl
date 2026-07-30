@@ -69,8 +69,8 @@ For autonomous vector fields, the derivative is zero.
 # Example
 ```julia
 using CTLie
-using CTBase.Data
-using CTBase.Traits
+using CTBase: Data
+using CTBase: Traits
 
 X = HamiltonianVectorField((t, x, p) -> t * p, Traits.NonAutonomous, Traits.Fixed, Traits.OutOfPlace)
 dX_dt = ∂ₜ(X)
@@ -203,8 +203,8 @@ For autonomous vector fields, the derivative is zero.
 # Example
 ```julia
 using CTLie
-using CTBase.Data
-using CTBase.Traits
+using CTBase: Data
+using CTBase: Traits
 
 X = VectorField((t, x) -> t * x, Traits.NonAutonomous, Traits.Fixed, Traits.OutOfPlace)
 dX_dt = ∂ₜ(X)
@@ -293,8 +293,8 @@ For autonomous Hamiltonians, the derivative is zero.
 # Example
 ```julia
 using CTLie
-using CTBase.Data
-using CTBase.Traits
+using CTBase: Data
+using CTBase: Traits
 
 H = Hamiltonian((t, x, p) -> t * p[1] + x[1]^2, Traits.NonAutonomous, Traits.Fixed)
 dH_dt = ∂ₜ(H)

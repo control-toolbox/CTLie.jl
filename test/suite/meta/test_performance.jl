@@ -37,9 +37,9 @@ using Test: Test
 using BenchmarkTools: BenchmarkTools
 using ForwardDiff: ForwardDiff  # ensure DI ForwardDiff extension is loaded (AutoForwardDiff backend)
 using DifferentiationInterface: DifferentiationInterface
-import CTBase.Data: Data
-import CTBase.Differentiation
-import CTLie: CTLie
+using CTBase: Data
+using CTBase: Differentiation
+using CTLie: CTLie
 
 const VERBOSE = isdefined(Main, :TestData) ? Main.TestData.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestData) ? Main.TestData.SHOWTIMING : true

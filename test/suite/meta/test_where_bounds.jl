@@ -28,10 +28,10 @@ module TestWhereBounds
 using Test: Test
 using ForwardDiff: ForwardDiff  # load the DI ForwardDiff extension so the default backend builds
 using DifferentiationInterface: DifferentiationInterface
-import CTBase.Traits: Traits
-import CTBase.Data: Data
-import CTBase.Differentiation
-import CTLie: CTLie
+using CTBase: Traits
+using CTBase: Data
+using CTBase: Differentiation
+using CTLie: CTLie
 
 const VERBOSE = isdefined(Main, :TestData) ? Main.TestData.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestData) ? Main.TestData.SHOWTIMING : true

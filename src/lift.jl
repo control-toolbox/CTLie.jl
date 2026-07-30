@@ -94,7 +94,7 @@ point is used by the [`@Lie`](@ref) macro for compile-time dispatch.
 # Example
 ```julia
 using CTLie
-using CTBase.Traits
+using CTBase: Traits
 
 f = x -> [x[2], -x[1]]
 H = Lift(f, Traits.Autonomous, Traits.Fixed)
@@ -130,8 +130,8 @@ allows lifting typed vector fields directly to Hamiltonians.
 # Example
 ```julia
 using CTLie
-using CTBase.Data
-using CTBase.Traits
+using CTBase: Data
+using CTBase: Traits
 
 X = VectorField(x -> [x[2], -x[1]], Traits.Autonomous, Traits.Fixed, Traits.OutOfPlace)
 H = Lift(X)

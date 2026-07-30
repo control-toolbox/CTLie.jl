@@ -87,8 +87,8 @@ Both vector fields must share the same time dependence and variable dependence.
 # Example
 ```julia
 using CTLie
-using CTBase.Data
-using CTBase.Traits
+using CTBase: Data
+using CTBase: Traits
 
 X = VectorField(x -> [x[2], -x[1]], Traits.Autonomous, Traits.Fixed, Traits.OutOfPlace)
 Y = VectorField(x -> [-x[2], x[1]], Traits.Autonomous, Traits.Fixed, Traits.OutOfPlace)
@@ -140,8 +140,8 @@ Returns a plain function representing the directional derivative `∇f(x)'*X(x)`
 # Example
 ```julia
 using CTLie
-using CTBase.Data
-using CTBase.Traits
+using CTBase: Data
+using CTBase: Traits
 
 X = VectorField(x -> [x[2], -x[1]], Traits.Autonomous, Traits.Fixed, Traits.OutOfPlace)
 f = x -> x[1]^2 + x[2]^2

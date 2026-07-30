@@ -35,7 +35,9 @@ Design philosophy, operational rules, plan templates, and CI/CD conventions live
 ## Key Conventions
 
 - **No top-level exports** — use `Package.Submodule.symbol` everywhere.
-- **Qualified imports** — `using Pkg: Pkg`, never bare `using Pkg`; `import` is never used.
+- **Qualified imports** — `using Pkg: Pkg` (whole package) or `using Pkg: Sub`
+  (submodule, e.g. `using CTBase: Data`); never bare `using Pkg`, never
+  `using Pkg.Sub` (leaks `Sub`'s exports); `import` is never used.
 - **Fake types at module top-level** — never inside test functions.
 - **Structured errors** — seven typed exceptions under `CTException`; pick by the IncorrectArgument / PreconditionError / NotImplemented rule.
 - **Type stability enforced** — hot paths must be `@inferred`-clean, verified with JET; setup-path dispatch is fine.

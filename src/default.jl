@@ -83,7 +83,7 @@ The new backend will be used by [`CTLie.ad`](@ref), [`CTLie.Poisson`](@ref), and
 # Example
 ```julia
 using CTLie
-import CTBase: Differentiation
+using CTBase: Differentiation
 
 dg_ad_backend!(Differentiation.DifferentiationInterface())
 ```

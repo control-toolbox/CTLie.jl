@@ -77,7 +77,7 @@ This typed entry point is used by the [`@Lie`](@ref) macro for compile-time disp
 # Example
 ```julia
 using CTLie
-using CTBase.Traits
+using CTBase: Traits
 
 X = x -> [x[2], -x[1]]
 f = x -> x[1]^2 + x[2]^2

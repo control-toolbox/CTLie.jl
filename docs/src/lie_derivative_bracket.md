@@ -38,11 +38,12 @@ where ``J_X`` and ``J_Y`` are the Jacobian matrices. The bracket is **antisymmet
 brackets ``[[X, Y], Y]`` appear throughout geometric control (e.g. in the analysis of
 singular extremals).
 
-```@setup ad
-using CTLie
-using CTBase.Data
-using CTBase.Traits
-import DifferentiationInterface
+```@example ad
+using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
+using CTBase: Data                 # VectorField, Hamiltonian, HamiltonianVectorField
+using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
+using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
+nothing # hide
 ```
 
 ## On plain functions

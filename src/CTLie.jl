@@ -23,13 +23,13 @@ module CTLie
 # External-package imports (qualified, pollution-free)
 # ==============================================================================
 
-import DocStringExtensions: TYPEDEF, TYPEDSIGNATURES
+using DocStringExtensions: TYPEDEF, TYPEDSIGNATURES
 using CTBase: CTBase
-import CTBase.Data
-import CTBase.Differentiation
-import CTBase.Exceptions
-import CTBase.Traits
-import MacroTools: postwalk, @capture
+using CTBase: Data
+using CTBase: Differentiation
+using CTBase: Exceptions
+using CTBase: Traits
+using MacroTools: postwalk, @capture
 
 # ==============================================================================
 # Include files (in dependency order)
