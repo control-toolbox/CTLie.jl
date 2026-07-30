@@ -19,8 +19,7 @@ as `[1.0, 2.0]` — may appear directly inside the macro expression.
 ```@example liemacro
 using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
 using CTBase: CTBase               # @Lie expands to CTBase.Traits.* — CTBase must be in scope
-using CTBase: Data                 # Data submodule
-using CTBase.Data: VectorField, Hamiltonian, HamiltonianVectorField
+using CTBase: Data                 # VectorField, Hamiltonian, … (accessed as Data.VectorField, etc.)
 using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
 using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
 nothing # hide
@@ -29,14 +28,14 @@ nothing # hide
 ## Lie and Poisson brackets
 
 ```@example liemacro
-X = VectorField(x -> [x[2], 2x[1]]; is_autonomous=true)
-Y = VectorField(x -> [3x[2], -x[1]]; is_autonomous=true)
+X = Data.VectorField(x -> [x[2], 2x[1]]; is_autonomous=true)
+Y = Data.VectorField(x -> [3x[2], -x[1]]; is_autonomous=true)
 (@Lie [X, Y])([1.0, 2.0])
 ```
 
 ```@example liemacro
-F = Hamiltonian((x, p) -> p[1]^2 / 2 + x[1]^2; is_autonomous=true)
-G = Hamiltonian((x, p) -> x[1] * p[1]; is_autonomous=true)
+F = Data.Hamiltonian((x, p) -> p[1]^2 / 2 + x[1]^2; is_autonomous=true)
+G = Data.Hamiltonian((x, p) -> x[1] * p[1]; is_autonomous=true)
 (@Lie {F, G})([1.0, 2.0], [0.5, 1.0])
 ```
 
@@ -45,7 +44,7 @@ The macro returns exactly what the underlying function returns — a typed
 [`Hamiltonian`](@extref CTBase CTBase.Data.Hamiltonian) for `{…}`:
 
 ```@example liemacro
-(@Lie [X, Y]) isa VectorField, (@Lie {F, G}) isa Hamiltonian
+(@Lie [X, Y]) isa Data.VectorField, (@Lie {F, G}) isa Data.Hamiltonian
 ```
 
 ## Nested brackets
@@ -69,8 +68,8 @@ are not field-like objects, the macro reconstructs the vector as data and applie
 ```
 
 ```@example liemacro
-H0 = Hamiltonian((x, p) -> 0.5*(2x[1]^2 + x[2]^2 + p[1]^2); is_autonomous=true)
-H1 = Hamiltonian((x, p) -> 0.5*(3x[1]^2 + x[2]^2 + p[2]^2); is_autonomous=true)
+H0 = Data.Hamiltonian((x, p) -> 0.5*(2x[1]^2 + x[2]^2 + p[1]^2); is_autonomous=true)
+H1 = Data.Hamiltonian((x, p) -> 0.5*(3x[1]^2 + x[2]^2 + p[2]^2); is_autonomous=true)
 @Lie {H0, H1}([1.0, 2.0], [2.0, 1.0])
 ```
 
@@ -80,9 +79,9 @@ Brackets can be evaluated and combined inside a single `@Lie` expression. With t
 Bloch-equation fields
 
 ```@example liemacro
-F0 = VectorField(x -> [-2x[1], -2x[2], 1 - x[3]]; is_autonomous=true)
-F1 = VectorField(x -> [0.0, -x[3], x[2]];         is_autonomous=true)
-F2 = VectorField(x -> [x[3], 0.0, -x[1]];         is_autonomous=true)
+F0 = Data.VectorField(x -> [-2x[1], -2x[2], 1 - x[3]]; is_autonomous=true)
+F1 = Data.VectorField(x -> [0.0, -x[3], x[2]];         is_autonomous=true)
+F2 = Data.VectorField(x -> [x[3], 0.0, -x[1]];         is_autonomous=true)
 x3 = [1.0, 2.0, 3.0]
 nothing # hide
 ```
@@ -96,7 +95,7 @@ we have ``[F_0,F_1](x_3) = (0,-4,-2)`` and ``[F_1,F_2](x_3) = (2,-1,0)``, so
 The same works for Poisson brackets:
 
 ```@example liemacro
-H2 = Hamiltonian((x, p) -> 0.5*(4x[1]^2 + x[2]^2 + p[1]^3 + p[2]^2); is_autonomous=true)
+H2 = Data.Hamiltonian((x, p) -> 0.5*(4x[1]^2 + x[2]^2 + p[1]^3 + p[2]^2); is_autonomous=true)
 @Lie {H0, H1}([1.0, 2.0], [2.0, 1.0]) - {H1, H2}([1.0, 2.0], [2.0, 1.0])
 ```
 

@@ -40,8 +40,7 @@ singular extremals).
 
 ```@example ad
 using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
-using CTBase: Data                 # Data submodule
-using CTBase.Data: VectorField, Hamiltonian, HamiltonianVectorField
+using CTBase: Data                 # VectorField, Hamiltonian, … (accessed as Data.VectorField, etc.)
 using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
 using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
 nothing # hide
@@ -107,8 +106,8 @@ fields must share the same time- and variable-dependence (see
 [Limitations & configuration](limitations.md)).
 
 ```@example ad
-X = VectorField(x -> [x[2], 2x[1]]; is_autonomous=true, is_variable=false)
-Y = VectorField(x -> [3x[2], -x[1]]; is_autonomous=true, is_variable=false)
+X = Data.VectorField(x -> [x[2], 2x[1]]; is_autonomous=true, is_variable=false)
+Y = Data.VectorField(x -> [3x[2], -x[1]]; is_autonomous=true, is_variable=false)
 Z = ad(X, Y)
 ```
 
@@ -129,7 +128,7 @@ A typed `VectorField` against a scalar `Function` gives the Lie derivative, retu
 plain `Function`:
 
 ```@example ad
-X = VectorField(x -> [x[2], -x[1]]; is_autonomous=true)
+X = Data.VectorField(x -> [x[2], -x[1]]; is_autonomous=true)
 g = x -> x[1]^2 + x[2]^2
 ad(X, g)([1.0, 2.0])
 ```
@@ -137,8 +136,8 @@ ad(X, g)([1.0, 2.0])
 ## Antisymmetry, numerically
 
 ```@example ad
-F = VectorField(x -> [x[2]^2, -2x[1]*x[2]]; is_autonomous=true)
-G = VectorField(x -> [x[1]*(1 + x[2]), 3x[2]^3]; is_autonomous=true)
+F = Data.VectorField(x -> [x[2]^2, -2x[1]*x[2]]; is_autonomous=true)
+G = Data.VectorField(x -> [x[1]*(1 + x[2]), 3x[2]^3]; is_autonomous=true)
 x0 = [1.0, 2.0]
 ad(F, G)(x0) ≈ -ad(G, F)(x0)
 ```

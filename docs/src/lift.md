@@ -30,8 +30,7 @@ The relevant method is [`Lift`](@ref CTLie.Lift).
 
 ```@example lift
 using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
-using CTBase: Data                 # Data submodule
-using CTBase.Data: VectorField, Hamiltonian, HamiltonianVectorField
+using CTBase: Data                 # VectorField, Hamiltonian, … (accessed as Data.VectorField, etc.)
 using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
 using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
 nothing # hide
@@ -82,7 +81,7 @@ returns a typed [`Hamiltonian`](@extref CTBase CTBase.Data.Hamiltonian) whose tr
 from the vector field — no keyword arguments are needed.
 
 ```@example lift
-Xt = VectorField(x -> [x[2], -x[1]]; is_autonomous=true, is_variable=false)
+Xt = Data.VectorField(x -> [x[2], -x[1]]; is_autonomous=true, is_variable=false)
 H  = Lift(Xt)
 ```
 
@@ -94,7 +93,7 @@ The same works for every trait combination; here a non-autonomous, variable-depe
 field:
 
 ```@example lift
-Xtv = VectorField((t, x, v) -> [t * x[2], -v * x[1]];
+Xtv = Data.VectorField((t, x, v) -> [t * x[2], -v * x[1]];
                   is_autonomous=false, is_variable=true)
 Htv = Lift(Xtv)
 Htv(2.0, [1.0, 2.0], [0.5, 1.0], 3.0)
