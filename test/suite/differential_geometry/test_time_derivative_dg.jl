@@ -45,7 +45,7 @@ function test_time_derivative_dg()
         # internal functor (callable struct, not closure)
         Test.@test dX.f isa CTLie.TimeDeriv_VF
         # ∂/∂t [t*x2, -t*x1] = [x2, -x1]
-        t0 = 2.0;
+        t0 = 2.0
         x0 = [1.0, 2.0]
         Test.@test isapprox(dX(t0, x0), [x0[2], -x0[1]]; atol=1e-6)
         dX(t0, x0)  # warm-up
@@ -80,8 +80,8 @@ function test_time_derivative_dg()
             (t, x, v) -> [t * v[1] * x[2], -x[1]]; is_autonomous=false, is_variable=true
         )
         dX = CTLie.∂ₜ(X)
-        t0 = 2.0;
-        x0 = [1.0, 2.0];
+        t0 = 2.0
+        x0 = [1.0, 2.0]
         v0 = [3.0]
         Test.@test isapprox(dX(t0, x0, v0), [v0[1] * x0[2], 0.0]; atol=1e-6)
     end
@@ -98,7 +98,7 @@ function test_time_derivative_dg()
         Test.@test dH isa Data.Hamiltonian
         Test.@test dH isa Data.AbstractHamiltonian{Traits.NonAutonomous,Traits.Fixed}
         # ∂/∂t [t * p'x] = p'x
-        x0 = [1.0, 2.0];
+        x0 = [1.0, 2.0]
         p0 = [3.0, 4.0]
         Test.@test dH(2.0, x0, p0) ≈ p0' * x0 atol=1e-6
         dH(2.0, x0, p0)  # warm-up
@@ -129,9 +129,9 @@ function test_time_derivative_dg()
             (t, x, p, v) -> t * v[1] * p[1]; is_autonomous=false, is_variable=true
         )
         dH = CTLie.∂ₜ(H)
-        t0 = 2.0;
-        x0 = [1.0];
-        p0 = [3.0];
+        t0 = 2.0
+        x0 = [1.0]
+        p0 = [3.0]
         v0 = [4.0]
         Test.@test dH(t0, x0, p0, v0) ≈ v0[1] * p0[1] atol=1e-6
     end
@@ -150,8 +150,8 @@ function test_time_derivative_dg()
         Test.@test dX isa Data.AbstractHamiltonianVectorField{
             Traits.NonAutonomous,Traits.Fixed,Traits.OutOfPlace
         }
-        t0 = 2.0;
-        x0 = [1.0];
+        t0 = 2.0
+        x0 = [1.0]
         p0 = [3.0]
         dx, dp = dX(t0, x0, p0)
         Test.@test dx ≈ p0 atol=1e-6
@@ -192,9 +192,9 @@ function test_time_derivative_dg()
             (t, x, p, v) -> (t * v[1] * p, -x); is_autonomous=false, is_variable=true
         )
         dX = CTLie.∂ₜ(X)
-        t0 = 2.0;
-        x0 = [1.0];
-        p0 = [3.0];
+        t0 = 2.0
+        x0 = [1.0]
+        p0 = [3.0]
         v0 = [4.0]
         dx, dp = dX(t0, x0, p0, v0)
         Test.@test dx ≈ v0[1] .* p0 atol=1e-6
@@ -206,8 +206,8 @@ function test_time_derivative_dg()
             (t, x, p) -> (t * p, -t * x); is_autonomous=false, is_variable=false
         )
         dX = CTLie.∂ₜ(X)
-        t0 = 2.0;
-        x0 = [1.0];
+        t0 = 2.0
+        x0 = [1.0]
         p0 = [3.0]
         dX(t0, x0, p0)  # warm-up
         Test.@test_nowarn Test.@inferred dX(t0, x0, p0)

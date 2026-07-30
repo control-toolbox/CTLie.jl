@@ -109,7 +109,7 @@ function ad(
     MDX<:Traits.AbstractMutabilityTrait,
     MDY<:Traits.AbstractMutabilityTrait,
 }
-    _check_not_hvf(X);
+    _check_not_hvf(X)
     _check_not_hvf(Y)
     _check_outofplace(MDX)    # static dispatch on type parameter — no runtime call
     _check_outofplace(MDY)

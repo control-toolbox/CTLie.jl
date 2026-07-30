@@ -108,8 +108,7 @@ Used to differentiate tuple-valued outputs slot-by-slot, since
 See also: [`CTLie.TimeDeriv_HVF`](@ref), [`CTLie._HVFComp2`](@ref)
 """
 struct _HVFComp1{F} <: Function
-    ;
-    X::F;
+    X::F
 end
 
 """
@@ -123,8 +122,7 @@ Used to differentiate tuple-valued outputs slot-by-slot, since
 See also: [`CTLie.TimeDeriv_HVF`](@ref), [`CTLie._HVFComp1`](@ref)
 """
 struct _HVFComp2{F} <: Function
-    ;
-    X::F;
+    X::F
 end
 
 (_c::_HVFComp1)(args...) = _c.X(args...)[1]
