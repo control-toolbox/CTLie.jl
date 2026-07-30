@@ -1,7 +1,8 @@
 """
 Regression guard for the Handbook rule "using, never import" (tenet 2,
-`philosophy/modules.md#using-never-import`): flags any tracked `.jl` file that
-still uses the `import` keyword.
+`philosophy/modules.md#using-never-import`): flags any tracked `.jl` or `.md`
+file that still uses the `import` keyword, or the forbidden dotted
+`using Pkg.Sub` form (the canonical spelling is `using Pkg: Sub`).
 """
 
 module TestNoImport
@@ -12,18 +13,31 @@ const VERBOSE = isdefined(Main, :TestData) ? Main.TestData.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestData) ? Main.TestData.SHOWTIMING : true
 
 const IMPORT_RE = r"^\s*import\b"
+const DOTTED_USING_RE = r"^\s*using\s+[A-Za-z_]\w*\.[A-Za-z_]"
+
+# BREAKING.md quotes `using CTFlows.DifferentialGeometry` verbatim as the real,
+# historical pre-migration API (the "Before (CTFlows)" snippets) — that's a
+# historical fact, not a current-convention violation, so it's exempt from the
+# dotted-using check.
+const DOTTED_USING_EXEMPT = ("BREAKING.md",)
 
 function test_no_import()
-    Test.@testset "No `import` keyword (Handbook tenet 2 — using, never import)" verbose = VERBOSE showtiming =
+    Test.@testset "No `import` / no dotted `using Pkg.Sub` (Handbook tenet 2)" verbose = VERBOSE showtiming =
         SHOWTIMING begin
         repo_root = joinpath(@__DIR__, "..", "..", "..")
-        jl_files = filter(
-            f -> endswith(f, ".jl"), readlines(Cmd(`git ls-files`; dir=repo_root))
+        tracked = filter(
+            f -> endswith(f, ".jl") || endswith(f, ".md"),
+            readlines(Cmd(`git ls-files`; dir=repo_root)),
         )
-        for relpath in jl_files
+        for relpath in tracked
             path = joinpath(repo_root, relpath)
-            offending = any(occursin(IMPORT_RE, line) for line in eachline(path))
-            Test.@test !offending
+            check_dotted = !(basename(relpath) in DOTTED_USING_EXEMPT)
+            for line in eachline(path)
+                Test.@test !occursin(IMPORT_RE, line)
+                if check_dotted
+                    Test.@test !occursin(DOTTED_USING_RE, line)
+                end
+            end
         end
     end
 end

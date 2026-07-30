@@ -28,9 +28,9 @@ loaded.
 
 ```@example dt
 using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
-using CTBase.Data                  # VectorField, Hamiltonian, HamiltonianVectorField
-using CTBase.Traits                # trait types (Autonomous, Variable, OutOfPlace, …)
-import DifferentiationInterface    # activates the AD backend extension
+using CTBase: Data                 # VectorField, Hamiltonian, HamiltonianVectorField
+using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
+using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
 nothing # hide
 ```
 

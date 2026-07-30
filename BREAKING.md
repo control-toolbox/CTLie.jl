@@ -31,8 +31,8 @@ ad(X, Y; ad_backend=AutoForwardDiff())
 dg_ad_backend!(AutoForwardDiff())
 
 # After
-import CTBase: Differentiation
-import ADTypes
+using CTBase: Differentiation
+using ADTypes: ADTypes
 
 ad(X, Y; ad_backend=Differentiation.DifferentiationInterface(; ad_backend=ADTypes.AutoForwardDiff()))
 dg_ad_backend!(Differentiation.DifferentiationInterface())   # CPU default: AutoForwardDiff
@@ -84,8 +84,8 @@ ad(X, Y; ad_backend=AutoForwardDiff())
 dg_ad_backend!(AutoForwardDiff())
 
 # After
-import CTBase: Differentiation
-import ADTypes
+using CTBase: Differentiation
+using ADTypes: ADTypes
 
 ad(X, Y; ad_backend=Differentiation.DifferentiationInterface(; ad_backend=ADTypes.AutoForwardDiff()))
 dg_ad_backend!(Differentiation.DifferentiationInterface())   # CPU default: AutoForwardDiff

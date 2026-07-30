@@ -9,9 +9,9 @@ configure them.
 
 ```@example limits
 using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
-using CTBase.Data                  # VectorField, Hamiltonian, HamiltonianVectorField
-using CTBase.Traits                # trait types (Autonomous, Variable, OutOfPlace, …)
-import DifferentiationInterface    # activates the AD backend extension
+using CTBase: Data                 # VectorField, Hamiltonian, HamiltonianVectorField
+using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
+using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
 nothing # hide
 ```
 
@@ -78,7 +78,7 @@ on `DifferentiationInterface.jl` (with `ForwardDiff` under the hood) and **must 
 loaded** for gradients/derivatives to be available:
 
 ```julia
-import DifferentiationInterface   # activates the CTBaseDifferentiationInterface extension
+using DifferentiationInterface: DifferentiationInterface  # activates the CTBaseDifferentiationInterface extension
 ```
 
 `ad_backend` takes a [`CTBase.Differentiation.AbstractADBackend`](@extref CTBase) — never a raw
@@ -87,7 +87,7 @@ choice of underlying AD implementation are both explicit and swappable without
 touching CTLie itself:
 
 ```julia
-import CTBase: Differentiation
+using CTBase: Differentiation
 
 cpu_backend = Differentiation.DifferentiationInterface()                       # CPU, AutoForwardDiff
 gpu_backend = Differentiation.DifferentiationInterface{CTBase.Strategies.GPU}() # GPU, AutoMooncake

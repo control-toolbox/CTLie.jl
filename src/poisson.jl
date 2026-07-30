@@ -68,7 +68,7 @@ This typed entry point is used by the [`@Lie`](@ref) macro for compile-time disp
 # Example
 ```julia
 using CTLie
-using CTBase.Traits
+using CTBase: Traits
 
 H = (x, p) -> p[1]^2 / 2 + x[1]^2
 G = (x, p) -> x[1] * p[1]
@@ -222,8 +222,8 @@ Both Hamiltonians must share the same time dependence and variable dependence.
 # Example
 ```julia
 using CTLie
-using CTBase.Data
-using CTBase.Traits
+using CTBase: Data
+using CTBase: Traits
 
 H = Hamiltonian((x, p) -> p[1]^2 / 2 + x[1]^2, Traits.Autonomous, Traits.Fixed)
 G = Hamiltonian((x, p) -> x[1] * p[1], Traits.Autonomous, Traits.Fixed)

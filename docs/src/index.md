@@ -57,7 +57,7 @@ Automatic differentiation is provided by a pluggable backend. The default relies
 derivatives:
 
 ```@example dg
-import DifferentiationInterface   # activates the AD backend extension
+using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
 nothing # hide
 ```
 
