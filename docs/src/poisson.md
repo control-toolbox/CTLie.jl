@@ -17,11 +17,12 @@ mechanics: ``\{H, \cdot\}`` generates the flow of the Hamiltonian system associa
 The relevant method is [`Poisson`](@ref CTLie.Poisson). It is
 computed by automatic differentiation, so the AD backend extension must be loaded.
 
-```@setup poisson
-using CTLie
-using CTBase.Data
-using CTBase.Traits
-import DifferentiationInterface
+```@example poisson
+using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
+using CTBase.Data                  # VectorField, Hamiltonian, HamiltonianVectorField
+using CTBase.Traits                # trait types (Autonomous, Variable, OutOfPlace, …)
+import DifferentiationInterface    # activates the AD backend extension
+nothing # hide
 ```
 
 ## Algebraic properties

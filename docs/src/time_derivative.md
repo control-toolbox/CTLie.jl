@@ -26,11 +26,12 @@ extremals.
 `∂ₜ` is computed by automatic differentiation, so the AD backend extension must be
 loaded.
 
-```@setup dt
-using CTLie
-using CTBase.Data
-using CTBase.Traits
-import DifferentiationInterface
+```@example dt
+using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
+using CTBase.Data                  # VectorField, Hamiltonian, HamiltonianVectorField
+using CTBase.Traits                # trait types (Autonomous, Variable, OutOfPlace, …)
+import DifferentiationInterface    # activates the AD backend extension
+nothing # hide
 ```
 
 !!! note "The result is always non-autonomous"

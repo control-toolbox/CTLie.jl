@@ -35,8 +35,8 @@ draft = false # Draft mode: if true, @example blocks in markdown are not execute
 # ═══════════════════════════════════════════════════════════════════════════════
 links = InterLinks(
     "CTBase" => (
-        "https://control-toolbox.org/CTBase.jl/dev/",
-        "https://control-toolbox.org/CTBase.jl/dev/objects.inv",
+        "https://control-toolbox.org/CTBase.jl/stable/",
+        "https://control-toolbox.org/CTBase.jl/stable/objects.inv",
     ),
 )
 

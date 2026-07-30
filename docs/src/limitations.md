@@ -7,11 +7,12 @@ CurrentModule = CTLie
 This page collects the constraints of the CTLie operators and the knobs available to
 configure them.
 
-```@setup limits
-using CTLie
-using CTBase.Data
-using CTBase.Traits
-import DifferentiationInterface
+```@example limits
+using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
+using CTBase.Data                  # VectorField, Hamiltonian, HamiltonianVectorField
+using CTBase.Traits                # trait types (Autonomous, Variable, OutOfPlace, …)
+import DifferentiationInterface    # activates the AD backend extension
+nothing # hide
 ```
 
 ## Limitations
@@ -80,7 +81,7 @@ loaded** for gradients/derivatives to be available:
 import DifferentiationInterface   # activates the CTBaseDifferentiationInterface extension
 ```
 
-`ad_backend` takes a [`Differentiation.AbstractADBackend`](@extref CTBase) — never a raw
+`ad_backend` takes a [`CTBase.Differentiation.AbstractADBackend`](@extref CTBase) — never a raw
 `ADTypes.AbstractADType` — so that the choice of execution device (CPU or GPU) and the
 choice of underlying AD implementation are both explicit and swappable without
 touching CTLie itself:

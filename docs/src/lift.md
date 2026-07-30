@@ -28,11 +28,12 @@ H(t, x, p, v) = p^\top X(t, x, v).
 
 The relevant method is [`Lift`](@ref CTLie.Lift).
 
-```@setup lift
-using CTLie
-using CTBase.Data
-using CTBase.Traits
-import DifferentiationInterface
+```@example lift
+using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
+using CTBase.Data                  # VectorField, Hamiltonian, HamiltonianVectorField
+using CTBase.Traits                # trait types (Autonomous, Variable, OutOfPlace, …)
+import DifferentiationInterface    # activates the AD backend extension
+nothing # hide
 ```
 
 ## On plain functions
