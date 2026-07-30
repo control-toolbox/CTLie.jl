@@ -2,13 +2,13 @@ module TestAdDG
 
 using Test: Test
 using ForwardDiff: ForwardDiff  # ensure DI ForwardDiff extension is loaded (AutoForwardDiff backend)
-import CTBase.Exceptions
+using CTBase: Exceptions
 using DifferentiationInterface: DifferentiationInterface
 using ADTypes: ADTypes
-import CTBase.Traits: Traits
-import CTBase.Data: Data
-import CTBase.Differentiation
-import CTLie: CTLie
+using CTBase: Traits
+using CTBase: Data
+using CTBase: Differentiation
+using CTLie: CTLie
 
 const VERBOSE = isdefined(Main, :TestData) ? Main.TestData.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestData) ? Main.TestData.SHOWTIMING : true

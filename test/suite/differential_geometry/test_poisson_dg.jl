@@ -2,13 +2,13 @@ module TestPoissonDG
 
 using Test: Test
 using ForwardDiff: ForwardDiff  # ensure DI ForwardDiff extension is loaded (AutoForwardDiff backend)
-import CTBase.Exceptions
+using CTBase: Exceptions
 using DifferentiationInterface: DifferentiationInterface
-import ADTypes: ADTypes
-import CTBase.Traits: Traits
-import CTBase.Data: Data
-import CTLie: CTLie
-import CTBase.Differentiation
+using ADTypes: ADTypes
+using CTBase: Traits
+using CTBase: Data
+using CTLie: CTLie
+using CTBase: Differentiation
 
 const VERBOSE = isdefined(Main, :TestData) ? Main.TestData.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestData) ? Main.TestData.SHOWTIMING : true

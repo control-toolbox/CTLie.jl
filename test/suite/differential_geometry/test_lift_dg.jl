@@ -1,10 +1,10 @@
 module TestLiftDG
 
 using Test: Test
-import CTBase.Exceptions
-import CTBase.Traits: Traits
-import CTBase.Data: Data
-import CTLie: CTLie
+using CTBase: Exceptions
+using CTBase: Traits
+using CTBase: Data
+using CTLie: CTLie
 
 const VERBOSE = isdefined(Main, :TestData) ? Main.TestData.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestData) ? Main.TestData.SHOWTIMING : true

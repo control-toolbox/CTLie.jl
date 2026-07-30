@@ -2,12 +2,12 @@ module TestMacroHelpersDG
 
 using Test: Test
 using ForwardDiff: ForwardDiff  # ensure DI ForwardDiff extension is loaded (AutoForwardDiff backend)
-import CTBase: CTBase  # for Exceptions prefix in @Lie macro
-import CTBase.Exceptions
-import CTBase.Traits
-import CTBase.Data
-import CTLie: CTLie
-import MacroTools: @capture
+using CTBase: CTBase  # for Exceptions prefix in @Lie macro
+using CTBase: Exceptions
+using CTBase: Traits
+using CTBase: Data
+using CTLie: CTLie
+using MacroTools: @capture
 using DifferentiationInterface: DifferentiationInterface  # triggers CTBaseDifferentiationInterface — required for ad/Poisson in _lie_mac/_poisson_mac
 
 const VERBOSE = isdefined(Main, :TestData) ? Main.TestData.VERBOSE : true

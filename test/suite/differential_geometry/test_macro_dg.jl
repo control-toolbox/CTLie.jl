@@ -2,11 +2,11 @@ module TestMacroDG
 
 using Test: Test
 using ForwardDiff: ForwardDiff  # ensure DI ForwardDiff extension is loaded (AutoForwardDiff backend)
-import CTBase: CTBase  # for Exceptions prefix in @Lie macro
-import CTBase.Exceptions
-import CTBase.Traits: Traits
-import CTBase.Data: Data
-import CTLie: CTLie
+using CTBase: CTBase  # for Exceptions prefix in @Lie macro
+using CTBase: Exceptions
+using CTBase: Traits
+using CTBase: Data
+using CTLie: CTLie
 using DifferentiationInterface: DifferentiationInterface  # triggers CTBaseDifferentiationInterface extension
 
 const VERBOSE = isdefined(Main, :TestData) ? Main.TestData.VERBOSE : true
