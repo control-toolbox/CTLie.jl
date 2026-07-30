@@ -6,6 +6,60 @@ This document describes breaking changes in CTLie.jl releases and how to migrate
 
 ---
 
+## [0.2.0] - 2026-07-30
+
+### First stable release — cumulative breaking changes
+
+This is the first non-beta release. The breaking changes below, introduced
+during the beta cycle, are now finalized. **If you are upgrading from CTFlows
+or from an early beta, read both sections.**
+
+#### 1. `ad_backend` now takes `Differentiation.AbstractADBackend` (from 0.1.5-beta)
+
+- `ad`, `Poisson`, `∂ₜ`, and `dg_ad_backend!` no longer accept a raw
+  `ADTypes.AbstractADType` for the `ad_backend` keyword; they now require a
+  `CTBase.Differentiation.AbstractADBackend` instance.
+- `ADTypes` is removed from CTLie's hard dependencies (moved to test-only in
+  `Project.toml`).
+
+**Migration:**
+
+```julia
+# Before
+using ADTypes
+ad(X, Y; ad_backend=AutoForwardDiff())
+dg_ad_backend!(AutoForwardDiff())
+
+# After
+import CTBase: Differentiation
+import ADTypes
+
+ad(X, Y; ad_backend=Differentiation.DifferentiationInterface(; ad_backend=ADTypes.AutoForwardDiff()))
+dg_ad_backend!(Differentiation.DifferentiationInterface())   # CPU default: AutoForwardDiff
+
+# GPU execution:
+dg_ad_backend!(Differentiation.DifferentiationInterface{CTBase.Strategies.GPU}())
+```
+
+#### 2. Differential-geometry layer moved from CTFlows (from 0.1.0-beta)
+
+- **Module path**: `CTFlows.DifferentialGeometry.ad` → `CTLie.ad` (and similarly
+  for `Lift`, `Poisson`, `∂ₜ`, `@Lie`).
+
+**Migration:**
+
+```julia
+# Before (CTFlows)
+using CTFlows.DifferentialGeometry
+ad(f, g)
+
+# After (CTLie)
+using CTLie
+CTLie.ad(f, g)
+```
+
+---
+
 ## [0.1.5-beta] - 2026-07-23
 
 ### Breaking Changes: `ad_backend` now takes `Differentiation.AbstractADBackend`

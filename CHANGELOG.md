@@ -13,6 +13,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.0] - 2026-07-30
+
+### 🎉 First stable release
+
+This is the first non-beta release of CTLie.jl. It consolidates all beta
+releases (0.1.0-beta through 0.1.5-beta) into a stable package. No new code
+changes since 0.1.5-beta — only a CI fix for label-gated workflow re-triggering.
+
+### 🐛 Fixed (since 0.1.5-beta)
+
+- **CI: label-gated workflows** no longer re-trigger on every subsequent label
+  addition to a PR or issue.
+
+### 🔧 Changed (carried from 0.1.5-beta)
+
+- **Breaking: `ad_backend` keyword now takes `Differentiation.AbstractADBackend`,
+  not `ADTypes.AbstractADType`.** See `BREAKING.md` for migration.
+
+---
+
 ## [0.1.5-beta] - 2026-07-23
 
 ### 🐛 Fixed
