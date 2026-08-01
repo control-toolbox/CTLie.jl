@@ -18,7 +18,7 @@ $(TYPEDSIGNATURES)
 
 Compute the time derivative of a function.
 
-Returns a [`TimeDeriv_F`](@ref) callable representing the partial derivative with respect to time.
+Returns a [`CTLie.TimeDeriv_F`](@extref) callable representing the partial derivative with respect to time.
 The input function must accept time as its first argument.
 
 # Arguments
@@ -26,7 +26,7 @@ The input function must accept time as its first argument.
 - `ad_backend::Union{Differentiation.AbstractADBackend, CTBase.Core.NotProvidedType}`: AD backend to use (default: global backend).
 
 # Returns
-- A [`TimeDeriv_F`](@ref) callable `(t, args...) -> ∂f/∂t(t, args...)`.
+- A [`CTLie.TimeDeriv_F`](@extref) callable `(t, args...) -> ∂f/∂t(t, args...)`.
 
 # Example
 ```julia
@@ -38,7 +38,7 @@ df_dt = ∂ₜ(f)
 df_dt(2.0, [1.0, 3.0])  # Returns 1.0
 ```
 
-See also: [`CTLie.∂ₜ`](@ref)
+See also: [`CTLie.∂ₜ`](@extref)
 """
 function ∂ₜ(
     f::Function;
@@ -78,7 +78,7 @@ dX_dt = ∂ₜ(X)
 dX_dt(2.0, [1.0], [0.5])  # Returns 0.5
 ```
 
-See also: [`CTLie.∂ₜ`](@ref)
+See also: [`CTLie.∂ₜ`](@extref)
 """
 function ∂ₜ(
     X::Data.AbstractHamiltonianVectorField{TD,VD,MD};
@@ -105,7 +105,7 @@ Component projector for the first output (ẋ) of a HamiltonianVectorField.
 Used to differentiate tuple-valued outputs slot-by-slot, since
 `Differentiation.differentiate` does not extract derivatives from tuple-of-array outputs.
 
-See also: [`CTLie.TimeDeriv_HVF`](@ref), [`CTLie._HVFComp2`](@ref)
+See also: [`CTLie.TimeDeriv_HVF`](@extref), [`CTLie._HVFComp2`](@extref)
 """
 struct _HVFComp1{F} <: Function
     X::F
@@ -119,7 +119,7 @@ Component projector for the second output (ṗ) of a HamiltonianVectorField.
 Used to differentiate tuple-valued outputs slot-by-slot, since
 `Differentiation.differentiate` does not extract derivatives from tuple-of-array outputs.
 
-See also: [`CTLie.TimeDeriv_HVF`](@ref), [`CTLie._HVFComp1`](@ref)
+See also: [`CTLie.TimeDeriv_HVF`](@extref), [`CTLie._HVFComp1`](@extref)
 """
 struct _HVFComp2{F} <: Function
     X::F
@@ -172,9 +172,9 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Internal constructor for [`TimeDeriv_HVF`](@ref) with compile-time `TD`/`VD` trait parameters.
+Internal constructor for [`CTLie.TimeDeriv_HVF`](@extref) with compile-time `TD`/`VD` trait parameters.
 
-See also: [`CTLie.TimeDeriv_HVF`](@ref), [`CTLie.∂ₜ`](@ref)
+See also: [`CTLie.TimeDeriv_HVF`](@extref), [`CTLie.∂ₜ`](@extref)
 """
 function _∂ₜ_hvf(
     X, b::Differentiation.AbstractADBackend, ::Type{TD}, ::Type{VD}
@@ -212,7 +212,7 @@ dX_dt = ∂ₜ(X)
 dX_dt(2.0, [1.0, 2.0])  # Returns [1.0, 2.0]
 ```
 
-See also: [`CTLie.∂ₜ`](@ref)
+See also: [`CTLie.∂ₜ`](@extref)
 """
 function ∂ₜ(
     X::Data.AbstractVectorField{TD,VD,MD};
@@ -265,9 +265,9 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Internal constructor for [`TimeDeriv_VF`](@ref) with compile-time `TD`/`VD` trait parameters.
+Internal constructor for [`CTLie.TimeDeriv_VF`](@extref) with compile-time `TD`/`VD` trait parameters.
 
-See also: [`CTLie.TimeDeriv_VF`](@ref), [`CTLie.∂ₜ`](@ref)
+See also: [`CTLie.TimeDeriv_VF`](@extref), [`CTLie.∂ₜ`](@extref)
 """
 function _∂ₜ_vf(
     X, b::Differentiation.AbstractADBackend, ::Type{TD}, ::Type{VD}
@@ -302,7 +302,7 @@ dH_dt = ∂ₜ(H)
 dH_dt(2.0, [1.0], [0.5])  # Returns 0.5
 ```
 
-See also: [`CTLie.∂ₜ`](@ref)
+See also: [`CTLie.∂ₜ`](@extref)
 """
 function ∂ₜ(
     H::Data.AbstractHamiltonian{TD,VD};
@@ -350,9 +350,9 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Internal constructor for [`TimeDeriv_Ham`](@ref) with compile-time `TD`/`VD` trait parameters.
+Internal constructor for [`CTLie.TimeDeriv_Ham`](@extref) with compile-time `TD`/`VD` trait parameters.
 
-See also: [`CTLie.TimeDeriv_Ham`](@ref), [`CTLie.∂ₜ`](@ref)
+See also: [`CTLie.TimeDeriv_Ham`](@extref), [`CTLie.∂ₜ`](@extref)
 """
 function _∂ₜ_ham(
     H, b::Differentiation.AbstractADBackend, ::Type{TD}, ::Type{VD}
@@ -393,7 +393,7 @@ $(TYPEDSIGNATURES)
 
 Display a `TimeDeriv_F` in the REPL with the same format as `Base.show(io, dtd)`.
 
-See also: [`CTLie.∂ₜ`](@ref).
+See also: [`CTLie.∂ₜ`](@extref).
 """
 function Base.show(
     io::IO, ::MIME"text/plain", dtd::TimeDeriv_F{F,B}
@@ -430,7 +430,7 @@ $(TYPEDSIGNATURES)
 
 Display a `TimeDeriv_HVF` in the REPL with the same format as `Base.show(io, dtd)`.
 
-See also: [`CTLie.∂ₜ`](@ref).
+See also: [`CTLie.∂ₜ`](@extref).
 """
 function Base.show(
     io::IO, ::MIME"text/plain", dtd::TimeDeriv_HVF{FX,B,TD,VD}
@@ -467,7 +467,7 @@ $(TYPEDSIGNATURES)
 
 Display a `TimeDeriv_VF` in the REPL with the same format as `Base.show(io, dtd)`.
 
-See also: [`CTLie.∂ₜ`](@ref).
+See also: [`CTLie.∂ₜ`](@extref).
 """
 function Base.show(
     io::IO, ::MIME"text/plain", dtd::TimeDeriv_VF{FX,B,TD,VD}
@@ -504,7 +504,7 @@ $(TYPEDSIGNATURES)
 
 Display a `TimeDeriv_Ham` in the REPL with the same format as `Base.show(io, dtd)`.
 
-See also: [`CTLie.∂ₜ`](@ref).
+See also: [`CTLie.∂ₜ`](@extref).
 """
 function Base.show(
     io::IO, ::MIME"text/plain", dtd::TimeDeriv_Ham{FH,B,TD,VD}

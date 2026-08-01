@@ -97,7 +97,7 @@ Z = ad(X, Y)
 Z([1.0, 2.0])  # Returns [0.0, 0.0]
 ```
 
-See also: [`CTLie.ad`](@ref)
+See also: [`CTLie.ad`](@extref)
 """
 function ad(
     X::Data.AbstractVectorField{TD,VD,MDX},
@@ -150,7 +150,7 @@ L = ad(X, f)
 L([1.0, 2.0])  # Returns 0.0
 ```
 
-See also: [`CTLie.ad`](@ref)
+See also: [`CTLie.ad`](@extref)
 """
 function ad(
     X::Data.AbstractVectorField{TD,VD,MDX},
@@ -187,7 +187,7 @@ dependence types, which is not allowed for the Lie bracket operation.
 This is a fallback error method that provides a clear error message when the types do not
 match. Use the matching TD/VD version for valid operations.
 
-See also: [`CTLie.ad`](@ref)
+See also: [`CTLie.ad`](@extref)
 """
 function ad(
     X::Data.AbstractVectorField{TD1,VD1,MDX},
@@ -222,7 +222,7 @@ arguments are `AbstractHamiltonian`. It is always an error; use `Poisson(H, G)` 
 # Throws
 - `Exceptions.IncorrectArgument`: Always thrown with suggestion to use Poisson bracket.
 
-See also: [`CTLie.Poisson`](@ref)
+See also: [`CTLie.Poisson`](@extref)
 """
 function ad(
     ::Data.AbstractHamiltonian,
@@ -276,7 +276,7 @@ where the second argument is a Hamiltonian and the first is some other type.
 # Throws
 - `Exceptions.IncorrectArgument`: Always thrown with suggestion to use Poisson bracket.
 
-See also: [`CTLie.Poisson`](@ref)
+See also: [`CTLie.Poisson`](@extref)
 """
 function ad(
     ::Any,

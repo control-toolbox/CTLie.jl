@@ -12,10 +12,10 @@ in CTLie operations. When returned, the global backend
 - `CTBase.Core.NotProvided` (singleton `CTBase.Core.NotProvidedType`): sentinel indicating backend should use global default.
 
 # Notes
-- This is an internal function used by [`CTLie._resolve_backend`](@ref).
-- Users should use [`CTLie.dg_ad_backend`](@ref) to get the current backend.
+- This is an internal function used by [`CTLie._resolve_backend`](@extref).
+- Users should use [`CTLie.dg_ad_backend`](@extref) to get the current backend.
 
-See also: [`CTLie.DG_AD_BACKEND`](@ref), [`CTLie._resolve_backend`](@ref).
+See also: [`CTLie.DG_AD_BACKEND`](@extref), [`CTLie._resolve_backend`](@extref).
 """
 __dg_ad_backend()::CTBase.Core.NotProvidedType = CTBase.Core.NotProvided
 
@@ -25,8 +25,8 @@ $(TYPEDEF)
 
 Global reference to the automatic differentiation backend used by CTLie operations.
 
-This `Ref` holds the current AD backend that is used by [`CTLie.ad`](@ref),
-[`CTLie.Poisson`](@ref), and [`CTLie.∂ₜ`](@ref) when no explicit
+This `Ref` holds the current AD backend that is used by [`CTLie.ad`](@extref),
+[`CTLie.Poisson`](@extref), and [`CTLie.∂ₜ`](@extref) when no explicit
 `ad_backend` keyword argument is provided.
 
 # Type
@@ -34,10 +34,10 @@ This `Ref` holds the current AD backend that is used by [`CTLie.ad`](@ref),
 
 # Notes
 - Initialized at module load time with a CPU [`CTBase.Differentiation.DifferentiationInterface`](@extref CTBase) (`AutoForwardDiff` under the hood).
-- Modified via [`CTLie.dg_ad_backend!`](@ref).
-- Accessed via [`CTLie.dg_ad_backend`](@ref).
+- Modified via [`CTLie.dg_ad_backend!`](@extref).
+- Accessed via [`CTLie.dg_ad_backend`](@extref).
 
-See also: [`CTLie.dg_ad_backend`](@ref), [`CTLie.dg_ad_backend!`](@ref), [`CTLie.__dg_ad_backend`](@ref).
+See also: [`CTLie.dg_ad_backend`](@extref), [`CTLie.dg_ad_backend!`](@extref), [`CTLie.__dg_ad_backend`](@extref).
 """
 const DG_AD_BACKEND = Ref{Differentiation.AbstractADBackend}(
     Differentiation.DifferentiationInterface(),   # CPU default: AutoForwardDiff
@@ -48,7 +48,7 @@ $(TYPEDSIGNATURES)
 
 Return the current global automatic differentiation backend used by CTLie operations.
 
-The backend is used by [`CTLie.ad`](@ref), [`CTLie.Poisson`](@ref), and [`CTLie.∂ₜ`](@ref) when no explicit
+The backend is used by [`CTLie.ad`](@extref), [`CTLie.Poisson`](@extref), and [`CTLie.∂ₜ`](@extref) when no explicit
 `ad_backend` keyword argument is provided.
 
 # Returns
@@ -61,7 +61,7 @@ using CTLie
 backend = dg_ad_backend()
 ```
 
-See also: [`CTLie.dg_ad_backend!`](@ref), [`CTLie.ad`](@ref), [`CTLie.Poisson`](@ref), [`CTLie.∂ₜ`](@ref)
+See also: [`CTLie.dg_ad_backend!`](@extref), [`CTLie.ad`](@extref), [`CTLie.Poisson`](@extref), [`CTLie.∂ₜ`](@extref)
 """
 dg_ad_backend() = DG_AD_BACKEND[]
 
@@ -70,8 +70,8 @@ $(TYPEDSIGNATURES)
 
 Set the global automatic differentiation backend used by CTLie operations.
 
-The new backend will be used by [`CTLie.ad`](@ref), [`CTLie.Poisson`](@ref), and
-[`CTLie.∂ₜ`](@ref) when no explicit `ad_backend` keyword argument is provided.
+The new backend will be used by [`CTLie.ad`](@extref), [`CTLie.Poisson`](@extref), and
+[`CTLie.∂ₜ`](@extref) when no explicit `ad_backend` keyword argument is provided.
 
 # Arguments
 - `ad_backend::Differentiation.AbstractADBackend`: The AD backend to use, e.g. a CPU or
@@ -88,7 +88,7 @@ using CTBase: Differentiation
 dg_ad_backend!(Differentiation.DifferentiationInterface())
 ```
 
-See also: [`CTLie.dg_ad_backend`](@ref), [`CTLie.ad`](@ref), [`CTLie.Poisson`](@ref), [`CTLie.∂ₜ`](@ref)
+See also: [`CTLie.dg_ad_backend`](@extref), [`CTLie.ad`](@extref), [`CTLie.Poisson`](@extref), [`CTLie.∂ₜ`](@extref)
 """
 function dg_ad_backend!(ad_backend::Differentiation.AbstractADBackend)
     DG_AD_BACKEND[] = ad_backend

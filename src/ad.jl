@@ -35,7 +35,7 @@ L = ad(X, f)
 L([1.0, 2.0])  # Returns 0.0
 ```
 
-See also: [`CTLie.ad`](@ref), [`CTLie.Poisson`](@ref), [`CTLie.Lift`](@ref)
+See also: [`CTLie.ad`](@extref), [`CTLie.Poisson`](@extref), [`CTLie.Lift`](@extref)
 """
 function ad(
     X::Function,
@@ -58,7 +58,7 @@ Compute the Lie derivative or Lie bracket of two functions with explicit type pa
 - If `foo` returns a scalar, returns the Lie derivative (directional derivative): `∇foo(x)'*X(x)`
 - If `foo` returns a vector, returns the Lie bracket: `J_foo(x)*X(x) - J_X(x)*foo(x)`
 
-This typed entry point is used by the [`@Lie`](@ref) macro for compile-time dispatch.
+This typed entry point is used by the [`CTLie.@Lie`](@extref) macro for compile-time dispatch.
 
 # Arguments
 - `X::Function`: Vector field function (returns a vector).
@@ -87,7 +87,7 @@ L = ad(X, f, Traits.Autonomous, Traits.Fixed)
 L([1.0, 2.0])  # Returns 0.0
 ```
 
-See also: [`CTLie.ad(X::Function, foo::Function)`](@ref), [`CTLie.@Lie`](@ref), [`CTLie.Poisson`](@ref)
+See also: [`CTLie.ad`](@extref), [`CTLie.@Lie`](@extref), [`CTLie.Poisson`](@extref)
 """
 function ad(
     X::Function,
@@ -157,9 +157,9 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Internal constructor for [`Ad`](@ref) with compile-time `TD`/`VD` trait parameters.
+Internal constructor for [`CTLie.Ad`](@extref) with compile-time `TD`/`VD` trait parameters.
 
-See also: [`CTLie.Ad`](@ref), [`CTLie.ad`](@ref)
+See also: [`CTLie.Ad`](@extref), [`CTLie.ad`](@extref)
 """
 function _ad(
     X, foo, backend::Differentiation.AbstractADBackend, ::Type{TD}, ::Type{VD}
@@ -200,7 +200,7 @@ $(TYPEDSIGNATURES)
 
 Display an `Ad` callable in the REPL with the same format as `Base.show(io, a)`.
 
-See also: [`CTLie.Ad`](@ref).
+See also: [`CTLie.Ad`](@extref).
 """
 function Base.show(
     io::IO, ::MIME"text/plain", a::Ad{TX,TF,B,TD,VD}
@@ -218,7 +218,7 @@ Dispatch on the return type of `foo` to finalize the Lie derivative or Lie brack
 - **Vector `foo`** (Lie bracket): compute the second pushforward
   `J_X(x)·foo(x)` and return `dfoo - dX = J_foo(x)·X(x) - J_X(x)·foo(x)`.
 
-See also: [`CTLie.Ad`](@ref), [`CTLie.ad`](@ref)
+See also: [`CTLie.Ad`](@extref), [`CTLie.ad`](@extref)
 """
 _ad_bracket(_, _, dfoo::Number, _, ::Val{Slot}, x, consts...) where {Slot} = dfoo
 

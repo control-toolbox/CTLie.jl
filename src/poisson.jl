@@ -32,7 +32,7 @@ B = Poisson(H, G)
 B([1.0, 2.0], [0.5, 1.0])  # Returns 1.0
 ```
 
-See also: [`CTLie.Poisson`](@ref), [`CTLie.ad`](@ref), [`CTLie.Lift`](@ref)
+See also: [`CTLie.Poisson`](@extref), [`CTLie.ad`](@extref), [`CTLie.Lift`](@extref)
 """
 function Poisson(
     H::Function,
@@ -53,7 +53,7 @@ $(TYPEDSIGNATURES)
 Compute the Poisson bracket of two Hamiltonian functions with explicit type parameters.
 
 Returns a function representing the Poisson bracket `{H, G} = ∇ₚH' * ∇ₓG - ∇ₓH' * ∇ₚG`.
-This typed entry point is used by the [`@Lie`](@ref) macro for compile-time dispatch.
+This typed entry point is used by the [`CTLie.@Lie`](@extref) macro for compile-time dispatch.
 
 # Arguments
 - `H::Function`: First Hamiltonian function (returns a scalar).
@@ -77,7 +77,7 @@ B = Poisson(H, G, Traits.Autonomous, Traits.Fixed)
 B([1.0, 2.0], [0.5, 1.0])  # Returns 1.0
 ```
 
-See also: [`CTLie.Poisson(H::Function, G::Function)`](@ref), [`CTLie.@Lie`](@ref), [`CTLie.ad`](@ref)
+See also: [`CTLie.Poisson`](@extref), [`CTLie.@Lie`](@extref), [`CTLie.ad`](@extref)
 """
 function Poisson(
     H::Function,
@@ -152,9 +152,9 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Internal constructor for [`PoissonBracket`](@ref) with compile-time `TD`/`VD` trait parameters.
+Internal constructor for [`CTLie.PoissonBracket`](@extref) with compile-time `TD`/`VD` trait parameters.
 
-See also: [`CTLie.PoissonBracket`](@ref), [`CTLie.Poisson`](@ref)
+See also: [`CTLie.PoissonBracket`](@extref), [`CTLie.Poisson`](@extref)
 """
 function _Poisson(
     H, G, backend::Differentiation.AbstractADBackend, ::Type{TD}, ::Type{VD}
@@ -195,7 +195,7 @@ $(TYPEDSIGNATURES)
 
 Display a `PoissonBracket` in the REPL with the same format as `Base.show(io, pb)`.
 
-See also: [`CTLie.PoissonBracket`](@ref).
+See also: [`CTLie.PoissonBracket`](@extref).
 """
 function Base.show(
     io::IO, ::MIME"text/plain", pb::PoissonBracket{FH,FG,B,TD,VD}
@@ -232,7 +232,7 @@ B = Poisson(H, G)
 B([1.0, 2.0], [0.5, 1.0])  # Returns 1.0
 ```
 
-See also: [`CTLie.Poisson(H::Function, G::Function)`](@ref), [`CTLie.ad`](@ref)
+See also: [`CTLie.Poisson`](@extref), [`CTLie.ad`](@extref)
 """
 function Poisson(
     H::Data.AbstractHamiltonian{TD,VD},
@@ -264,7 +264,7 @@ dependence types, which is not allowed for the Poisson bracket operation.
 This is a fallback error method that provides a clear error message when the types do not
 match. Use the matching TD/VD version for valid operations.
 
-See also: [`CTLie.Poisson`](@ref)
+See also: [`CTLie.Poisson`](@extref)
 """
 function Poisson(
     H::Data.AbstractHamiltonian{TD1,VD1},
@@ -297,7 +297,7 @@ arguments are `AbstractVectorField`. It is always an error; use `ad(X, Y)` inste
 # Throws
 - `Exceptions.IncorrectArgument`: Always thrown with suggestion to use Lie bracket.
 
-See also: [`CTLie.ad`](@ref)
+See also: [`CTLie.ad`](@extref)
 """
 function Poisson(
     ::Data.AbstractVectorField,
@@ -351,7 +351,7 @@ where the second argument is a VectorField and the first is some other type.
 # Throws
 - `Exceptions.IncorrectArgument`: Always thrown with suggestion to use Lie bracket.
 
-See also: [`CTLie.ad`](@ref)
+See also: [`CTLie.ad`](@extref)
 """
 function Poisson(
     ::Any,

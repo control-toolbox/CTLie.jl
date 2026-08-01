@@ -125,22 +125,22 @@ $(TYPEDEF)
 
 Type alias for operands that support Lie bracket computation.
 
-Unifies `Function` and `AbstractVectorField` for dispatch in the [`@Lie`](@ref) macro
+Unifies `Function` and `AbstractVectorField` for dispatch in the [`CTLie.@Lie`](@extref) macro
 and related operations. This enables consistent handling of both raw functions and
 wrapped vector fields in Lie bracket computations.
 
 # Notes
-- Used internally by [`CTLie._lie_mac`](@ref) for runtime dispatch.
+- Used internally by [`CTLie._lie_mac`](@extref) for runtime dispatch.
 - Functions are normalized to `VectorField` before actual computation.
 
-See also: [`CTLie.@Lie`](@ref), [`CTLie.ad`](@ref), [`CTBase.Data.AbstractVectorField`](@extref CTBase).
+See also: [`CTLie.@Lie`](@extref), [`CTLie.ad`](@extref), [`CTBase.Data.AbstractVectorField`](@extref CTBase).
 """
 const _Bracketable = Union{Function,Data.AbstractVectorField}
 
 """
 Runtime dispatch for Lie bracket macro expansion — typed method.
 
-Normalizes operands, checks trait consistency, and calls [`CTLie.ad`](@ref).
+Normalizes operands, checks trait consistency, and calls [`CTLie.ad`](@extref).
 
 # Arguments
 - `a::_Bracketable`: First operand (Function or AbstractVectorField).
@@ -152,7 +152,7 @@ Normalizes operands, checks trait consistency, and calls [`CTLie.ad`](@ref).
 - `backend`: AD backend expression.
 
 # Returns
-- Result of [`CTLie.ad`](@ref) call.
+- Result of [`CTLie.ad`](@extref) call.
 """
 function _lie_mac(
     a::_Bracketable,
@@ -247,22 +247,22 @@ $(TYPEDEF)
 
 Type alias for operands that support Poisson bracket computation.
 
-Unifies `Function` and `AbstractHamiltonian` for dispatch in the [`@Lie`](@ref) macro
+Unifies `Function` and `AbstractHamiltonian` for dispatch in the [`CTLie.@Lie`](@extref) macro
 and related operations. This enables consistent handling of both raw functions and
 wrapped Hamiltonians in Poisson bracket computations.
 
 # Notes
-- Used internally by [`CTLie._poisson_mac`](@ref) for runtime dispatch.
+- Used internally by [`CTLie._poisson_mac`](@extref) for runtime dispatch.
 - Functions are normalized to `Hamiltonian` before actual computation.
 
-See also: [`CTLie.@Lie`](@ref), [`CTLie.Poisson`](@ref), [`CTBase.Data.AbstractHamiltonian`](@extref CTBase).
+See also: [`CTLie.@Lie`](@extref), [`CTLie.Poisson`](@extref), [`CTBase.Data.AbstractHamiltonian`](@extref CTBase).
 """
 const _Poissonable = Union{Function,Data.AbstractHamiltonian}
 
 """
 Runtime dispatch for Poisson bracket macro expansion — typed method.
 
-Normalizes operands, checks trait consistency, and calls [`CTLie.Poisson`](@ref).
+Normalizes operands, checks trait consistency, and calls [`CTLie.Poisson`](@extref).
 
 # Arguments
 - `h::_Poissonable`: First Hamiltonian operand (Function or AbstractHamiltonian).
@@ -274,7 +274,7 @@ Normalizes operands, checks trait consistency, and calls [`CTLie.Poisson`](@ref)
 - `backend`: AD backend expression.
 
 # Returns
-- Result of [`CTLie.Poisson`](@ref) call.
+- Result of [`CTLie.Poisson`](@extref) call.
 """
 function _poisson_mac(
     h::_Poissonable,
@@ -457,7 +457,7 @@ $(TYPEDSIGNATURES)
 
 Macro for Lie brackets and Poisson brackets with compile-time typed dispatch.
 
-Transforms bracket expressions into calls to [`CTLie.ad`](@ref) (Lie brackets) or [`CTLie.Poisson`](@ref)
+Transforms bracket expressions into calls to [`CTLie.ad`](@extref) (Lie brackets) or [`CTLie.Poisson`](@extref)
 (Poisson brackets) with compile-time type dispatch based on keyword arguments.
 
 # Syntax
@@ -473,7 +473,7 @@ Transforms bracket expressions into calls to [`CTLie.ad`](@ref) (Lie brackets) o
   - `ad_backend::Expr`: AD backend expression (default: global backend).
 
 # Returns
-- Expanded code calling [`CTLie._lie_mac`](@ref) or [`CTLie._poisson_mac`](@ref) with typed dispatch.
+- Expanded code calling [`CTLie._lie_mac`](@extref) or [`CTLie._poisson_mac`](@extref) with typed dispatch.
 
 # Throws
 - `Exceptions.IncorrectArgument`: If unknown keyword argument is provided.
@@ -501,11 +501,11 @@ Z = @Lie [X, Y] is_autonomous=true is_variable=false
 ```
 
 # Notes
-- The macro uses compile-time typed dispatch via [`CTLie._lie_mac`](@ref) and [`CTLie._poisson_mac`](@ref).
+- The macro uses compile-time typed dispatch via [`CTLie._lie_mac`](@extref) and [`CTLie._poisson_mac`](@extref).
 - Operands can be plain functions or typed objects ([`CTBase.Data.VectorField`](@extref CTBase), [`CTBase.Data.Hamiltonian`](@extref CTBase)).
 - Mixed types (function + typed object) are automatically normalized.
 
-See also: [`CTLie.ad`](@ref), [`CTLie.Poisson`](@ref), [`CTLie.Lift`](@ref)
+See also: [`CTLie.ad`](@extref), [`CTLie.Poisson`](@extref), [`CTLie.Lift`](@extref)
 """
 macro Lie(expr::Expr, args...)
     opts, err = __parse_lie_opts(args...)
