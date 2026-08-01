@@ -38,7 +38,7 @@ $(TYPEDSIGNATURES)
 
 Lift a function to a Hamiltonian via the canonical symplectic structure.
 
-Returns a [`LiftedHamiltonianFunction`](@ref) representing `H(x, p) = p' * f(x)`. This is an
+Returns a [`CTLie.LiftedHamiltonianFunction`](@extref) representing `H(x, p) = p' * f(x)`. This is an
 algebraic operation that does not use automatic differentiation.
 
 # Arguments
@@ -47,7 +47,7 @@ algebraic operation that does not use automatic differentiation.
 - `is_variable::Bool`: Whether the function depends on a variable parameter (default: from global config).
 
 # Returns
-- A [`LiftedHamiltonianFunction`](@ref) with signature depending on TD/VD:
+- A [`CTLie.LiftedHamiltonianFunction`](@extref) with signature depending on TD/VD:
   - Autonomous/Fixed: `(x, p) -> p' * f(x)`
   - NonAutonomous/Fixed: `(t, x, p) -> p' * f(t, x)`
   - Autonomous/NonFixed: `(x, p, v) -> p' * f(x, v)`
@@ -63,7 +63,7 @@ H = Lift(f)
 H([1.0, 2.0], [0.5, 1.0])  # Returns -1.5
 ```
 
-See also: [`CTLie.Lift`](@ref), [`CTLie.Poisson`](@ref)
+See also: [`CTLie.Lift`](@extref), [`CTLie.Poisson`](@extref)
 """
 function Lift(
     f::Function;
@@ -80,8 +80,8 @@ $(TYPEDSIGNATURES)
 
 Lift a function to a Hamiltonian with explicit type parameters.
 
-Returns a [`LiftedHamiltonianFunction`](@ref) representing `H(x, p) = p' * f(x)`. This typed entry
-point is used by the [`@Lie`](@ref) macro for compile-time dispatch.
+Returns a [`CTLie.LiftedHamiltonianFunction`](@extref) representing `H(x, p) = p' * f(x)`. This typed entry
+point is used by the [`CTLie.@Lie`](@extref) macro for compile-time dispatch.
 
 # Arguments
 - `f::Function`: Vector field function (returns a vector).
@@ -89,7 +89,7 @@ point is used by the [`@Lie`](@ref) macro for compile-time dispatch.
 - `::Type{VD}`: Variable dependence type ([`CTBase.Traits.Fixed`](@extref CTBase) or [`CTBase.Traits.NonFixed`](@extref CTBase)).
 
 # Returns
-- A [`LiftedHamiltonianFunction{typeof(f), TD, VD}`](@ref).
+- A [`CTLie.LiftedHamiltonianFunction`](@extref) with type parameters `{typeof(f), TD, VD}`.
 
 # Example
 ```julia
@@ -102,7 +102,7 @@ H = Lift(f, Traits.Autonomous, Traits.Fixed)
 H([1.0, 2.0], [0.5, 1.0])  # Returns -1.5
 ```
 
-See also: [`CTLie.Lift(f::Function)`](@ref), [`CTLie.@Lie`](@ref)
+See also: [`CTLie.Lift`](@extref), [`CTLie.@Lie`](@extref)
 """
 function Lift(
     f::Function, ::Type{TD}, ::Type{VD}
@@ -139,7 +139,7 @@ H = Lift(X)
 H([1.0, 2.0], [0.5, 1.0])  # Returns -1.5
 ```
 
-See also: [`CTLie.Lift(f::Function)`](@ref), [`CTLie.Poisson`](@ref)
+See also: [`CTLie.Lift`](@extref), [`CTLie.Poisson`](@extref)
 """
 function Lift(
     X::Data.AbstractVectorField{TD,VD}
@@ -156,10 +156,10 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Return the human-readable call-signature string for a [`LiftedHamiltonianFunction`](@ref)
+Return the human-readable call-signature string for a [`CTLie.LiftedHamiltonianFunction`](@extref)
 given its `TD`/`VD` traits, used by `Base.show`.
 
-See also: [`CTLie.LiftedHamiltonianFunction`](@ref)
+See also: [`CTLie.LiftedHamiltonianFunction`](@extref)
 """
 _lh_call_sig(::Type{Traits.Autonomous}, ::Type{Traits.Fixed}) = "h(x, p) = p' * f(x)"
 function _lh_call_sig(::Type{Traits.Autonomous}, ::Type{Traits.NonFixed})
@@ -198,7 +198,7 @@ $(TYPEDSIGNATURES)
 
 Display a `LiftedHamiltonianFunction` in the REPL with the same format as `Base.show(io, h)`.
 
-See also: [`CTLie.LiftedHamiltonianFunction`](@ref).
+See also: [`CTLie.LiftedHamiltonianFunction`](@extref).
 """
 function Base.show(
     io::IO, ::MIME"text/plain", h::LiftedHamiltonianFunction{F,TD,VD}

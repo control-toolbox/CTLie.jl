@@ -34,6 +34,11 @@ draft = false # Draft mode: if true, @example blocks in markdown are not execute
 # Cross-package links (InterLinks)
 # ═══════════════════════════════════════════════════════════════════════════════
 links = InterLinks(
+    "CTLie" => (
+        "https://control-toolbox.org/CTLie.jl/stable/",
+        joinpath(@__DIR__, "build", "1", "objects.inv"),
+        "https://control-toolbox.org/CTLie.jl/stable/objects.inv",
+    ),
     "CTBase" => (
         "https://control-toolbox.org/CTBase.jl/stable/",
         "https://control-toolbox.org/CTBase.jl/stable/objects.inv",
