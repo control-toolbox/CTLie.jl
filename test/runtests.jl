@@ -19,6 +19,21 @@ using Test
 using CTBase
 using CTLie
 
+# Capability constants computed once, here, where a top-level `using` is guaranteed
+# to bind into Main. Suite files read Main.TestCapabilities.* instead of redefining
+# is_cuda_on() locally (see issue #21 / CTSolvers.jl#189-190 / CTFlows.jl#375).
+using CUDA
+module TestCapabilities
+using CUDA: CUDA
+const CUDA_FUNCTIONAL = CUDA.functional()
+end
+
+if Main.TestCapabilities.CUDA_FUNCTIONAL
+    println("✓ CUDA functional, GPU tests enabled")
+else
+    println("⚠️  CUDA not functional, GPU tests will be skipped")
+end
+
 # Trigger loading of optional extensions
 const TestRunner = Base.get_extension(CTBase, :TestRunner)
 
