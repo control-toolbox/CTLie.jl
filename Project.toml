@@ -13,11 +13,13 @@ ADTypes = "1"
 Aqua = "0.8"
 BenchmarkTools = "1"
 CTBase = "0.29"
+CUDA = "5, 6"
 DifferentiationInterface = "0.7"
 DocStringExtensions = "0.9"
 ForwardDiff = "0.10, 1"
 JET = "0.9, 0.11, 0.12"
 MacroTools = "0.5"
+Mooncake = "0.5"
 Test = "1"
 julia = "1.10"
 
@@ -25,10 +27,12 @@ julia = "1.10"
 ADTypes = "47edcb42-4c32-4615-8424-f2b9edc5f35b"
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 DifferentiationInterface = "a0c0ee7d-e4b9-4e03-894e-1c5f64a51d63"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
+Mooncake = "da2b9cff-9c12-43a0-ae48-6db2b0edb7d6"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["ADTypes", "Aqua", "BenchmarkTools", "DifferentiationInterface", "ForwardDiff", "JET", "Test"]
+test = ["ADTypes", "Aqua", "BenchmarkTools", "CUDA", "DifferentiationInterface", "ForwardDiff", "JET", "Mooncake", "Test"]
