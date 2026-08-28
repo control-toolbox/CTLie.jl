@@ -13,6 +13,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.1-beta] - 2026-08-28
+
+### 📦 Dependencies
+
+- **`[compat]` `CTBase` widened to `"0.29, 0.30"`** (`Project.toml` and
+  `docs/Project.toml`). CTBase 0.30 brings the `Plotting.MakieBackend` and the
+  `CTBaseMakie` extension; both 0.30.0-beta and 0.30.1-beta are documented as
+  fully additive (`## Non-breaking note` in CTBase `BREAKING.md`). CTLie uses none
+  of the plotting engine, so no source change was needed.
+
+### ✅ Compatibility
+
+- **No breaking changes**: compat-only update, no CTLie API affected. See
+  [BREAKING.md](BREAKING.md).
+
+---
+
 ## [0.2.0] - 2026-07-30
 
 ### 🎉 First stable release
