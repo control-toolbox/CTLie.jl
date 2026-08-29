@@ -6,6 +6,15 @@ This document describes breaking changes in CTLie.jl releases and how to migrate
 
 ---
 
+## Non-breaking note (0.2.1-beta)
+
+- **`[compat]` `CTBase` widened to `"0.29, 0.30"`.** CTBase 0.30 adds the Makie
+  plotting backend (`Plotting.MakieBackend` + the `CTBaseMakie` extension); it is
+  purely additive — no public API, type, or signature of CTBase changed, and CTLie
+  touches none of the plotting engine. **No breaking change**, no migration required.
+
+---
+
 ## [0.2.0] - 2026-07-30
 
 ### First stable release — cumulative breaking changes
