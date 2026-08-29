@@ -6,6 +6,16 @@ This document describes breaking changes in CTLie.jl releases and how to migrate
 
 ---
 
+## Non-breaking note (0.2.2-beta)
+
+- **GPU test-runner detection standardised (#31).** Test-suite and CI only — the
+  environment-contract and GPU differential-geometry guards now share a single
+  `Main.TestCapabilities.ON_GPU_RUNNER` predicate, and GPU CI runs on `occidata`
+  only. No CTLie public API, type, or signature changed. **No breaking change**, no
+  migration required.
+
+---
+
 ## Non-breaking note (0.2.1-beta)
 
 - **`[compat]` `CTBase` widened to `"0.29, 0.30"`.** CTBase 0.30 adds the Makie

@@ -4,10 +4,11 @@ GPU **execution** tests: re-run CTLie's differential-geometry operators (`ad`, `
 same way as the CPU suite (`test_ad_dg.jl`, `test_poisson_dg.jl`, `test_lift_dg.jl`,
 `test_time_derivative_dg.jl`, `test_macro_dg.jl`).
 
-The whole suite self-gates on CUDA availability: on a machine without a functional
-device (dev laptops, CPU CI runners) it skips cleanly via `Test.@test_skip` (shows as
-`Broken`, never a silent `Pass 0`). The real runs are the `test-gpu-kkt` /
-`test-gpu-occidata` jobs (PR labels `run ci kkt-runner` / `run ci occidata-runner`).
+The whole suite self-gates on `Main.TestCapabilities.CUDA_FUNCTIONAL`: on a machine
+without a functional device (dev laptops, CPU CI runners) it skips cleanly via
+`Test.@test_skip` (shows as `Broken`, never a silent `Pass 0`). The real run is the
+`test-gpu-occidata` job on the `occidata` self-hosted NVIDIA runner (PR label
+`run ci occidata-runner`).
 
 GPU backend: `Differentiation.DifferentiationInterface{Strategies.GPU}()`, which
 defaults to `AutoMooncake` (CTBase `Differentiation/default.jl`). `Mooncake` is only
@@ -46,15 +47,9 @@ using CTLie: CTLie
 const VERBOSE = isdefined(Main, :TestData) ? Main.TestData.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestData) ? Main.TestData.SHOWTIMING : true
 
-# Reads Main.TestCapabilities (defined once in runtests.jl) rather than redefining
-# is_cuda_on() locally — see test_environment_contract.jl's anti-pattern check.
-function _cuda_on()
-    return if isdefined(Main, :TestCapabilities)
-        Main.TestCapabilities.CUDA_FUNCTIONAL
-    else
-        false
-    end
-end
+# Device predicate and GPU-runner detection both come from Main.TestCapabilities
+# (`CUDA_FUNCTIONAL` / `ON_GPU_RUNNER`, defined once in runtests.jl) — never a local
+# `is_cuda_on()` / `_cuda_on()` copy, see test_environment_contract.jl's anti-pattern check.
 _dev(x) = CUDA.CuArray(x)
 
 const GPU_BACKEND = Differentiation.DifferentiationInterface{Strategies.GPU}()
@@ -68,12 +63,10 @@ const _SEL2 = [0.0 0.0; 1.0 0.0]   # x ↦ [0, x1]
 
 function test_gpu_dg()
     Test.@testset "GPU differential geometry (device execution)" verbose=VERBOSE showtiming=SHOWTIMING begin
-        on_gpu_runner() = get(ENV, "RUNNER_NAME", "") in ("kkt", "occidata")
-
-        if on_gpu_runner()
-            Test.@test _cuda_on()   # fails loudly if the GPU runner lost its device
-        elseif !_cuda_on()
-            @info "CUDA not functional — GPU differential-geometry tests skipped (run on kkt/occidata)"
+        if Main.TestCapabilities.ON_GPU_RUNNER
+            Test.@test Main.TestCapabilities.CUDA_FUNCTIONAL   # fails loudly if the GPU runner lost its device
+        elseif !Main.TestCapabilities.CUDA_FUNCTIONAL
+            @info "CUDA not functional — GPU differential-geometry tests skipped (run on a self-hosted GPU runner)"
             Test.@test_skip false   # shows as Broken, not Pass 0
             return nothing
         end
