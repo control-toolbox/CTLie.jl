@@ -13,6 +13,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.2-beta] - 2026-08-29
+
+### 🧪 Tests
+
+- **GPU test-runner detection recognises both `kkt` and `occidata`** (#31). The
+  environment-contract "GPU driver required" assertion and the GPU differential-geometry
+  gate keyed on an exact `RUNNER_NAME` match, which never fires on the real self-hosted
+  runners (registered with the GitHub Actions agent as `kkt-runner` / `occidata-runner`,
+  not the bare `kkt` / `occidata` `runs_on` label). They now use the single
+  `Main.TestCapabilities.ON_GPU_RUNNER` predicate (substring match), so a broken/absent
+  CUDA device fails loudly on either self-hosted GPU runner instead of being silently
+  skipped. CPU/developer runners keep the visible `Test.@test_skip`. The per-file
+  `_cuda_on()` / `on_gpu_runner()` helpers are removed in favour of
+  `Main.TestCapabilities.*`, and the anti-pattern audit now also fails on a bare
+  `if is_cuda_on()` / `if _cuda_on()` / `if CUDA.functional()` guard. Mirrors
+  control-toolbox/CTFlows.jl#412.
+
+### 🔧 CI
+
+- **GPU CI job runs on `occidata` only** — the `test-gpu-kkt` job was removed from
+  `CI.yml`; workflow comments translated to English.
+
+### ✅ Compatibility
+
+- **No breaking changes**: test/CI only, no CTLie API affected. See
+  [BREAKING.md](BREAKING.md).
+
+---
+
 ## [0.2.1-beta] - 2026-08-28
 
 ### 📦 Dependencies

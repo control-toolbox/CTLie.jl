@@ -9,7 +9,7 @@ on:
     types: [labeled, synchronize, reopened]
 
 jobs:
-  # Job pour les runners GitHub hosted (ubuntu, windows, macos)
+  # Job for the GitHub-hosted runners (ubuntu, windows, macos)
   test-cpu-github:
     # A 'labeled' event fires once per label added, and re-evaluates against the PR's
     # *current* full label set — so adding several labels in a row would otherwise
@@ -28,23 +28,7 @@ jobs:
     secrets:
       SSH_KEY: ${{ secrets.SSH_KEY }}
 
-  # Job pour le runner self-hosted kkt (GPU/CUDA)
-  test-gpu-kkt:
-    # See the comment on test-cpu-github above.
-    if: >
-      github.event_name != 'pull_request' ||
-      (github.event.action == 'labeled' && github.event.label.name == 'run ci kkt-runner') ||
-      (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'run ci kkt-runner'))
-    uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
-    with:
-      versions: '["1"]'
-      runs_on: '[["kkt"]]'
-      runner_type: 'self-hosted'
-      use_ct_registry: true
-    secrets:
-      SSH_KEY: ${{ secrets.SSH_KEY }}
-
-  # Job pour le runner self-hosted occidata (GPU/CUDA)
+  # Job for the self-hosted occidata runner (GPU/CUDA)
   test-gpu-occidata:
     # See the comment on test-cpu-github above.
     if: >
