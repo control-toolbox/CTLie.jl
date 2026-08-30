@@ -34,7 +34,9 @@ function _silent_cuda_guard_offenders()
     offenders = Tuple{String,Int}[]
     # Assembled from string literals so this line does not match itself.
     def_pattern = r"(is_cuda_on|_cuda_on)\(\)\s*="
-    if_pattern = Regex("if\\s+(is_cuda_on\\(\\)|_cuda_on\\(\\)|CUDA" * "\\.functional\\(\\))")
+    if_pattern = Regex(
+        "if\\s+(is_cuda_on\\(\\)|_cuda_on\\(\\)|CUDA" * "\\.functional\\(\\))"
+    )
     this_file = basename(@__FILE__)
     for (root, _, files) in walkdir(suite_dir)
         for f in files
