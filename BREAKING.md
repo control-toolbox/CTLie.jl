@@ -6,6 +6,17 @@ This document describes breaking changes in CTLie.jl releases and how to migrate
 
 ---
 
+## [0.2.3] - 2026-10-04
+
+### CTBase 0.30 is required
+
+- CTLie 0.2.3 no longer supports CTBase 0.29. The `[compat]` entries in
+  `Project.toml` and `docs/Project.toml` now require `CTBase = "0.30"`.
+
+**Migration:** update CTBase to version 0.30 before upgrading CTLie to 0.2.3.
+
+---
+
 ## Non-breaking note (0.2.2-beta)
 
 - **GPU test-runner detection standardised (#31).** Test-suite and CI only — the
