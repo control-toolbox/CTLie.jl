@@ -13,6 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.2.3] - 2026-10-04
+
+### 📦 Dependencies
+
+- **`CTBase` compatibility is now restricted to `"0.30"`.** CTLie 0.2.3 no longer supports CTBase 0.29.
+
+### ✅ Compatibility
+
+- **This release requires CTBase 0.30.** See [BREAKING.md](BREAKING.md) for migration guidance.
+
+---
+
 ## [0.2.2-beta] - 2026-08-29
 
 ### 🧪 Tests
