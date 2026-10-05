@@ -65,6 +65,8 @@ function test_gpu_dg()
     Test.@testset "GPU differential geometry (device execution)" verbose=VERBOSE showtiming=SHOWTIMING begin
         if Main.TestCapabilities.ON_GPU_RUNNER
             Test.@test Main.TestCapabilities.CUDA_FUNCTIONAL   # fails loudly if the GPU runner lost its device
+            # One failure says it all: the device testsets below would each add a CuArray error.
+            Main.TestCapabilities.CUDA_FUNCTIONAL || return nothing
         elseif !Main.TestCapabilities.CUDA_FUNCTIONAL
             @info "CUDA not functional — GPU differential-geometry tests skipped (run on a self-hosted GPU runner)"
             Test.@test_skip false   # shows as Broken, not Pass 0
