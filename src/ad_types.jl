@@ -1,69 +1,3 @@
-# InPlace guard: dispatches on the MD *type* (captured from the where clause — fully static)
-"""
-Check that mutability type is OutOfPlace (static dispatch on type parameter).
-
-# Arguments
-- `::Type{Traits.OutOfPlace}`: OutOfPlace mutability type.
-
-# Returns
-- `nothing`
-"""
-_check_outofplace(::Type{Traits.OutOfPlace}) = nothing
-
-"""
-Throw NotImplemented if mutability type is not OutOfPlace.
-
-# Arguments
-- `::Type{MD}`: Mutability type (must be OutOfPlace).
-
-# Throws
-- `Exceptions.NotImplemented`: If mutability is not OutOfPlace.
-"""
-function _check_outofplace(::Type{MD}) where {MD<:Traits.AbstractMutabilityTrait}
-    return throw(
-        Exceptions.NotImplemented(
-            "ad is not implemented for InPlace vector fields";
-            required_method="Use an OutOfPlace VectorField",
-            suggestion="Reconstruct the VectorField without in-place flag",
-            context="ad on AbstractVectorField",
-        ),
-    )
-end
-
-# HVF guard: dispatch on type hierarchy (runtime — MD params don't encode HVF vs plain VF)
-"""
-Check that vector field is not a HamiltonianVectorField (runtime check).
-
-# Arguments
-- `::Data.AbstractVectorField`: Plain vector field (allowed).
-
-# Returns
-- `nothing`
-"""
-_check_not_hvf(::Data.AbstractVectorField) = nothing
-
-"""
-Throw NotImplemented if vector field is a HamiltonianVectorField.
-
-HamiltonianVectorFields have signature (x, p) not (x), so they cannot be used
-with the Lie bracket operations on plain vector fields.
-
-# Arguments
-- `X::Data.AbstractHamiltonianVectorField`: Hamiltonian vector field (not allowed).
-
-# Throws
-- `Exceptions.NotImplemented`: Always thrown for HamiltonianVectorFields.
-"""
-function _check_not_hvf(X::Data.AbstractHamiltonianVectorField)
-    return throw(
-        Exceptions.NotImplemented(
-            "ad on AbstractHamiltonianVectorField is not implemented (signature is (x,p), not (x))";
-            suggestion="Use ad on a plain VectorField",
-            context="ad on AbstractVectorField",
-        ),
-    )
-end
-
 """
 $(TYPEDSIGNATURES)
 
@@ -81,8 +15,8 @@ Both vector fields must share the same time dependence and variable dependence.
 - `Data.VectorField{TD, VD, Traits.OutOfPlace}`: The Lie bracket as a vector field.
 
 # Throws
-- `Exceptions.NotImplemented`: If either vector field is an `AbstractHamiltonianVectorField`.
-- `Exceptions.NotImplemented`: If either vector field has `InPlace` mutability.
+- `Exceptions.IncorrectArgument`: If either vector field is an `AbstractHamiltonianVectorField`.
+- `Exceptions.IncorrectArgument`: If either vector field has `InPlace` mutability.
 
 # Example
 ```julia
@@ -109,10 +43,10 @@ function ad(
     MDX<:Traits.AbstractMutabilityTrait,
     MDY<:Traits.AbstractMutabilityTrait,
 }
-    _check_not_hvf(X)
-    _check_not_hvf(Y)
-    _check_outofplace(MDX)    # static dispatch on type parameter — no runtime call
-    _check_outofplace(MDY)
+    _check_not_hvf(X, :ad)
+    _check_not_hvf(Y, :ad)
+    _check_outofplace(MDX, :ad)    # static dispatch on type parameter — no runtime call
+    _check_outofplace(MDY, :ad)
     backend = _resolve_backend(ad_backend)
     closure = _ad(X, Y, backend, TD, VD)
     return Data.VectorField(closure, TD, VD, Traits.OutOfPlace)  # typed constructor, explicit mutability
@@ -134,8 +68,8 @@ Returns a plain function representing the directional derivative `∇f(x)'*X(x)`
 - A function with signature depending on TD/VD that returns a scalar.
 
 # Throws
-- `Exceptions.NotImplemented`: If the vector field is an `AbstractHamiltonianVectorField`.
-- `Exceptions.NotImplemented`: If the vector field has `InPlace` mutability.
+- `Exceptions.IncorrectArgument`: If the vector field is an `AbstractHamiltonianVectorField`.
+- `Exceptions.IncorrectArgument`: If the vector field has `InPlace` mutability.
 
 # Example
 ```julia
@@ -161,8 +95,8 @@ function ad(
     VD<:Traits.VariableDependence,
     MDX<:Traits.AbstractMutabilityTrait,
 }
-    _check_not_hvf(X)
-    _check_outofplace(MDX)    # static dispatch
+    _check_not_hvf(X, :ad)
+    _check_outofplace(MDX, :ad)    # static dispatch
     backend = _resolve_backend(ad_backend)
     return _ad(X, f, backend, TD, VD)  # scalar output → returns a plain Function
 end

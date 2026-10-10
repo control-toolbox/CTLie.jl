@@ -217,9 +217,19 @@ function test_time_derivative_dg()
     # Error guards
     # ====================================================================
 
-    Test.@testset "∂ₜ() - InPlace guard → NotImplemented" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "∂ₜ() - InPlace guard → IncorrectArgument" verbose=VERBOSE showtiming=SHOWTIMING begin
         ip_vf = Data.VectorField((dx, x) -> (dx .= x); is_autonomous=true, is_inplace=true)
-        Test.@test_throws Exceptions.NotImplemented CTLie.∂ₜ(ip_vf)
+        e = Test.@test_throws Exceptions.IncorrectArgument CTLie.∂ₜ(ip_vf)
+        # The error must name ∂ₜ (not ad)
+        Test.@test occursin("∂ₜ does not support InPlace", e.value.msg)
+        Test.@test e.value.context == "∂ₜ on AbstractVectorField"
+        Test.@test !occursin(r"\bad\b", e.value.msg)
+
+        ip_hvf = Data.HamiltonianVectorField(
+            (dx, dp, x, p) -> (dx .= p; dp .= -x); is_autonomous=true, is_inplace=true
+        )
+        e = Test.@test_throws Exceptions.IncorrectArgument CTLie.∂ₜ(ip_hvf)
+        Test.@test e.value.context == "∂ₜ on AbstractVectorField"
     end
 end
 

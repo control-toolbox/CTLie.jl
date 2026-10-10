@@ -84,11 +84,20 @@ function test_lift_dg()
         Test.@test H(x0, p0) ≈ 2.0 atol=1e-10
     end
 
-    Test.@testset "Lift() - HVF guard → NotImplemented" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "Lift() - HVF guard → IncorrectArgument" verbose=VERBOSE showtiming=SHOWTIMING begin
         hvf = Data.HamiltonianVectorField(
             (x, p) -> (x, -p); is_autonomous=true, is_variable=false
         )
-        Test.@test_throws Exceptions.NotImplemented CTLie.Lift(hvf)
+        e = Test.@test_throws Exceptions.IncorrectArgument CTLie.Lift(hvf)
+        # The error must name Lift (not ad) and explain why there is nothing to lift
+        Test.@test occursin("Lift does not support", e.value.msg)
+        Test.@test e.value.got == "HamiltonianVectorField"
+        Test.@test e.value.expected == "plain VectorField"
+        Test.@test e.value.context == "Lift on AbstractVectorField"
+        Test.@test occursin("cotangent space", e.value.suggestion)
+        for field in (e.value.msg, e.value.context, e.value.suggestion)
+            Test.@test !occursin(r"\bad\b", field)
+        end
     end
 
     Test.@testset "Lift() - Autonomous NonFixed" verbose=VERBOSE showtiming=SHOWTIMING begin

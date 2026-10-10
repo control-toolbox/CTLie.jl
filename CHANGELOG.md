@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🐛 Fixed
+
+- **Guard errors now name the operation actually called (#41).** `Lift` on a
+  `HamiltonianVectorField` and `∂ₜ` on an in-place field used to report errors about `ad`.
+  The guards now live in `src/guards.jl` and take the calling operation.
+
+### ⚠️ Changed
+
+- **Rejected operands now raise `IncorrectArgument` instead of `NotImplemented`.** A
+  `HamiltonianVectorField` (in `ad`, `Lift`) or an in-place field (in `ad`, `∂ₜ`) is a valid
+  object that the operation does not accept, not a missing interface method. See
+  [BREAKING.md](BREAKING.md).
+
 ---
 
 ## [0.2.3] - 2026-10-04

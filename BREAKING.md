@@ -6,6 +6,19 @@ This document describes breaking changes in CTLie.jl releases and how to migrate
 
 ---
 
+## [Unreleased]
+
+### Guard errors are `IncorrectArgument`, not `NotImplemented`
+
+- `ad` and `Lift` on a `HamiltonianVectorField`, and `ad` and `∂ₜ` on an in-place vector
+  field, now throw `CTBase.Exceptions.IncorrectArgument` (with `got`/`expected`/`context`
+  naming the operation called) instead of `CTBase.Exceptions.NotImplemented`.
+
+**Migration:** replace `catch e; e isa Exceptions.NotImplemented` (or
+`@test_throws Exceptions.NotImplemented`) by `Exceptions.IncorrectArgument` for these calls.
+
+---
+
 ## [0.2.3] - 2026-10-04
 
 ### CTBase 0.30 is required

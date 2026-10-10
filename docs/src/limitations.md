@@ -22,12 +22,12 @@ nothing # hide
 The operators are defined for **out-of-place** objects only. A field built with
 `is_inplace=true` (mutability [`InPlace`](@extref CTBase CTBase.Traits.InPlace)) is rejected by
 [`ad`](@ref CTLie.ad) and [`∂ₜ`](@ref CTLie.∂ₜ) with a
-[`CTBase.Exceptions.NotImplemented`](@extref CTBase) error. Reconstruct the field
+[`CTBase.Exceptions.IncorrectArgument`](@extref CTBase) error. Reconstruct the field
 out-of-place before taking brackets or time derivatives:
 
 ```julia
 Xip = VectorField(x -> [x[2], -x[1]]; is_inplace=true)
-ad(Xip, Xip)        # ❌ NotImplemented — ad is not defined for in-place fields
+ad(Xip, Xip)        # ❌ IncorrectArgument — ad does not support in-place fields
 ```
 
 ### No Lie operations on a Hamiltonian vector field
@@ -35,12 +35,12 @@ ad(Xip, Xip)        # ❌ NotImplemented — ad is not defined for in-place fiel
 A [`HamiltonianVectorField`](@extref CTBase CTBase.Data.HamiltonianVectorField) lives on phase
 space with signature `(x, p)`, not `(x)`, so it is **not** a valid operand for the Lie
 bracket / Lie derivative, nor for the [`Lift`](@ref CTLie.Lift).
-Both raise [`CTBase.Exceptions.NotImplemented`](@extref CTBase):
+Both raise [`CTBase.Exceptions.IncorrectArgument`](@extref CTBase):
 
 ```julia
 Z = HamiltonianVectorField((x, p) -> [x[1], -p[1]]; is_autonomous=true)
-ad(Z, Z)            # ❌ NotImplemented — signature is (x, p), not (x)
-Lift(Z)             # ❌ NotImplemented — Z already lives on phase space
+ad(Z, Z)            # ❌ IncorrectArgument — signature is (x, p), not (x)
+Lift(Z)             # ❌ IncorrectArgument — Z already lives on phase space
 ```
 
 Use the underlying plain [`VectorField`](@extref CTBase CTBase.Data.VectorField) instead.

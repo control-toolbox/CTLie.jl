@@ -97,7 +97,7 @@ dZ(2.0, [1.0], [0.5])    # ∂/∂t t·[p₁, -x₁] = [p₁, -x₁]
 !!! warning "Out-of-place only"
 
     `∂ₜ` on a typed object requires `OutOfPlace` mutability; an in-place field raises a
-    `NotImplemented` error. See [Limitations & configuration](limitations.md).
+    `IncorrectArgument` error. See [Limitations & configuration](limitations.md).
 
 ## See also
 
