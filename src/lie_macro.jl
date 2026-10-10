@@ -350,6 +350,29 @@ end
 # =============================================================================
 
 """
+Build the expression that throws an `IncorrectArgument` at the call site of `@Lie`.
+
+The expression refers to `throw` and `Exceptions.IncorrectArgument` through `GlobalRef`s, so
+it does not depend on any binding of the caller's module.
+
+# Arguments
+- `msg::String`: Error message.
+- `got::String`: Offending value.
+- `expected::String`: Description of what was expected.
+- `context::String`: Where the error was raised.
+
+# Returns
+- `Expr`: Expression throwing `Exceptions.IncorrectArgument`.
+"""
+function __lie_error(msg::String, got::String, expected::String, context::String)
+    throw_ref = GlobalRef(Base, :throw)
+    error_ref = GlobalRef(Exceptions, :IncorrectArgument)
+    return :($throw_ref(
+        $error_ref($msg; got=($got), expected=($expected), context=($context))
+    ))
+end
+
+"""
 Parse keyword arguments for the @Lie macro.
 
 # Arguments
@@ -364,7 +387,7 @@ function __parse_lie_opts(args...)
     has_aut = false
     is_variable = Data.__is_variable()
     has_var = false
-    backend_expr = :(CTLie.__dg_ad_backend())
+    backend_expr = :($(GlobalRef(@__MODULE__, :__dg_ad_backend))())
 
     for arg in args
         if arg isa Expr && (arg.head === :(=) || arg.head === :kw)
@@ -378,28 +401,22 @@ function __parse_lie_opts(args...)
             elseif key === :ad_backend
                 backend_expr = val
             else
-                msg = "@Lie: unknown keyword argument"
-                got = string(key)
-                exp = "is_autonomous, is_variable, or ad_backend"
-                ctx = "@Lie macro keyword parsing"
                 return nothing,
-                :(throw(
-                    CTBase.Exceptions.IncorrectArgument(
-                        $msg; got=($got), expected=($exp), context=($ctx)
-                    ),
-                ))
+                __lie_error(
+                    "@Lie: unknown keyword argument",
+                    string(key),
+                    "is_autonomous, is_variable, or ad_backend",
+                    "@Lie macro keyword parsing",
+                )
             end
         else
-            msg = "@Lie: invalid argument"
-            got = string(arg)
-            exp = "a keyword=value argument (e.g. is_autonomous=false)"
-            ctx = "@Lie macro argument parsing"
             return nothing,
-            :(throw(
-                CTBase.Exceptions.IncorrectArgument(
-                    $msg; got=($got), expected=($exp), context=($ctx)
-                ),
-            ))
+            __lie_error(
+                "@Lie: invalid argument",
+                string(arg),
+                "a keyword=value argument (e.g. is_autonomous=false)",
+                "@Lie macro argument parsing",
+            )
         end
     end
     TD = is_autonomous ? :Autonomous : :NonAutonomous
@@ -421,27 +438,16 @@ Replaces `[a, b]` with calls to `_lie_mac` and `{a, b}` with calls to `_poisson_
 """
 function __transform_brackets(expr, opts)
     (; TD, VD, has_aut, has_var, backend) = opts
+    # Module-qualified references (not names): they resolve in CTLie, whatever the caller binds.
+    td, vd = GlobalRef(Traits, TD), GlobalRef(Traits, VD)
+    chk_aut, chk_var = Val(has_aut), Val(has_var)   # singleton values, no `Val` call in the expansion
+    lie_mac = GlobalRef(@__MODULE__, :_lie_mac)
+    poisson_mac = GlobalRef(@__MODULE__, :_poisson_mac)
     postwalk(expr) do x
         if @capture(x, [a_, b_])
-            return :(CTLie._lie_mac(
-                $a,
-                $b,
-                CTBase.Traits.$TD,
-                CTBase.Traits.$VD,
-                Val($has_aut),
-                Val($has_var),
-                $backend,
-            ))
+            return :($lie_mac($a, $b, $td, $vd, $chk_aut, $chk_var, $backend))
         elseif @capture(x, {c_, d_})
-            return :(CTLie._poisson_mac(
-                $c,
-                $d,
-                CTBase.Traits.$TD,
-                CTBase.Traits.$VD,
-                Val($has_aut),
-                Val($has_var),
-                $backend,
-            ))
+            return :($poisson_mac($c, $d, $td, $vd, $chk_aut, $chk_var, $backend))
         else
             return x
         end
