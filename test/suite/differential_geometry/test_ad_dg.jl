@@ -82,7 +82,13 @@ function test_ad_dg()
         )
         Y = Data.VectorField(x -> [x[1], x[2]]; is_autonomous=true, is_variable=false)
 
-        Test.@test_throws Exceptions.NotImplemented CTLie.ad(hvf, Y)
+        for call in (() -> CTLie.ad(hvf, Y), () -> CTLie.ad(Y, hvf), () -> CTLie.ad(hvf, x -> x[1]))
+            e = Test.@test_throws Exceptions.IncorrectArgument call()
+            Test.@test occursin("ad does not support", e.value.msg)
+            Test.@test e.value.got == "HamiltonianVectorField"
+            Test.@test e.value.expected == "plain VectorField"
+            Test.@test e.value.context == "ad on AbstractVectorField"
+        end
     end
 
     Test.@testset "ad() - Errors: InPlace guard" verbose=VERBOSE showtiming=SHOWTIMING begin
@@ -91,7 +97,13 @@ function test_ad_dg()
         )
         Y = Data.VectorField(x -> [x[1], x[2]]; is_autonomous=true, is_variable=false)
 
-        Test.@test_throws Exceptions.NotImplemented CTLie.ad(ip_vf, Y)
+        for call in (() -> CTLie.ad(ip_vf, Y), () -> CTLie.ad(Y, ip_vf))
+            e = Test.@test_throws Exceptions.IncorrectArgument call()
+            Test.@test occursin("ad does not support InPlace", e.value.msg)
+            Test.@test e.value.got == "InPlace vector field"
+            Test.@test e.value.expected == "OutOfPlace vector field"
+            Test.@test e.value.context == "ad on AbstractVectorField"
+        end
     end
 
     Test.@testset "ad() - Errors: TD/VD mismatch" verbose=VERBOSE showtiming=SHOWTIMING begin
