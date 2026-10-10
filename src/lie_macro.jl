@@ -510,6 +510,12 @@ Z = @Lie [X, Y] is_autonomous=true is_variable=false
 - The macro uses compile-time typed dispatch via [`CTLie._lie_mac`](@extref) and [`CTLie._poisson_mac`](@extref).
 - Operands can be plain functions or typed objects ([`CTBase.Data.VectorField`](@extref CTBase), [`CTBase.Data.Hamiltonian`](@extref CTBase)).
 - Mixed types (function + typed object) are automatically normalized.
+- The expansion is hygienic: it refers to CTLie internals, the trait types and the exception
+  type through module-qualified references, not through names looked up in the caller's
+  module. `@Lie` therefore works from any module, for instance after `using CTLie: @Lie`,
+  whatever the caller imported (or defined under the names `CTLie` and `CTBase`).
+  Operands and the `ad_backend` expression are the caller's code and are resolved in the
+  caller's module.
 
 See also: [`CTLie.ad`](@extref), [`CTLie.Poisson`](@extref), [`CTLie.Lift`](@extref)
 """
