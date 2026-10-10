@@ -11,23 +11,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### 🐛 Fixed
+---
 
-- **`@Lie` is now hygienic (#40).** The expansion no longer names `CTLie`, `CTBase`, `Val`
-  or `throw` in the caller's module: it uses module-qualified references. `@Lie` works from
+## [0.3.0] - 2026-10-10
+
+### 💥 Breaking Changes
+
+#### Rejected operands raise `IncorrectArgument` instead of `NotImplemented` (#41)
+
+- **`ad` and `Lift` on a `HamiltonianVectorField`, and `ad` and `∂ₜ` on an in-place vector
+  field, now throw `CTBase.Exceptions.IncorrectArgument`** instead of
+  `CTBase.Exceptions.NotImplemented`.
+- **Why**: the operand is a valid object that the operation does not accept, not a missing
+  interface method. `IncorrectArgument` carries `got` / `expected` and names the operation.
+
+**Migration**:
+
+```julia
+# Before
+@test_throws Exceptions.NotImplemented Lift(hvf)
+
+# After
+@test_throws Exceptions.IncorrectArgument Lift(hvf)
+```
+
+See [BREAKING.md](BREAKING.md).
+
+### 🐛 Bug Fixes
+
+- **Guard errors name the operation actually called (#41).** `Lift` on a
+  `HamiltonianVectorField` and `∂ₜ` on an in-place field used to report errors about `ad`.
+  The guards now live in `src/guards.jl` and take the calling operation.
+- **`@Lie` is hygienic (#40).** The expansion no longer names `CTLie`, `CTBase`, `Val` or
+  `throw` in the caller's module: it uses module-qualified references. `@Lie` works from
   any module — `using CTLie: @Lie` (or `using OptimalControl: @Lie`) is enough — and is not
   fooled by a caller that defines its own `CTLie` or `CTBase` binding.
 
-- **Guard errors now name the operation actually called (#41).** `Lift` on a
-  `HamiltonianVectorField` and `∂ₜ` on an in-place field used to report errors about `ad`.
-  The guards now live in `src/guards.jl` and take the calling operation.
+### 🧪 Testing
 
-### ⚠️ Changed
+- New hygiene tests for the `@Lie` expansion, and exception-field checks for the guard
+  errors of `ad`, `Lift` and `∂ₜ`.
 
-- **Rejected operands now raise `IncorrectArgument` instead of `NotImplemented`.** A
-  `HamiltonianVectorField` (in `ad`, `Lift`) or an in-place field (in `ad`, `∂ₜ`) is a valid
-  object that the operation does not accept, not a missing interface method. See
-  [BREAKING.md](BREAKING.md).
+### ✅ Compatibility
+
+- **Breaking change** for code that catches `NotImplemented` from `ad`, `Lift` or `∂ₜ`
+  (see above). No other API change. See [BREAKING.md](BREAKING.md).
 
 ---
 

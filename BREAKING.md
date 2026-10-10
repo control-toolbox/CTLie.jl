@@ -6,7 +6,7 @@ This document describes breaking changes in CTLie.jl releases and how to migrate
 
 ---
 
-## [Unreleased]
+## [0.3.0] - 2026-10-10
 
 ### Guard errors are `IncorrectArgument`, not `NotImplemented`
 
@@ -17,9 +17,17 @@ This document describes breaking changes in CTLie.jl releases and how to migrate
 **Migration:** replace `catch e; e isa Exceptions.NotImplemented` (or
 `@test_throws Exceptions.NotImplemented`) by `Exceptions.IncorrectArgument` for these calls.
 
+```julia
+# Before
+@test_throws Exceptions.NotImplemented Lift(hvf)
+
+# After
+@test_throws Exceptions.IncorrectArgument Lift(hvf)
+```
+
 ---
 
-## Non-breaking note (Unreleased)
+## Non-breaking note (0.3.0)
 
 - **`@Lie` expansion made hygienic (#40).** The macro now works from any module, whatever the
   caller imported. Code that already worked (with `CTLie` and `CTBase` in scope) behaves
