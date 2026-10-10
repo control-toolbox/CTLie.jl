@@ -2,7 +2,7 @@ module TestMacroHelpersDG
 
 using Test: Test
 using ForwardDiff: ForwardDiff  # ensure DI ForwardDiff extension is loaded (AutoForwardDiff backend)
-using CTBase: CTBase  # for Exceptions prefix in @Lie macro
+using CTBase: CTBase
 using CTBase: Exceptions
 using CTBase: Traits
 using CTBase: Data
@@ -39,6 +39,8 @@ function test_macro_helpers_dg()
         Test.@test opts.VD === :Fixed
         Test.@test opts.has_aut === false
         Test.@test opts.has_var === false
+        # default backend: a call through a GlobalRef, not through the name `CTLie`
+        Test.@test opts.backend == Expr(:call, GlobalRef(CTLie, :__dg_ad_backend))
 
         # is_autonomous = true
         opts, err = CTLie.__parse_lie_opts(Expr(:kw, :is_autonomous, true))
@@ -99,6 +101,20 @@ function test_macro_helpers_dg()
     end
 
     # =========================================================================
+    Test.@testset "__lie_error" verbose=VERBOSE showtiming=SHOWTIMING begin
+        ex = CTLie.__lie_error("msg", "got", "expected", "ctx")
+        # `throw` and the exception type are referenced by GlobalRef, never by name
+        Test.@test ex.args[1] == GlobalRef(Base, :throw)
+        Test.@test ex.args[2].args[1] == GlobalRef(Exceptions, :IncorrectArgument)
+
+        e = Test.@test_throws Exceptions.IncorrectArgument Core.eval(@__MODULE__, ex)
+        Test.@test e.value.msg == "msg"
+        Test.@test e.value.got == "got"
+        Test.@test e.value.expected == "expected"
+        Test.@test e.value.context == "ctx"
+    end
+
+    # =========================================================================
     Test.@testset "__transform_brackets" verbose=VERBOSE showtiming=SHOWTIMING begin
         opts = (
             TD=:Autonomous,
@@ -107,38 +123,43 @@ function test_macro_helpers_dg()
             has_var=false,
             backend=Expr(:call, :__dg_ad_backend),
         )
+        lie_ref = GlobalRef(CTLie, :_lie_mac)
+        poisson_ref = GlobalRef(CTLie, :_poisson_mac)
 
-        # [a,b] → _lie_mac call with correct qualified name and traits
+        # [a,b] → _lie_mac call, referenced by GlobalRef (not by name), with traits and checks
         result = CTLie.__transform_brackets(quote
             [a, b]
         end, opts)
         call = only(_exprs(result))
-        Test.@test @capture(
-            call,
-            CTLie._lie_mac(_, _, CTBase.Traits.Autonomous, CTBase.Traits.Fixed, _, _, _)
-        )
+        Test.@test call.head === :call
+        Test.@test call.args[1] == lie_ref
+        Test.@test call.args[2:3] == [:a, :b]
+        Test.@test call.args[4] == GlobalRef(Traits, :Autonomous)
+        Test.@test call.args[5] == GlobalRef(Traits, :Fixed)
+        Test.@test call.args[6] === Val(false)
+        Test.@test call.args[7] === Val(false)
+        Test.@test call.args[8] == Expr(:call, :__dg_ad_backend)   # user-provided backend kept as is
 
-        # {a,b} → _poisson_mac call with correct qualified name and traits
+        # {a,b} → _poisson_mac call
         result = CTLie.__transform_brackets(quote
             {a, b}
         end, opts)
         call = only(_exprs(result))
-        Test.@test @capture(
-            call,
-            CTLie._poisson_mac(
-                _, _, CTBase.Traits.Autonomous, CTBase.Traits.Fixed, _, _, _
-            )
-        )
+        Test.@test call.args[1] == poisson_ref
+        Test.@test call.args[2:3] == [:a, :b]
+        Test.@test call.args[4] == GlobalRef(Traits, :Autonomous)
+        Test.@test call.args[5] == GlobalRef(Traits, :Fixed)
 
-        # [[a,b], c] → outer _lie_mac whose first arg is an inner _lie_mac
+        # [[a,b], c] → outer _lie_mac whose first operand is an inner _lie_mac
         result = CTLie.__transform_brackets(quote
             [[a, b], c]
         end, opts)
         outer = only(_exprs(result))
-        local inner_arg
-        matched_outer = @capture(outer, CTLie._lie_mac(inner_arg_, _, _, _, _, _, _))
-        Test.@test matched_outer
-        Test.@test @capture(inner_arg, CTLie._lie_mac(_, _, _, _, _, _, _))
+        Test.@test outer.args[1] == lie_ref
+        Test.@test outer.args[3] == :c
+        inner = outer.args[2]
+        Test.@test inner.args[1] == lie_ref
+        Test.@test inner.args[2:3] == [:a, :b]
 
         # Expression without brackets → returned unchanged
         expr = quote
@@ -147,7 +168,7 @@ function test_macro_helpers_dg()
         result = CTLie.__transform_brackets(expr, opts)
         Test.@test result == expr
 
-        # opts with NonAutonomous/NonFixed: correct traits propagated into the call
+        # opts with NonAutonomous/NonFixed and checks on: propagated into the call
         opts2 = (
             TD=:NonAutonomous,
             VD=:NonFixed,
@@ -159,12 +180,10 @@ function test_macro_helpers_dg()
             [a, b]
         end, opts2)
         call2 = only(_exprs(result2))
-        Test.@test @capture(
-            call2,
-            CTLie._lie_mac(
-                _, _, CTBase.Traits.NonAutonomous, CTBase.Traits.NonFixed, _, _, _
-            )
-        )
+        Test.@test call2.args[4] == GlobalRef(Traits, :NonAutonomous)
+        Test.@test call2.args[5] == GlobalRef(Traits, :NonFixed)
+        Test.@test call2.args[6] === Val(true)
+        Test.@test call2.args[7] === Val(true)
     end
 
     # =========================================================================

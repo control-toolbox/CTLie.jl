@@ -19,6 +19,15 @@ This document describes breaking changes in CTLie.jl releases and how to migrate
 
 ---
 
+## Non-breaking note (Unreleased)
+
+- **`@Lie` expansion made hygienic (#40).** The macro now works from any module, whatever the
+  caller imported. Code that already worked (with `CTLie` and `CTBase` in scope) behaves
+  exactly as before; the generated calls are the same, only referenced differently. **No
+  breaking change**, no migration required.
+
+---
+
 ## [0.2.3] - 2026-10-04
 
 ### CTBase 0.30 is required

@@ -113,11 +113,14 @@ ad(X, Y; ad_backend=cpu_backend)
 
 ### Code generation by `@Lie`
 
-The [`@Lie`](@ref CTLie.@Lie) macro expands to **fully qualified** calls
-(`CTLie._lie_mac` / `CTLie._poisson_mac`, with the trait types `CTBase.Traits.*`) so that
-the generated code resolves at the call site regardless of the caller's module. As a
-consequence, the macro must be used from a module where both `CTLie` and `CTBase` are
-resolvable — `using CTLie` plus `CTBase` importable is enough.
+The [`@Lie`](@ref CTLie.@Lie) macro is **hygienic**: its expansion refers to the CTLie
+internals, the trait types and the exception type through module-qualified references, not
+through names looked up in the caller's module. It therefore works from any module, whatever
+the caller imported — `using CTLie: @Lie` alone is enough, and a caller that defines its own
+`CTLie` or `CTBase` binding is not affected.
+
+The operands and the `ad_backend` expression are the caller's own code and are resolved in
+the caller's module, as usual. The AD backend extension must still be loaded (see above).
 
 ## See also
 

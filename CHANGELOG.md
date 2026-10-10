@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🐛 Fixed
 
+- **`@Lie` is now hygienic (#40).** The expansion no longer names `CTLie`, `CTBase`, `Val`
+  or `throw` in the caller's module: it uses module-qualified references. `@Lie` works from
+  any module — `using CTLie: @Lie` (or `using OptimalControl: @Lie`) is enough — and is not
+  fooled by a caller that defines its own `CTLie` or `CTBase` binding.
+
 - **Guard errors now name the operation actually called (#41).** `Lift` on a
   `HamiltonianVectorField` and `∂ₜ` on an in-place field used to report errors about `ad`.
   The guards now live in `src/guards.jl` and take the calling operation.
