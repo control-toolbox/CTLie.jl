@@ -2,7 +2,6 @@ module TestMacroDG
 
 using Test: Test
 using ForwardDiff: ForwardDiff  # ensure DI ForwardDiff extension is loaded (AutoForwardDiff backend)
-using CTBase: CTBase  # for Exceptions prefix in @Lie macro
 using CTBase: Exceptions
 using CTBase: Traits
 using CTBase: Data
