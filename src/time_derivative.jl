@@ -88,7 +88,7 @@ function ∂ₜ(
     VD<:Traits.VariableDependence,
     MD<:Traits.AbstractMutabilityTrait,
 }
-    _check_outofplace(MD)
+    _check_outofplace(MD, :∂ₜ)
     backend = _resolve_backend(ad_backend)
     closure = _∂ₜ_hvf(X, backend, TD, VD)
     return Data.HamiltonianVectorField(closure, Traits.NonAutonomous, VD, Traits.OutOfPlace)
@@ -222,7 +222,7 @@ function ∂ₜ(
     VD<:Traits.VariableDependence,
     MD<:Traits.AbstractMutabilityTrait,
 }
-    _check_outofplace(MD)
+    _check_outofplace(MD, :∂ₜ)
     backend = _resolve_backend(ad_backend)
     closure = _∂ₜ_vf(X, backend, TD, VD)
     return Data.VectorField(closure, Traits.NonAutonomous, VD, Traits.OutOfPlace)

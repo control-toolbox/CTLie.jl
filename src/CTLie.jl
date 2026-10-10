@@ -37,6 +37,7 @@ using MacroTools: postwalk, @capture
 
 include("default.jl")
 include("ad.jl")
+include("guards.jl")
 include("ad_types.jl")
 include("lift.jl")
 include("poisson.jl")

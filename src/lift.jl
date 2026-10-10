@@ -144,7 +144,7 @@ See also: [`CTLie.Lift`](@extref), [`CTLie.Poisson`](@extref)
 function Lift(
     X::Data.AbstractVectorField{TD,VD}
 ) where {TD<:Traits.TimeDependence,VD<:Traits.VariableDependence}
-    _check_not_hvf(X)   # guard from ad_types.jl
+    _check_not_hvf(X, :Lift)   # guard from guards.jl
     lh = LiftedHamiltonianFunction{typeof(X),TD,VD}(X)
     return Data.Hamiltonian(lh, TD, VD)   # typed constructor (no MD param)
 end
