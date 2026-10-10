@@ -104,7 +104,7 @@ Htv(2.0, [1.0, 2.0], [0.5, 1.0], 3.0)
     `Lift` accepts a plain [`VectorField`](@extref CTBase CTBase.Data.VectorField), not a
     [`HamiltonianVectorField`](@extref CTBase CTBase.Data.HamiltonianVectorField): the latter
     already lives on phase space with signature `(x, p)`. Lifting one raises a
-    `NotImplemented` error — see [Limitations & configuration](limitations.md).
+    `IncorrectArgument` error — see [Limitations & configuration](limitations.md).
 
 ## See also
 
