@@ -64,7 +64,7 @@ For autonomous vector fields, the derivative is zero.
 - `Data.HamiltonianVectorField{Traits.NonAutonomous, VD, Traits.OutOfPlace}`: Time derivative.
 
 # Throws
-- `Exceptions.NotImplemented`: If the vector field has `InPlace` mutability.
+- `Exceptions.IncorrectArgument`: If the vector field has `InPlace` mutability.
 
 # Example
 ```julia
@@ -198,7 +198,7 @@ For autonomous vector fields, the derivative is zero.
 - `Data.VectorField{Traits.NonAutonomous, VD, Traits.OutOfPlace}`: Time derivative.
 
 # Throws
-- `Exceptions.NotImplemented`: If the vector field has `InPlace` mutability.
+- `Exceptions.IncorrectArgument`: If the vector field has `InPlace` mutability.
 
 # Example
 ```julia

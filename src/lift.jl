@@ -125,7 +125,7 @@ allows lifting typed vector fields directly to Hamiltonians.
 - `Data.Hamiltonian{TD, VD}`: The lifted Hamiltonian.
 
 # Throws
-- `Exceptions.NotImplemented`: If the vector field is an `AbstractHamiltonianVectorField`.
+- `Exceptions.IncorrectArgument`: If the vector field is an `AbstractHamiltonianVectorField`.
 
 # Example
 ```julia

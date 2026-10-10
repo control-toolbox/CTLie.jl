@@ -15,8 +15,8 @@ Both vector fields must share the same time dependence and variable dependence.
 - `Data.VectorField{TD, VD, Traits.OutOfPlace}`: The Lie bracket as a vector field.
 
 # Throws
-- `Exceptions.NotImplemented`: If either vector field is an `AbstractHamiltonianVectorField`.
-- `Exceptions.NotImplemented`: If either vector field has `InPlace` mutability.
+- `Exceptions.IncorrectArgument`: If either vector field is an `AbstractHamiltonianVectorField`.
+- `Exceptions.IncorrectArgument`: If either vector field has `InPlace` mutability.
 
 # Example
 ```julia
@@ -68,8 +68,8 @@ Returns a plain function representing the directional derivative `∇f(x)'*X(x)`
 - A function with signature depending on TD/VD that returns a scalar.
 
 # Throws
-- `Exceptions.NotImplemented`: If the vector field is an `AbstractHamiltonianVectorField`.
-- `Exceptions.NotImplemented`: If the vector field has `InPlace` mutability.
+- `Exceptions.IncorrectArgument`: If the vector field is an `AbstractHamiltonianVectorField`.
+- `Exceptions.IncorrectArgument`: If the vector field has `InPlace` mutability.
 
 # Example
 ```julia
