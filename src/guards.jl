@@ -25,7 +25,9 @@ Throw `IncorrectArgument` if the mutability type is not `OutOfPlace`.
 # Throws
 - `Exceptions.IncorrectArgument`: If the mutability is `InPlace`.
 """
-function _check_outofplace(::Type{MD}, op::Symbol) where {MD<:Traits.AbstractMutabilityTrait}
+function _check_outofplace(
+    ::Type{MD}, op::Symbol
+) where {MD<:Traits.AbstractMutabilityTrait}
     return throw(
         Exceptions.IncorrectArgument(
             "$op does not support InPlace vector fields";
@@ -80,6 +82,7 @@ Operation-specific suggestion for the `HamiltonianVectorField` guard.
 
 Falls back to a generic hint; `Lift` explains that there is nothing to lift.
 """
-_hvf_suggestion(::Val{:Lift}) =
-    "A HamiltonianVectorField already lives on the cotangent space: there is nothing to lift"
+function _hvf_suggestion(::Val{:Lift})
+    return "A HamiltonianVectorField already lives on the cotangent space: there is nothing to lift"
+end
 _hvf_suggestion(::Val) = "Use a plain VectorField"

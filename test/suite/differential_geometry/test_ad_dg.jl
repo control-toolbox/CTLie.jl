@@ -82,7 +82,8 @@ function test_ad_dg()
         )
         Y = Data.VectorField(x -> [x[1], x[2]]; is_autonomous=true, is_variable=false)
 
-        for call in (() -> CTLie.ad(hvf, Y), () -> CTLie.ad(Y, hvf), () -> CTLie.ad(hvf, x -> x[1]))
+        for call in
+            (() -> CTLie.ad(hvf, Y), () -> CTLie.ad(Y, hvf), () -> CTLie.ad(hvf, x -> x[1]))
             e = Test.@test_throws Exceptions.IncorrectArgument call()
             Test.@test occursin("ad does not support", e.value.msg)
             Test.@test e.value.got == "HamiltonianVectorField"
