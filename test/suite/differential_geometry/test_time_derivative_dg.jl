@@ -226,7 +226,7 @@ function test_time_derivative_dg()
         Test.@test !occursin(r"\bad\b", e.value.msg)
 
         ip_hvf = Data.HamiltonianVectorField(
-            (dx, dp, x, p) -> (dx .= p; dp .= -x); is_autonomous=true, is_inplace=true
+            (dx, dp, x, p) -> (dx.=p; dp.=(-x)); is_autonomous=true, is_inplace=true
         )
         e = Test.@test_throws Exceptions.IncorrectArgument CTLie.∂ₜ(ip_hvf)
         Test.@test e.value.context == "∂ₜ on AbstractVectorField"
