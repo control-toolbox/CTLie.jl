@@ -60,7 +60,7 @@ using CTLie
 f = x -> [x[2], -x[1]]
 H = Lift(f)
 
-H([1.0, 2.0], [0.5, 1.0])  # Returns -1.5
+H([1.0, 2.0], [0.5, 1.0])  # Returns 0.0
 ```
 
 See also: [`CTLie.Lift`](@extref), [`CTLie.Poisson`](@extref)
@@ -99,7 +99,7 @@ using CTBase: Traits
 f = x -> [x[2], -x[1]]
 H = Lift(f, Traits.Autonomous, Traits.Fixed)
 
-H([1.0, 2.0], [0.5, 1.0])  # Returns -1.5
+H([1.0, 2.0], [0.5, 1.0])  # Returns 0.0
 ```
 
 See also: [`CTLie.Lift`](@extref), [`CTLie.@Lie`](@extref)
@@ -133,10 +133,10 @@ using CTLie
 using CTBase: Data
 using CTBase: Traits
 
-X = VectorField(x -> [x[2], -x[1]], Traits.Autonomous, Traits.Fixed, Traits.OutOfPlace)
+X = Data.VectorField(x -> [x[2], -x[1]], Traits.Autonomous, Traits.Fixed, Traits.OutOfPlace)
 H = Lift(X)
 
-H([1.0, 2.0], [0.5, 1.0])  # Returns -1.5
+H([1.0, 2.0], [0.5, 1.0])  # Returns 0.0
 ```
 
 See also: [`CTLie.Lift`](@extref), [`CTLie.Poisson`](@extref)

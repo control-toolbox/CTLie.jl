@@ -461,10 +461,12 @@ end
 """
 $(TYPEDSIGNATURES)
 
-Macro for Lie brackets and Poisson brackets with compile-time typed dispatch.
+Macro for Lie brackets and Poisson brackets written in mathematical notation.
 
-Transforms bracket expressions into calls to [`CTLie.ad`](@extref) (Lie brackets) or [`CTLie.Poisson`](@extref)
-(Poisson brackets) with compile-time type dispatch based on keyword arguments.
+Rewrites bracket expressions into calls to [`CTLie.ad`](@extref) (Lie brackets) or
+[`CTLie.Poisson`](@extref) (Poisson brackets). The trait types given by the keyword
+arguments are fixed at expansion time; whether `[a, b]` is a bracket or a data vector is
+resolved at runtime by dispatch on the operands.
 
 # Syntax
 - Lie brackets: `[X, Y]` — computes the Lie bracket or Lie derivative
@@ -479,7 +481,9 @@ Transforms bracket expressions into calls to [`CTLie.ad`](@extref) (Lie brackets
   - `ad_backend::Expr`: AD backend expression (default: global backend).
 
 # Returns
-- Expanded code calling [`CTLie._lie_mac`](@extref) or [`CTLie._poisson_mac`](@extref) with typed dispatch.
+- The value of the rewritten expression: a typed [`CTBase.Data.VectorField`](@extref CTBase)
+  for `[...]`, a typed [`CTBase.Data.Hamiltonian`](@extref CTBase) for `{...}`, or whatever
+  the surrounding expression computes from them.
 
 # Throws
 - `Exceptions.IncorrectArgument`: If an unknown keyword argument is provided.
@@ -510,7 +514,8 @@ Z = @Lie [X, Y] is_autonomous=true is_variable=false
 ```
 
 # Notes
-- The macro uses compile-time typed dispatch via [`CTLie._lie_mac`](@extref) and [`CTLie._poisson_mac`](@extref).
+- Each `[a, b]` becomes a call to [`CTLie._lie_mac`](@extref) and each `{a, b}` a call to
+  [`CTLie._poisson_mac`](@extref); these dispatch on the runtime types of the operands.
 - Operands can be plain functions or typed objects ([`CTBase.Data.VectorField`](@extref CTBase), [`CTBase.Data.Hamiltonian`](@extref CTBase)).
 - Mixed types (function + typed object) are automatically normalized.
 - The expansion is hygienic: it refers to CTLie internals, the trait types and the exception

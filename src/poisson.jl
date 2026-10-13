@@ -29,7 +29,7 @@ H = (x, p) -> p[1]^2 / 2 + x[1]^2
 G = (x, p) -> x[1] * p[1]
 
 B = Poisson(H, G)
-B([1.0, 2.0], [0.5, 1.0])  # Returns 1.0
+B([1.0, 2.0], [0.5, 1.0])  # Returns -1.75
 ```
 
 See also: [`CTLie.Poisson`](@extref), [`CTLie.ad`](@extref), [`CTLie.Lift`](@extref)
@@ -74,7 +74,7 @@ H = (x, p) -> p[1]^2 / 2 + x[1]^2
 G = (x, p) -> x[1] * p[1]
 
 B = Poisson(H, G, Traits.Autonomous, Traits.Fixed)
-B([1.0, 2.0], [0.5, 1.0])  # Returns 1.0
+B([1.0, 2.0], [0.5, 1.0])  # Returns -1.75
 ```
 
 See also: [`CTLie.Poisson`](@extref), [`CTLie.@Lie`](@extref), [`CTLie.ad`](@extref)
@@ -179,8 +179,7 @@ Display a compact representation of a `PoissonBracket` callable.
 ```julia-repl
 julia> B = Poisson((x, p) -> p[1]^2 / 2 + x[1]^2, (x, p) -> x[1] * p[1])
 PoissonBracket: autonomous, fixed (no variable)
-  backend: ForwardDiffBackend
-  cache: not prepared
+  backend: DifferentiationInterface
 ```
 """
 function Base.show(
@@ -225,11 +224,11 @@ using CTLie
 using CTBase: Data
 using CTBase: Traits
 
-H = Hamiltonian((x, p) -> p[1]^2 / 2 + x[1]^2, Traits.Autonomous, Traits.Fixed)
-G = Hamiltonian((x, p) -> x[1] * p[1], Traits.Autonomous, Traits.Fixed)
+H = Data.Hamiltonian((x, p) -> p[1]^2 / 2 + x[1]^2, Traits.Autonomous, Traits.Fixed)
+G = Data.Hamiltonian((x, p) -> x[1] * p[1], Traits.Autonomous, Traits.Fixed)
 
 B = Poisson(H, G)
-B([1.0, 2.0], [0.5, 1.0])  # Returns 1.0
+B([1.0, 2.0], [0.5, 1.0])  # Returns -1.75
 ```
 
 See also: [`CTLie.Poisson`](@extref), [`CTLie.ad`](@extref)

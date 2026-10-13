@@ -24,8 +24,8 @@ using CTLie
 using CTBase: Data
 using CTBase: Traits
 
-X = VectorField(x -> [x[2], -x[1]], Traits.Autonomous, Traits.Fixed, Traits.OutOfPlace)
-Y = VectorField(x -> [-x[2], x[1]], Traits.Autonomous, Traits.Fixed, Traits.OutOfPlace)
+X = Data.VectorField(x -> [x[2], -x[1]], Traits.Autonomous, Traits.Fixed, Traits.OutOfPlace)
+Y = Data.VectorField(x -> [-x[2], x[1]], Traits.Autonomous, Traits.Fixed, Traits.OutOfPlace)
 
 Z = ad(X, Y)
 Z([1.0, 2.0])  # Returns [0.0, 0.0]
@@ -77,7 +77,7 @@ using CTLie
 using CTBase: Data
 using CTBase: Traits
 
-X = VectorField(x -> [x[2], -x[1]], Traits.Autonomous, Traits.Fixed, Traits.OutOfPlace)
+X = Data.VectorField(x -> [x[2], -x[1]], Traits.Autonomous, Traits.Fixed, Traits.OutOfPlace)
 f = x -> x[1]^2 + x[2]^2
 
 L = ad(X, f)

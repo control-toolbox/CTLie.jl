@@ -29,6 +29,7 @@ function generate_api_reference(src_dir::String)
                     "CTLie.jl",
                     "default.jl",
                     "ad.jl",
+                    "guards.jl",
                     "ad_types.jl",
                     "lift.jl",
                     "poisson.jl",

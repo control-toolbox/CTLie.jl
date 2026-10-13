@@ -72,10 +72,12 @@ using CTLie
 using CTBase: Data
 using CTBase: Traits
 
-X = HamiltonianVectorField((t, x, p) -> t * p, Traits.NonAutonomous, Traits.Fixed, Traits.OutOfPlace)
+X = Data.HamiltonianVectorField(
+    (t, x, p) -> (t * p, -t * x), Traits.NonAutonomous, Traits.Fixed, Traits.OutOfPlace
+)
 dX_dt = ∂ₜ(X)
 
-dX_dt(2.0, [1.0], [0.5])  # Returns 0.5
+dX_dt(2.0, 1.0, 0.5)  # Returns (0.5, -1.0)
 ```
 
 See also: [`CTLie.∂ₜ`](@extref)
@@ -206,7 +208,7 @@ using CTLie
 using CTBase: Data
 using CTBase: Traits
 
-X = VectorField((t, x) -> t * x, Traits.NonAutonomous, Traits.Fixed, Traits.OutOfPlace)
+X = Data.VectorField((t, x) -> t * x, Traits.NonAutonomous, Traits.Fixed, Traits.OutOfPlace)
 dX_dt = ∂ₜ(X)
 
 dX_dt(2.0, [1.0, 2.0])  # Returns [1.0, 2.0]
@@ -296,10 +298,10 @@ using CTLie
 using CTBase: Data
 using CTBase: Traits
 
-H = Hamiltonian((t, x, p) -> t * p[1] + x[1]^2, Traits.NonAutonomous, Traits.Fixed)
+H = Data.Hamiltonian((t, x, p) -> t * p + x^2, Traits.NonAutonomous, Traits.Fixed)
 dH_dt = ∂ₜ(H)
 
-dH_dt(2.0, [1.0], [0.5])  # Returns 0.5
+dH_dt(2.0, 1.0, 0.5)  # Returns 0.5
 ```
 
 See also: [`CTLie.∂ₜ`](@extref)
@@ -377,8 +379,7 @@ Display a compact representation of a `TimeDeriv_F` callable (time derivative of
 ```julia-repl
 julia> df = ∂ₜ((t, x) -> t * x[1])
 ∂ₜ (generic function)
-  backend: ForwardDiffBackend
-  cache: not prepared
+  backend: DifferentiationInterface
 ```
 """
 function Base.show(
@@ -412,10 +413,11 @@ Display a compact representation of a `TimeDeriv_HVF` callable (time derivative 
 
 # Example
 ```julia-repl
-julia> dX = ∂ₜ(HamiltonianVectorField((t, x, p) -> (t * p, -x), Traits.NonAutonomous, Traits.Fixed, Traits.OutOfPlace))
+julia> X = Data.HamiltonianVectorField((t, x, p) -> (t * p, -t * x); is_autonomous=false);
+
+julia> ∂ₜ(X).f   # the callable wrapped by the returned HamiltonianVectorField
 ∂ₜ (HamiltonianVectorField): non-autonomous, fixed (no variable)
-  backend: ForwardDiffBackend
-  cache: not prepared
+  backend: DifferentiationInterface
 ```
 """
 function Base.show(
@@ -449,10 +451,11 @@ Display a compact representation of a `TimeDeriv_VF` callable (time derivative o
 
 # Example
 ```julia-repl
-julia> dX = ∂ₜ(VectorField((t, x) -> t * x, Traits.NonAutonomous, Traits.Fixed, Traits.OutOfPlace))
+julia> X = Data.VectorField((t, x) -> t * x; is_autonomous=false);
+
+julia> ∂ₜ(X).f   # the callable wrapped by the returned VectorField
 ∂ₜ (VectorField): non-autonomous, fixed (no variable)
-  backend: ForwardDiffBackend
-  cache: not prepared
+  backend: DifferentiationInterface
 ```
 """
 function Base.show(
@@ -486,10 +489,11 @@ Display a compact representation of a `TimeDeriv_Ham` callable (time derivative 
 
 # Example
 ```julia-repl
-julia> dH = ∂ₜ(Hamiltonian((t, x, p) -> t * p[1] + x[1]^2, Traits.NonAutonomous, Traits.Fixed))
+julia> H = Data.Hamiltonian((t, x, p) -> t * p + x^2; is_autonomous=false);
+
+julia> ∂ₜ(H).f   # the callable wrapped by the returned Hamiltonian
 ∂ₜ (Hamiltonian): non-autonomous, fixed (no variable)
-  backend: ForwardDiffBackend
-  cache: not prepared
+  backend: DifferentiationInterface
 ```
 """
 function Base.show(
