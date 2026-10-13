@@ -11,7 +11,9 @@ configure them.
 using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
 using CTBase: Data                 # VectorField, Hamiltonian, HamiltonianVectorField
 using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
-using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
+# AD backend: CTBase's DifferentiationInterface extension + ForwardDiff
+using DifferentiationInterface: DifferentiationInterface
+using ForwardDiff: ForwardDiff
 nothing # hide
 ```
 
@@ -49,13 +51,14 @@ Use the underlying plain [`VectorField`](@extref CTBase CTBase.Data.VectorField)
 
 [`ad`](@ref CTLie.ad) (on two vector fields) and
 [`Poisson`](@ref CTLie.Poisson) (on two Hamiltonians) require their
-operands to have the **same** time- and variable-dependence. A mismatch raises
-[`CTBase.Exceptions.IncorrectArgument`](@extref CTBase):
+operands to have the **same** time- and variable-dependence. Each operand is valid on
+its own — it is their combination that is rejected — so a mismatch raises
+[`CTBase.Exceptions.PreconditionError`](@extref CTBase):
 
 ```julia
 Xa = VectorField(x -> [x[2], -x[1]];      is_autonomous=true)
 Xt = VectorField((t, x) -> [x[2], -x[1]]; is_autonomous=false)
-ad(Xa, Xt)          # ❌ IncorrectArgument — TD/VD mismatch between X and Y
+ad(Xa, Xt)          # ❌ PreconditionError — TD/VD mismatch between X and Y
 ```
 
 The same rule is enforced by [`@Lie`](@ref CTLie.@Lie); see
@@ -73,13 +76,19 @@ fixed unless told otherwise via `is_autonomous` / `is_variable` (for `ad`, `Pois
 
 ### AD backend
 
-`ad`, `Poisson` and `∂ₜ` differentiate through a pluggable backend. The default is built
-on `DifferentiationInterface.jl` (with `ForwardDiff` under the hood) and **must be
-loaded** for gradients/derivatives to be available:
+`ad`, `Poisson` and `∂ₜ` differentiate through a pluggable backend. The default
+backend runs `ForwardDiff` through `DifferentiationInterface.jl`, and **both packages
+must be loaded** for derivatives to be available:
 
 ```julia
-using DifferentiationInterface: DifferentiationInterface  # activates the CTBaseDifferentiationInterface extension
+using DifferentiationInterface: DifferentiationInterface  # CTBase AD extension
+using ForwardDiff: ForwardDiff                            # default AD engine
 ```
+
+Loading `DifferentiationInterface` alone is not enough: the first evaluation then
+raises a [`CTBase.Exceptions.ExtensionError`](@extref CTBase) naming the missing
+`ForwardDiff`. A non-default engine (e.g. `Mooncake` for the GPU backend below) must
+likewise be loaded before a derivative is evaluated.
 
 `ad_backend` takes a [`CTBase.Differentiation.AbstractADBackend`](@extref CTBase) — never a raw
 `ADTypes.AbstractADType` — so that the choice of execution device (CPU or GPU) and the

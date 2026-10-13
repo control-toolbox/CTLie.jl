@@ -482,11 +482,14 @@ Transforms bracket expressions into calls to [`CTLie.ad`](@extref) (Lie brackets
 - Expanded code calling [`CTLie._lie_mac`](@extref) or [`CTLie._poisson_mac`](@extref) with typed dispatch.
 
 # Throws
-- `Exceptions.IncorrectArgument`: If unknown keyword argument is provided.
-- `Exceptions.IncorrectArgument`: If invalid argument format is used.
-- `Exceptions.IncorrectArgument`: If Lie and Poisson brackets are mixed in the same expression.
-- `Exceptions.IncorrectArgument`: If `is_autonomous` conflicts with operand trait.
-- `Exceptions.IncorrectArgument`: If `is_variable` conflicts with operand trait.
+- `Exceptions.IncorrectArgument`: If an unknown keyword argument is provided.
+- `Exceptions.IncorrectArgument`: If a trailing argument is not of the form `key=value`.
+- `Exceptions.IncorrectArgument`: If an `AbstractHamiltonian` is used inside `[...]` or an
+  `AbstractVectorField` inside `{...}`.
+- `Exceptions.PreconditionError`: If `is_autonomous` or `is_variable` conflicts with the
+  trait of a typed operand.
+- `Exceptions.PreconditionError`: If the two operands of a bracket have different time or
+  variable dependence (raised by [`CTLie.ad`](@extref) or [`CTLie.Poisson`](@extref)).
 
 # Example
 ```julia

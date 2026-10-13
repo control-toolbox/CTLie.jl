@@ -51,13 +51,17 @@ using CTLie   # Lift, ad, Poisson, ∂ₜ, @Lie
 nothing # hide
 ```
 
-Automatic differentiation is provided by a pluggable backend. The default relies on
-`DifferentiationInterface.jl`, which must be loaded for [`ad`](@ref CTLie.ad),
-[`Poisson`](@ref CTLie.Poisson) and [`∂ₜ`](@ref CTLie.∂ₜ) to compute gradients and
-derivatives:
+Automatic differentiation is provided by a pluggable backend. The default backend
+runs `ForwardDiff` through `DifferentiationInterface.jl`: **both packages must be
+loaded** for [`ad`](@ref CTLie.ad), [`Poisson`](@ref CTLie.Poisson) and
+[`∂ₜ`](@ref CTLie.∂ₜ) to compute derivatives. Loading `DifferentiationInterface`
+activates CTBase's AD extension; `ForwardDiff` is the default AD engine. Without
+`ForwardDiff`, the first evaluation raises a
+[`CTBase.Exceptions.ExtensionError`](@extref CTBase).
 
 ```@example dg
-using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
+using DifferentiationInterface: DifferentiationInterface
+using ForwardDiff: ForwardDiff
 nothing # hide
 ```
 

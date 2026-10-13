@@ -20,7 +20,9 @@ as `[1.0, 2.0]` — may appear directly inside the macro expression.
 using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
 using CTBase: Data                 # VectorField, Hamiltonian, … (accessed as Data.VectorField, etc.)
 using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
-using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
+# AD backend: CTBase's DifferentiationInterface extension + ForwardDiff
+using DifferentiationInterface: DifferentiationInterface
+using ForwardDiff: ForwardDiff
 nothing # hide
 ```
 
@@ -140,39 +142,40 @@ indeed, a keyword that contradicts the operands' traits is an error (next sectio
 
 ## Error cases
 
-The macro validates its input and raises
-[`CTBase.Exceptions.IncorrectArgument`](@extref CTBase) in the following situations. These
-snippets are **not executed** (they would throw):
+The macro validates its input. These snippets are **not executed** (they would throw).
 
-**Wrong bracket kind for a typed operand.** Using a
+**Wrong bracket kind for a typed operand** — a
 [`Hamiltonian`](@extref CTBase CTBase.Data.Hamiltonian) inside `[...]` (Lie bracket) or a
-[`VectorField`](@extref CTBase CTBase.Data.VectorField) inside `{...}` (Poisson bracket) is
-detected at runtime and raises an error:
+[`VectorField`](@extref CTBase CTBase.Data.VectorField) inside `{...}` (Poisson bracket).
+The operand itself is wrong for that bracket, so this raises
+[`CTBase.Exceptions.IncorrectArgument`](@extref CTBase):
 
 ```julia
-H = Hamiltonian((x, p) -> p[1]*x[1])
-F = VectorField(x -> [x[2], -x[1]])
+H = Data.Hamiltonian((x, p) -> p[1] * x[1])
+F = Data.VectorField(x -> [x[2], -x[1]])
 
-@Lie [H, F]    # ❌ Hamiltonian is not a valid Lie bracket operand
+@Lie [H, F]    # ❌ IncorrectArgument — not a Lie bracket operand
 @Lie [F, H]    # ❌ same
-@Lie {F, H}    # ❌ VectorField is not a valid Poisson bracket operand
+@Lie {F, H}    # ❌ IncorrectArgument — not a Poisson bracket operand
 @Lie {H, F}    # ❌ same
 ```
 
-**An unknown keyword argument:**
+**An unknown keyword argument** also raises `IncorrectArgument`:
 
 ```julia
-@Lie [F, G] invalid_arg=true   # ❌ unknown @Lie argument
+@Lie [F, G] invalid_arg=true   # ❌ IncorrectArgument — unknown keyword
 ```
 
-**A keyword that conflicts with typed operands, or operands whose traits disagree:**
+**Operands whose traits disagree, or a keyword that contradicts the operands' traits.**
+Each piece is valid on its own — it is their combination that is rejected — so these
+raise [`CTBase.Exceptions.PreconditionError`](@extref CTBase):
 
 ```julia
-Xa = VectorField(x -> [x[2], -x[1]];      is_autonomous=true)
-Xt = VectorField((t, x) -> [x[2], -x[1]]; is_autonomous=false)
+Xa = Data.VectorField(x -> [x[2], -x[1]]; is_autonomous=true)
+Xt = Data.VectorField((t, x) -> [x[2], -x[1]]; is_autonomous=false)
 
-@Lie [Xa, Xt]                        # ❌ time-dependence mismatch between operands
-@Lie [Xa, Xa] is_autonomous=false    # ❌ flag conflicts with operand traits
+@Lie [Xa, Xt]                      # ❌ PreconditionError — TD mismatch
+@Lie [Xa, Xa] is_autonomous=false  # ❌ PreconditionError — flag vs traits
 ```
 
 ## How the macro works

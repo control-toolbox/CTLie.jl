@@ -21,7 +21,9 @@ computed by automatic differentiation, so the AD backend extension must be loade
 using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
 using CTBase: Data                 # VectorField, Hamiltonian, … (accessed as Data.VectorField, etc.)
 using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
-using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
+# AD backend: CTBase's DifferentiationInterface extension + ForwardDiff
+using DifferentiationInterface: DifferentiationInterface
+using ForwardDiff: ForwardDiff
 nothing # hide
 ```
 
