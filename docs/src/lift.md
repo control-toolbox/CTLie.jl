@@ -29,9 +29,8 @@ H(t, x, p, v) = p^\top X(t, x, v).
 The relevant method is [`Lift`](@ref CTLie.Lift).
 
 ```@example lift
-using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
-using CTBase: Data                 # VectorField, Hamiltonian, … (accessed as Data.VectorField, etc.)
-using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
+using CTLie          # Lift, ad, Poisson, ∂ₜ, @Lie
+using CTBase: Data   # Data.VectorField, Data.Hamiltonian, …
 # AD backend: CTBase's DifferentiationInterface extension + ForwardDiff
 using DifferentiationInterface: DifferentiationInterface
 using ForwardDiff: ForwardDiff
@@ -83,8 +82,8 @@ returns a typed [`Hamiltonian`](@extref CTBase CTBase.Data.Hamiltonian) whose tr
 from the vector field — no keyword arguments are needed.
 
 ```@example lift
-Xt = Data.VectorField(x -> [x[2], -x[1]]; is_autonomous=true, is_variable=false)
-H  = Lift(Xt)
+X  = Data.VectorField(x -> [x[2], -x[1]]; is_autonomous=true)
+H  = Lift(X)
 ```
 
 ```@example lift
@@ -95,8 +94,11 @@ The same works for every trait combination; here a non-autonomous, variable-depe
 field:
 
 ```@example lift
-Xtv = Data.VectorField((t, x, v) -> [t * x[2], -v * x[1]];
-                  is_autonomous=false, is_variable=true)
+Xtv = Data.VectorField(
+    (t, x, v) -> [t * x[2], -v * x[1]];
+    is_autonomous=false,
+    is_variable=true,
+)
 Htv = Lift(Xtv)
 Htv(2.0, [1.0, 2.0], [0.5, 1.0], 3.0)
 ```
@@ -105,7 +107,7 @@ Htv(2.0, [1.0, 2.0], [0.5, 1.0], 3.0)
 
     `Lift` accepts a plain [`VectorField`](@extref CTBase CTBase.Data.VectorField), not a
     [`HamiltonianVectorField`](@extref CTBase CTBase.Data.HamiltonianVectorField): the latter
-    already lives on phase space with signature `(x, p)`. Lifting one raises a
+    already lives on phase space with signature `(x, p)`. Lifting one raises an
     `IncorrectArgument` error — see [Limitations & configuration](limitations.md).
 
 ## See also

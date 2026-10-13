@@ -17,9 +17,8 @@ Brackets may be nested and combined with ordinary arithmetic. Operands may be pl
 as `[1.0, 2.0]` — may appear directly inside the macro expression.
 
 ```@example liemacro
-using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
-using CTBase: Data                 # VectorField, Hamiltonian, … (accessed as Data.VectorField, etc.)
-using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
+using CTLie          # Lift, ad, Poisson, ∂ₜ, @Lie
+using CTBase: Data   # Data.VectorField, Data.Hamiltonian, …
 # AD backend: CTBase's DifferentiationInterface extension + ForwardDiff
 using DifferentiationInterface: DifferentiationInterface
 using ForwardDiff: ForwardDiff
@@ -69,8 +68,10 @@ are not field-like objects, the macro reconstructs the vector as data and applie
 ```
 
 ```@example liemacro
-H0 = Data.Hamiltonian((x, p) -> 0.5*(2x[1]^2 + x[2]^2 + p[1]^2); is_autonomous=true)
-H1 = Data.Hamiltonian((x, p) -> 0.5*(3x[1]^2 + x[2]^2 + p[2]^2); is_autonomous=true)
+h0 = (x, p) -> (2x[1]^2 + x[2]^2 + p[1]^2) / 2
+h1 = (x, p) -> (3x[1]^2 + x[2]^2 + p[2]^2) / 2
+H0 = Data.Hamiltonian(h0; is_autonomous=true)
+H1 = Data.Hamiltonian(h1; is_autonomous=true)
 @Lie {H0, H1}([1.0, 2.0], [2.0, 1.0])
 ```
 
@@ -96,8 +97,10 @@ we have ``[F_0,F_1](x_3) = (0,-4,-2)`` and ``[F_1,F_2](x_3) = (2,-1,0)``, so
 The same works for Poisson brackets:
 
 ```@example liemacro
-H2 = Data.Hamiltonian((x, p) -> 0.5*(4x[1]^2 + x[2]^2 + p[1]^3 + p[2]^2); is_autonomous=true)
-@Lie {H0, H1}([1.0, 2.0], [2.0, 1.0]) - {H1, H2}([1.0, 2.0], [2.0, 1.0])
+h2 = (x, p) -> (4x[1]^2 + x[2]^2 + p[1]^3 + p[2]^2) / 2
+H2 = Data.Hamiltonian(h2; is_autonomous=true)
+x0, p0 = [1.0, 2.0], [2.0, 1.0]
+@Lie {H0, H1}(x0, p0) - {H1, H2}(x0, p0)
 ```
 
 !!! warning "Trailing keywords bind to `@Lie`"
@@ -163,7 +166,7 @@ F = Data.VectorField(x -> [x[2], -x[1]])
 **An unknown keyword argument** also raises `IncorrectArgument`:
 
 ```julia
-@Lie [F, G] invalid_arg=true   # ❌ IncorrectArgument — unknown keyword
+@Lie [F, F] invalid_arg=true   # ❌ IncorrectArgument — unknown keyword
 ```
 
 **Operands whose traits disagree, or a keyword that contradicts the operands' traits.**
@@ -199,4 +202,4 @@ known to be field-like (e.g. typed `VectorField` objects), the macro is type-sta
 - [`@Lie`](@ref CTLie.@Lie) — full docstring.
 - [`ad`](@ref CTLie.ad) and [`Poisson`](@ref
   CTLie.Poisson) — the functions the macro expands to.
-- [Limitations & configuration](limitations.md) — trait matching, backends, prefixes.
+- [Limitations & configuration](limitations.md) — trait matching, AD backends, hygiene.

@@ -27,9 +27,8 @@ extremals.
 loaded.
 
 ```@example dt
-using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
-using CTBase: Data                 # VectorField, Hamiltonian, … (accessed as Data.VectorField, etc.)
-using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
+using CTLie          # Lift, ad, Poisson, ∂ₜ, @Lie
+using CTBase: Data   # Data.VectorField, Data.Hamiltonian, …
 # AD backend: CTBase's DifferentiationInterface extension + ForwardDiff
 using DifferentiationInterface: DifferentiationInterface
 using ForwardDiff: ForwardDiff
@@ -80,25 +79,30 @@ For a [`Hamiltonian`](@extref CTBase CTBase.Data.Hamiltonian), `∂ₜ` returns 
 `Hamiltonian`.
 
 ```@example dt
-H  = Data.Hamiltonian((t, x, p) -> t * p[1] + x[1]^2; is_autonomous=false)
+H  = Data.Hamiltonian((t, x, p) -> t * p + x^2; is_autonomous=false)
 dH = ∂ₜ(H)
-dH(2.0, [1.0], [0.5])    # ∂/∂t (t·p₁ + x₁²) = p₁
+dH(2.0, 1.0, 0.5)        # ∂/∂t (t·p + x²) = p
 ```
 
 ## On typed Hamiltonian vector fields
 
-For a [`HamiltonianVectorField`](@extref CTBase CTBase.Data.HamiltonianVectorField), `∂ₜ` returns a
-`NonAutonomous` `HamiltonianVectorField`.
+For a [`HamiltonianVectorField`](@extref CTBase CTBase.Data.HamiltonianVectorField), whose
+value is the pair ``(\dot x, \dot p)``, `∂ₜ` returns a `NonAutonomous`
+`HamiltonianVectorField` differentiating both components. Here the state is
+one-dimensional, hence scalar:
 
 ```@example dt
-Z  = Data.HamiltonianVectorField((t, x, p) -> t .* [p[1], -x[1]]; is_autonomous=false)
+Z  = Data.HamiltonianVectorField(
+    (t, x, p) -> (t * p, -t * x);
+    is_autonomous=false,
+)
 dZ = ∂ₜ(Z)
-dZ(2.0, [1.0], [0.5])    # ∂/∂t t·[p₁, -x₁] = [p₁, -x₁]
+dZ(2.0, 1.0, 0.5)        # ∂/∂t (t·p, -t·x) = (p, -x)
 ```
 
 !!! warning "Out-of-place only"
 
-    `∂ₜ` on a typed object requires `OutOfPlace` mutability; an in-place field raises a
+    `∂ₜ` on a typed object requires `OutOfPlace` mutability; an in-place field raises an
     `IncorrectArgument` error. See [Limitations & configuration](limitations.md).
 
 ## See also
