@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📚 Documentation
 
+- **Error examples are evaluated.** The error snippets of `lie_macro.md` and
+  `limitations.md` are `@repl` blocks, so the exceptions are rendered by the build rather
+  than written by hand; the missing-extension error uses
+  `CTBase.DevTools.repl_without_extensions`. Reviewed for the ANSI limitation fixed in
+  DocumenterVitepress v0.3.5 (no `try/catch` or `showerror` workaround was present);
+  `DocumenterVitepress` and `CTBase` compat raised to `0.3.5` and `0.30.10`.
 - **Corrected wrong statements.** Trait mismatches in `ad`, `Poisson` and `@Lie` raise
   `PreconditionError` (the docs said `IncorrectArgument`); the default AD backend needs
   both `DifferentiationInterface` and `ForwardDiff` loaded (the docs mentioned only the
