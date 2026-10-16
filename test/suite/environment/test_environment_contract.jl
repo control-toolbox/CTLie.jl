@@ -59,7 +59,7 @@ function test_environment_contract()
         end
 
         Test.@testset "GPU driver required on the GPU runner" begin
-            # Central enforcement of the Handbook's capability-gated-test contract: on a
+            # Central enforcement of the capability-gated-test contract (TST6): on a
             # machine that is supposed to have a GPU, a missing/broken device fails loudly
             # here rather than being silently skipped everywhere else.
             #

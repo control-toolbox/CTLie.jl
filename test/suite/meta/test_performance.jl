@@ -6,8 +6,8 @@ module TestPerformance
 #
 # Type stability is guarded separately by `Test.@inferred`, next to each
 # fixture in the testset that owns it (test_ad_dg.jl, test_lift_dg.jl,
-# test_poisson_dg.jl, test_time_derivative_dg.jl) — see the Handbook's
-# philosophy/performance.md. This file guards the complementary, independent
+# test_poisson_dg.jl, test_time_derivative_dg.jl) — see ct-conventions
+# PERF1. This file guards the complementary, independent
 # property: a call can stay fully inferable yet start allocating (a stray
 # `collect`, a boxed closure, an abstract field). Allocation counts are
 # DETERMINISTIC (no run-to-run noise, no machine dependence), so `== 0` /
