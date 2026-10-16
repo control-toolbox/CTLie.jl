@@ -26,9 +26,9 @@ The operators are defined for **out-of-place** objects only. A field built with
 [`CTBase.Exceptions.IncorrectArgument`](@extref CTBase) error. Reconstruct the field
 out-of-place before taking brackets or time derivatives:
 
-```julia
-Xip = Data.VectorField((dx, x) -> (dx .= (x[2], -x[1])); is_inplace=true)
-ad(Xip, Xip)   # ❌ IncorrectArgument — in-place fields not supported
+```@repl limits
+Xip = Data.VectorField((dx, x) -> (dx .= (x[2], -x[1])); is_inplace=true);
+ad(Xip, Xip)
 ```
 
 ### No Lie operations on a Hamiltonian vector field
@@ -38,10 +38,10 @@ space with signature `(x, p)`, not `(x)`, so it is **not** a valid operand for t
 bracket / Lie derivative, nor for the [`Lift`](@ref CTLie.Lift).
 Both raise [`CTBase.Exceptions.IncorrectArgument`](@extref CTBase):
 
-```julia
-Z = Data.HamiltonianVectorField((x, p) -> (x, -p); is_autonomous=true)
-ad(Z, Z)            # ❌ IncorrectArgument — signature is (x, p), not (x)
-Lift(Z)             # ❌ IncorrectArgument — Z already lives on phase space
+```@repl limits
+Z = Data.HamiltonianVectorField((x, p) -> (x, -p); is_autonomous=true);
+ad(Z, Z)
+Lift(Z)
 ```
 
 Use the underlying plain [`VectorField`](@extref CTBase CTBase.Data.VectorField) instead.
@@ -54,10 +54,10 @@ operands to have the **same** time- and variable-dependence. Each operand is val
 its own — it is their combination that is rejected — so a mismatch raises
 [`CTBase.Exceptions.PreconditionError`](@extref CTBase):
 
-```julia
-Xa = Data.VectorField(x -> [x[2], -x[1]]; is_autonomous=true)
-Xt = Data.VectorField((t, x) -> [x[2], -x[1]]; is_autonomous=false)
-ad(Xa, Xt)          # ❌ PreconditionError — TD/VD mismatch between X and Y
+```@repl limits
+Xa = Data.VectorField(x -> [x[2], -x[1]]; is_autonomous=true);
+Xt = Data.VectorField((t, x) -> [x[2], -x[1]]; is_autonomous=false);
+ad(Xa, Xt)
 ```
 
 The same rule is enforced by [`@Lie`](@ref CTLie.@Lie); see
@@ -87,7 +87,19 @@ using ForwardDiff: ForwardDiff  # default AD engine
 Loading `DifferentiationInterface` alone is not enough: the first evaluation then
 raises a [`CTBase.Exceptions.ExtensionError`](@extref CTBase) naming the missing
 `ForwardDiff`. A non-default engine (e.g. `Mooncake` for the GPU backend below) must
-likewise be loaded before a derivative is evaluated.
+likewise be loaded before a derivative is evaluated. The documentation build loads every
+extension, so the error is rendered from a fresh Julia process where only CTLie and `DifferentiationInterface` are loaded:
+
+```@eval
+using CTBase: CTBase
+CTBase.DevTools.repl_without_extensions(
+    :CTLie,
+    "using CTBase: Data",
+    "using DifferentiationInterface: DifferentiationInterface",
+    "X = Data.VectorField(x -> [x[2], -x[1]]);",
+    "CTLie.ad(X, X)([1.0, 0.0])",
+)
+```
 
 `ad_backend` takes a [`CTBase.Differentiation.AbstractADBackend`](@extref CTBase) — never a raw
 `ADTypes.AbstractADType` — so that the choice of execution device (CPU or GPU) and the

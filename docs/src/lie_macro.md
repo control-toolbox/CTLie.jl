@@ -145,7 +145,7 @@ indeed, a keyword that contradicts the operands' traits is an error (next sectio
 
 ## Error cases
 
-The macro validates its input. These snippets are **not executed** (they would throw).
+The macro validates its input. The errors below are captured when the documentation is built.
 
 **Wrong bracket kind for a typed operand** — a
 [`Hamiltonian`](@extref CTBase CTBase.Data.Hamiltonian) inside `[...]` (Lie bracket) or a
@@ -153,32 +153,32 @@ The macro validates its input. These snippets are **not executed** (they would t
 The operand itself is wrong for that bracket, so this raises
 [`CTBase.Exceptions.IncorrectArgument`](@extref CTBase):
 
-```julia
-H = Data.Hamiltonian((x, p) -> p[1] * x[1])
-F = Data.VectorField(x -> [x[2], -x[1]])
+```@repl liemacro
+H = Data.Hamiltonian((x, p) -> p[1] * x[1]);
+F = Data.VectorField(x -> [x[2], -x[1]]);
 
-@Lie [H, F]    # ❌ IncorrectArgument — not a Lie bracket operand
-@Lie [F, H]    # ❌ same
-@Lie {F, H}    # ❌ IncorrectArgument — not a Poisson bracket operand
-@Lie {H, F}    # ❌ same
+@Lie [H, F]
+@Lie [F, H]
+@Lie {F, H}
+@Lie {H, F}
 ```
 
 **An unknown keyword argument** also raises `IncorrectArgument`:
 
-```julia
-@Lie [F, F] invalid_arg=true   # ❌ IncorrectArgument — unknown keyword
+```@repl liemacro
+@Lie [F, F] invalid_arg=true
 ```
 
 **Operands whose traits disagree, or a keyword that contradicts the operands' traits.**
 Each piece is valid on its own — it is their combination that is rejected — so these
 raise [`CTBase.Exceptions.PreconditionError`](@extref CTBase):
 
-```julia
-Xa = Data.VectorField(x -> [x[2], -x[1]]; is_autonomous=true)
-Xt = Data.VectorField((t, x) -> [x[2], -x[1]]; is_autonomous=false)
+```@repl liemacro
+Xa = Data.VectorField(x -> [x[2], -x[1]]; is_autonomous=true);
+Xt = Data.VectorField((t, x) -> [x[2], -x[1]]; is_autonomous=false);
 
-@Lie [Xa, Xt]                      # ❌ PreconditionError — TD mismatch
-@Lie [Xa, Xa] is_autonomous=false  # ❌ PreconditionError — flag vs traits
+@Lie [Xa, Xt]
+@Lie [Xa, Xa] is_autonomous=false
 ```
 
 ## How the macro works
