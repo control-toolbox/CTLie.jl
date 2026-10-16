@@ -88,13 +88,14 @@ Loading `DifferentiationInterface` alone is not enough: the first evaluation the
 raises a [`CTBase.Exceptions.ExtensionError`](@extref CTBase) naming the missing
 `ForwardDiff`. A non-default engine (e.g. `Mooncake` for the GPU backend below) must
 likewise be loaded before a derivative is evaluated. The documentation build loads every
-extension, so the error is rendered from a fresh Julia process where only CTLie is loaded:
+extension, so the error is rendered from a fresh Julia process where only CTLie and `DifferentiationInterface` are loaded:
 
 ```@eval
 using CTBase: CTBase
 CTBase.DevTools.repl_without_extensions(
     :CTLie,
     "using CTBase: Data",
+    "using DifferentiationInterface: DifferentiationInterface",
     "X = Data.VectorField(x -> [x[2], -x[1]]);",
     "CTLie.ad(X, X)([1.0, 0.0])",
 )
