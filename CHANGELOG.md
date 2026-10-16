@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   exported API and the trait/signature table; unused imports removed, error snippets
   checked, 1-D examples use scalars, code wrapped to ~75 characters.
 - **Site.** Shared VitePress theme added; deployment skipped when no base is built.
+- ct-conventions pinned at v0.4.0 in `AGENTS.md` (read from a git-ignored clone in
+  `.conventions/`), `AGENTS.md` cites rules by identifier, `CLAUDE.md` redirects to it, and
+  the references to the former Handbook are updated. `CONTRIBUTING.md` documents it, and
+  the spell check excludes `.conventions/`.
 
 ### ✅ Compatibility
 
