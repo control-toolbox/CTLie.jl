@@ -40,16 +40,16 @@ for (name, decoys) in (
     ),
 )
     @eval module $name
-    using CTLie: @Lie
-    $decoys
-    $(_OPERANDS.args...)
+        using CTLie: @Lie
+        $decoys
+        $(_OPERANDS.args...)
 
-    lie_xy() = @Lie [X, Y]
-    lie_nested() = @Lie [[X, Y], X]
-    lie_naut() = @Lie [Xn, Yn] is_autonomous=false
-    poisson_hg() = @Lie {H, G}
-    unknown_kw() = @Lie [X, Y] bad_kw=1
-    bad_arg() = @Lie [X, Y] oops
+        lie_xy() = @Lie [X, Y]
+        lie_nested() = @Lie [[X, Y], X]
+        lie_naut() = @Lie [Xn, Yn] is_autonomous=false
+        poisson_hg() = @Lie {H, G}
+        unknown_kw() = @Lie [X, Y] bad_kw=1
+        bad_arg() = @Lie [X, Y] oops
     end
 end
 
