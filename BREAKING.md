@@ -1,7 +1,5 @@
 # Breaking Changes
 
-<!-- markdownlint-disable MD024 -->
-
 This document describes breaking changes in CTLie.jl releases and how to migrate your code.
 
 ---
