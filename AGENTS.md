@@ -11,7 +11,6 @@ with package-specific details — read it before working in that directory.
 
 ```text
 src/           # Source code: one submodule per responsibility, no top-level exports
-ext/           # Weak-dependency extensions (loaded on demand by Julia)
 test/suite/    # Test suite: organised by functionality, not by src/ layout
 docs/          # Documentation site (DocumenterVitepress)
 .conventions/  # ct-conventions, cloned at the pinned tag (git-ignored)
