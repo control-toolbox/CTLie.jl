@@ -16,8 +16,8 @@ const SHOWTIMING = isdefined(Main, :TestData) ? Main.TestData.SHOWTIMING : true
 # every method signature. Some CT packages (e.g. CTModels' mutable `PreModel`
 # builder, whose fields are `Union{SomeType,Nothing}` by design) get dozens of
 # false positives from deliberately dynamic setup-path code, so those packages
-# scope JET to `JET.@test_opt` on concrete hot-path calls instead (see the
-# Handbook's performance guide, "hot path vs. setup path").
+# scope JET to `JET.@test_opt` on concrete hot-path calls instead (see
+# ct-conventions PERF1, "hot path vs. setup path").
 #
 # CTLie has no such construction — every one-time constructor (`ad`, `Poisson`,
 # `Lift`, `∂ₜ`) resolves a `Union{Differentiation.AbstractADBackend,NotProvidedType}`
