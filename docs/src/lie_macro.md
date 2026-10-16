@@ -17,10 +17,11 @@ Brackets may be nested and combined with ordinary arithmetic. Operands may be pl
 as `[1.0, 2.0]` — may appear directly inside the macro expression.
 
 ```@example liemacro
-using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
-using CTBase: Data                 # VectorField, Hamiltonian, … (accessed as Data.VectorField, etc.)
-using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
-using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
+using CTLie          # Lift, ad, Poisson, ∂ₜ, @Lie
+using CTBase: Data   # Data.VectorField, Data.Hamiltonian, …
+# AD backend: CTBase's DifferentiationInterface extension + ForwardDiff
+using DifferentiationInterface: DifferentiationInterface
+using ForwardDiff: ForwardDiff
 nothing # hide
 ```
 
@@ -67,8 +68,10 @@ are not field-like objects, the macro reconstructs the vector as data and applie
 ```
 
 ```@example liemacro
-H0 = Data.Hamiltonian((x, p) -> 0.5*(2x[1]^2 + x[2]^2 + p[1]^2); is_autonomous=true)
-H1 = Data.Hamiltonian((x, p) -> 0.5*(3x[1]^2 + x[2]^2 + p[2]^2); is_autonomous=true)
+h0 = (x, p) -> (2x[1]^2 + x[2]^2 + p[1]^2) / 2
+h1 = (x, p) -> (3x[1]^2 + x[2]^2 + p[2]^2) / 2
+H0 = Data.Hamiltonian(h0; is_autonomous=true)
+H1 = Data.Hamiltonian(h1; is_autonomous=true)
 @Lie {H0, H1}([1.0, 2.0], [2.0, 1.0])
 ```
 
@@ -94,8 +97,10 @@ we have ``[F_0,F_1](x_3) = (0,-4,-2)`` and ``[F_1,F_2](x_3) = (2,-1,0)``, so
 The same works for Poisson brackets:
 
 ```@example liemacro
-H2 = Data.Hamiltonian((x, p) -> 0.5*(4x[1]^2 + x[2]^2 + p[1]^3 + p[2]^2); is_autonomous=true)
-@Lie {H0, H1}([1.0, 2.0], [2.0, 1.0]) - {H1, H2}([1.0, 2.0], [2.0, 1.0])
+h2 = (x, p) -> (4x[1]^2 + x[2]^2 + p[1]^3 + p[2]^2) / 2
+H2 = Data.Hamiltonian(h2; is_autonomous=true)
+x0, p0 = [1.0, 2.0], [2.0, 1.0]
+@Lie {H0, H1}(x0, p0) - {H1, H2}(x0, p0)
 ```
 
 !!! warning "Trailing keywords bind to `@Lie`"
@@ -140,39 +145,40 @@ indeed, a keyword that contradicts the operands' traits is an error (next sectio
 
 ## Error cases
 
-The macro validates its input and raises
-[`CTBase.Exceptions.IncorrectArgument`](@extref CTBase) in the following situations. These
-snippets are **not executed** (they would throw):
+The macro validates its input. These snippets are **not executed** (they would throw).
 
-**Wrong bracket kind for a typed operand.** Using a
+**Wrong bracket kind for a typed operand** — a
 [`Hamiltonian`](@extref CTBase CTBase.Data.Hamiltonian) inside `[...]` (Lie bracket) or a
-[`VectorField`](@extref CTBase CTBase.Data.VectorField) inside `{...}` (Poisson bracket) is
-detected at runtime and raises an error:
+[`VectorField`](@extref CTBase CTBase.Data.VectorField) inside `{...}` (Poisson bracket).
+The operand itself is wrong for that bracket, so this raises
+[`CTBase.Exceptions.IncorrectArgument`](@extref CTBase):
 
 ```julia
-H = Hamiltonian((x, p) -> p[1]*x[1])
-F = VectorField(x -> [x[2], -x[1]])
+H = Data.Hamiltonian((x, p) -> p[1] * x[1])
+F = Data.VectorField(x -> [x[2], -x[1]])
 
-@Lie [H, F]    # ❌ Hamiltonian is not a valid Lie bracket operand
+@Lie [H, F]    # ❌ IncorrectArgument — not a Lie bracket operand
 @Lie [F, H]    # ❌ same
-@Lie {F, H}    # ❌ VectorField is not a valid Poisson bracket operand
+@Lie {F, H}    # ❌ IncorrectArgument — not a Poisson bracket operand
 @Lie {H, F}    # ❌ same
 ```
 
-**An unknown keyword argument:**
+**An unknown keyword argument** also raises `IncorrectArgument`:
 
 ```julia
-@Lie [F, G] invalid_arg=true   # ❌ unknown @Lie argument
+@Lie [F, F] invalid_arg=true   # ❌ IncorrectArgument — unknown keyword
 ```
 
-**A keyword that conflicts with typed operands, or operands whose traits disagree:**
+**Operands whose traits disagree, or a keyword that contradicts the operands' traits.**
+Each piece is valid on its own — it is their combination that is rejected — so these
+raise [`CTBase.Exceptions.PreconditionError`](@extref CTBase):
 
 ```julia
-Xa = VectorField(x -> [x[2], -x[1]];      is_autonomous=true)
-Xt = VectorField((t, x) -> [x[2], -x[1]]; is_autonomous=false)
+Xa = Data.VectorField(x -> [x[2], -x[1]]; is_autonomous=true)
+Xt = Data.VectorField((t, x) -> [x[2], -x[1]]; is_autonomous=false)
 
-@Lie [Xa, Xt]                        # ❌ time-dependence mismatch between operands
-@Lie [Xa, Xa] is_autonomous=false    # ❌ flag conflicts with operand traits
+@Lie [Xa, Xt]                      # ❌ PreconditionError — TD mismatch
+@Lie [Xa, Xa] is_autonomous=false  # ❌ PreconditionError — flag vs traits
 ```
 
 ## How the macro works
@@ -196,4 +202,4 @@ known to be field-like (e.g. typed `VectorField` objects), the macro is type-sta
 - [`@Lie`](@ref CTLie.@Lie) — full docstring.
 - [`ad`](@ref CTLie.ad) and [`Poisson`](@ref
   CTLie.Poisson) — the functions the macro expands to.
-- [Limitations & configuration](limitations.md) — trait matching, backends, prefixes.
+- [Limitations & configuration](limitations.md) — trait matching, AD backends, hygiene.

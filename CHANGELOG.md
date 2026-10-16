@@ -11,6 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 📚 Documentation
+
+- **Corrected wrong statements.** Trait mismatches in `ad`, `Poisson` and `@Lie` raise
+  `PreconditionError` (the docs said `IncorrectArgument`); the default AD backend needs
+  both `DifferentiationInterface` and `ForwardDiff` loaded (the docs mentioned only the
+  former, which raises `ExtensionError` on first use).
+- **Docstrings refreshed.** Wrong example values fixed (`Lift`, `Poisson`), constructors
+  qualified (`Data.VectorField`, …), `show` outputs updated, `@Lie` dispatch described
+  accurately; `src/guards.jl` added to the API reference.
+- **Guide pages cleaned up.** Landing page with a Quick start, an admonition on the
+  exported API and the trait/signature table; unused imports removed, error snippets
+  checked, 1-D examples use scalars, code wrapped to ~75 characters.
+- **Site.** Shared VitePress theme added; deployment skipped when no base is built.
+
+### ✅ Compatibility
+
+- **No breaking changes**: documentation only, no CTLie API affected.
+
 ---
 
 ## [0.3.0] - 2026-10-10

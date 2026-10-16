@@ -184,8 +184,7 @@ Display a compact representation of an `Ad` callable (Lie derivative or Lie brac
 ```julia-repl
 julia> L = ad(x -> [x[2], -x[1]], x -> x[1]^2 + x[2]^2)
 Ad: autonomous, fixed (no variable)
-  backend: ForwardDiffBackend
-  cache: not prepared
+  backend: DifferentiationInterface
 ```
 """
 function Base.show(

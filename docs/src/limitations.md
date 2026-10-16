@@ -8,10 +8,11 @@ This page collects the constraints of the CTLie operators and the knobs availabl
 configure them.
 
 ```@example limits
-using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
-using CTBase: Data                 # VectorField, Hamiltonian, HamiltonianVectorField
-using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
-using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
+using CTLie          # Lift, ad, Poisson, ∂ₜ, @Lie
+using CTBase: Data   # Data.VectorField, Data.Hamiltonian, …
+# AD backend: CTBase's DifferentiationInterface extension + ForwardDiff
+using DifferentiationInterface: DifferentiationInterface
+using ForwardDiff: ForwardDiff
 nothing # hide
 ```
 
@@ -26,8 +27,8 @@ The operators are defined for **out-of-place** objects only. A field built with
 out-of-place before taking brackets or time derivatives:
 
 ```julia
-Xip = VectorField(x -> [x[2], -x[1]]; is_inplace=true)
-ad(Xip, Xip)        # ❌ IncorrectArgument — ad does not support in-place fields
+Xip = Data.VectorField((dx, x) -> (dx .= (x[2], -x[1])); is_inplace=true)
+ad(Xip, Xip)   # ❌ IncorrectArgument — in-place fields not supported
 ```
 
 ### No Lie operations on a Hamiltonian vector field
@@ -38,7 +39,7 @@ bracket / Lie derivative, nor for the [`Lift`](@ref CTLie.Lift).
 Both raise [`CTBase.Exceptions.IncorrectArgument`](@extref CTBase):
 
 ```julia
-Z = HamiltonianVectorField((x, p) -> [x[1], -p[1]]; is_autonomous=true)
+Z = Data.HamiltonianVectorField((x, p) -> (x, -p); is_autonomous=true)
 ad(Z, Z)            # ❌ IncorrectArgument — signature is (x, p), not (x)
 Lift(Z)             # ❌ IncorrectArgument — Z already lives on phase space
 ```
@@ -49,13 +50,14 @@ Use the underlying plain [`VectorField`](@extref CTBase CTBase.Data.VectorField)
 
 [`ad`](@ref CTLie.ad) (on two vector fields) and
 [`Poisson`](@ref CTLie.Poisson) (on two Hamiltonians) require their
-operands to have the **same** time- and variable-dependence. A mismatch raises
-[`CTBase.Exceptions.IncorrectArgument`](@extref CTBase):
+operands to have the **same** time- and variable-dependence. Each operand is valid on
+its own — it is their combination that is rejected — so a mismatch raises
+[`CTBase.Exceptions.PreconditionError`](@extref CTBase):
 
 ```julia
-Xa = VectorField(x -> [x[2], -x[1]];      is_autonomous=true)
-Xt = VectorField((t, x) -> [x[2], -x[1]]; is_autonomous=false)
-ad(Xa, Xt)          # ❌ IncorrectArgument — TD/VD mismatch between X and Y
+Xa = Data.VectorField(x -> [x[2], -x[1]]; is_autonomous=true)
+Xt = Data.VectorField((t, x) -> [x[2], -x[1]]; is_autonomous=false)
+ad(Xa, Xt)          # ❌ PreconditionError — TD/VD mismatch between X and Y
 ```
 
 The same rule is enforced by [`@Lie`](@ref CTLie.@Lie); see
@@ -73,13 +75,19 @@ fixed unless told otherwise via `is_autonomous` / `is_variable` (for `ad`, `Pois
 
 ### AD backend
 
-`ad`, `Poisson` and `∂ₜ` differentiate through a pluggable backend. The default is built
-on `DifferentiationInterface.jl` (with `ForwardDiff` under the hood) and **must be
-loaded** for gradients/derivatives to be available:
+`ad`, `Poisson` and `∂ₜ` differentiate through a pluggable backend. The default
+backend runs `ForwardDiff` through `DifferentiationInterface.jl`, and **both packages
+must be loaded** for derivatives to be available:
 
 ```julia
-using DifferentiationInterface: DifferentiationInterface  # activates the CTBaseDifferentiationInterface extension
+using DifferentiationInterface: DifferentiationInterface  # AD extension
+using ForwardDiff: ForwardDiff  # default AD engine
 ```
+
+Loading `DifferentiationInterface` alone is not enough: the first evaluation then
+raises a [`CTBase.Exceptions.ExtensionError`](@extref CTBase) naming the missing
+`ForwardDiff`. A non-default engine (e.g. `Mooncake` for the GPU backend below) must
+likewise be loaded before a derivative is evaluated.
 
 `ad_backend` takes a [`CTBase.Differentiation.AbstractADBackend`](@extref CTBase) — never a raw
 `ADTypes.AbstractADType` — so that the choice of execution device (CPU or GPU) and the
@@ -87,10 +95,14 @@ choice of underlying AD implementation are both explicit and swappable without
 touching CTLie itself:
 
 ```julia
-using CTBase: Differentiation
+using CTBase: CTBase, Differentiation
 
-cpu_backend = Differentiation.DifferentiationInterface()                       # CPU, AutoForwardDiff
-gpu_backend = Differentiation.DifferentiationInterface{CTBase.Strategies.GPU}() # GPU, AutoMooncake
+# CPU (default device): AutoForwardDiff
+cpu_backend = Differentiation.DifferentiationInterface()
+
+# GPU: AutoMooncake (Mooncake must be loaded to differentiate)
+gpu_backend =
+    Differentiation.DifferentiationInterface{CTBase.Strategies.GPU}()
 ```
 
 The global default backend is read and set with
@@ -124,7 +136,7 @@ the caller's module, as usual. The AD backend extension must still be loaded (se
 
 ## See also
 
-- [Differential geometry overview](index.md)
+- [Overview](index.md)
 - [`ad`](@ref CTLie.ad), [`Poisson`](@ref CTLie.Poisson),
   [`Lift`](@ref CTLie.Lift), [`∂ₜ`](@ref CTLie.∂ₜ),
   [`@Lie`](@ref CTLie.@Lie)

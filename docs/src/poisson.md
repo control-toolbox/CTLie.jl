@@ -18,10 +18,11 @@ The relevant method is [`Poisson`](@ref CTLie.Poisson). It is
 computed by automatic differentiation, so the AD backend extension must be loaded.
 
 ```@example poisson
-using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
-using CTBase: Data                 # VectorField, Hamiltonian, … (accessed as Data.VectorField, etc.)
-using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
-using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
+using CTLie          # Lift, ad, Poisson, ∂ₜ, @Lie
+using CTBase: Data   # Data.VectorField, Data.Hamiltonian, …
+# AD backend: CTBase's DifferentiationInterface extension + ForwardDiff
+using DifferentiationInterface: DifferentiationInterface
+using ForwardDiff: ForwardDiff
 nothing # hide
 ```
 
@@ -63,7 +64,8 @@ Poisson(fpg, h)(x, p) ≈ Poisson(f, h)(x, p) + Poisson(g, h)(x, p)
 ```@example poisson
 # Leibniz rule
 fg = (x, p) -> f(x, p) * g(x, p)
-Poisson(fg, h)(x, p) ≈ Poisson(f, h)(x, p) * g(x, p) + f(x, p) * Poisson(g, h)(x, p)
+Poisson(fg, h)(x, p) ≈
+    Poisson(f, h)(x, p) * g(x, p) + f(x, p) * Poisson(g, h)(x, p)
 ```
 
 ```@example poisson
@@ -106,7 +108,8 @@ Poisson(Hv, Gv; is_variable=true)([1.0, 2.0], [2.0, 1.0], [4.0, 4.0])
 ```@example poisson
 Htv = (t, x, p, v) -> t * v[1] * x[2]^2 + 2x[1]^2 + p[1]^2 + v[2]
 Gtv = (t, x, p, v) -> 3x[2]^2 - x[1]^2 + p[2]^2 + p[1] + t - v[2]
-Poisson(Htv, Gtv; is_autonomous=false, is_variable=true)(2.0, [1.0, 2.0], [2.0, 1.0], [4.0, 4.0])
+Btv = Poisson(Htv, Gtv; is_autonomous=false, is_variable=true)
+Btv(2.0, [1.0, 2.0], [2.0, 1.0], [4.0, 4.0])
 ```
 
 ## On typed Hamiltonians

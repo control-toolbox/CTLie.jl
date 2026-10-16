@@ -39,10 +39,11 @@ brackets ``[[X, Y], Y]`` appear throughout geometric control (e.g. in the analys
 singular extremals).
 
 ```@example ad
-using CTLie                        # Lift, ad, Poisson, ∂ₜ, @Lie
-using CTBase: Data                 # VectorField, Hamiltonian, … (accessed as Data.VectorField, etc.)
-using CTBase: Traits               # trait types (Autonomous, Variable, OutOfPlace, …)
-using DifferentiationInterface: DifferentiationInterface  # activates the AD backend extension
+using CTLie          # Lift, ad, Poisson, ∂ₜ, @Lie
+using CTBase: Data   # Data.VectorField, Data.Hamiltonian, …
+# AD backend: CTBase's DifferentiationInterface extension + ForwardDiff
+using DifferentiationInterface: DifferentiationInterface
+using ForwardDiff: ForwardDiff
 nothing # hide
 ```
 
@@ -106,8 +107,8 @@ fields must share the same time- and variable-dependence (see
 [Limitations & configuration](limitations.md)).
 
 ```@example ad
-X = Data.VectorField(x -> [x[2], 2x[1]]; is_autonomous=true, is_variable=false)
-Y = Data.VectorField(x -> [3x[2], -x[1]]; is_autonomous=true, is_variable=false)
+X = Data.VectorField(x -> [x[2], 2x[1]]; is_autonomous=true)
+Y = Data.VectorField(x -> [3x[2], -x[1]]; is_autonomous=true)
 Z = ad(X, Y)
 ```
 
