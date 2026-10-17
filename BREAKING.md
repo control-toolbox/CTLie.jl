@@ -25,6 +25,14 @@ This document describes breaking changes in CTLie.jl releases and how to migrate
 
 ---
 
+## Non-breaking note (0.3.1)
+
+- **`[compat]` specifiers narrowed.** `CUDA = "6"`, `ForwardDiff = "1"`, `JET = "0.9, 0.12"`:
+  the dropped versions cannot be selected by any supported Julia version. **No breaking
+  change**, no migration required.
+
+---
+
 ## Non-breaking note (0.3.0)
 
 - **`@Lie` expansion made hygienic (#40).** The macro now works from any module, whatever the
