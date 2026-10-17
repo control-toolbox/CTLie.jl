@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [0.3.1] - 2026-10-16
 
 ### 📚 Documentation
 
@@ -33,9 +33,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the references to the former Handbook are updated. `CONTRIBUTING.md` documents it, and
   the spell check excludes `.conventions/`.
 
+### 📦 Dependencies
+
+- **Unselectable `[compat]` specifiers dropped.** `CUDA = "6"`, `ForwardDiff = "1"` and
+  `JET = "0.9, 0.12"`: the removed versions are not selected by any supported Julia version.
+  `DocumenterVitepress` and `CTBase` compat raised in `docs/Project.toml`.
+
 ### ✅ Compatibility
 
-- **No breaking changes**: documentation only, no CTLie API affected.
+- **No breaking changes**: documentation and compat housekeeping only, no CTLie API
+  affected. See [BREAKING.md](BREAKING.md).
 
 ---
 
