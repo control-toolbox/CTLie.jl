@@ -8,6 +8,8 @@ on:
       - 'v[0-9]+\.[0-9]+\.[0-9]+'   # v0.1.0 yes, v0.1.0-beta no (SITE13)
   pull_request:
     types: [labeled, synchronize, reopened]
+  # run on a tag by ReleaseTag.yml: a tag it creates triggers no push event
+  workflow_dispatch:
 
 jobs:
   call:
