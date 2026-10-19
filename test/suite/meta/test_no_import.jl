@@ -47,8 +47,7 @@ function test_no_import()
                 end
                 if check_dotted && occursin(DOTTED_USING_RE, line)
                     push!(
-                        violations,
-                        "$relpath:$line_number: dotted `using`: $(strip(line))",
+                        violations, "$relpath:$line_number: dotted `using`: $(strip(line))"
                     )
                 end
             end
