@@ -25,7 +25,7 @@ jobs:
     uses: control-toolbox/CTActions/.github/workflows/breakage-suite.yml@main
     with:
       targets: >-
-        [{"name": "OptimalControl"}]
+        [{"name": "CTFlows"}, {"name": "OptimalControl"}]
       use_ct_registry: true
     secrets:
       SSH_KEY: ${{ secrets.SSH_KEY }}
