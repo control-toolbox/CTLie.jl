@@ -32,9 +32,9 @@ jobs:
   test-gpu-kkt:
     # See the comment on test-cpu-github above.
     if: >
-      github.event_name != 'pull_request' ||
-      (github.event.action == 'labeled' && github.event.label.name == 'run ci kkt-runner') ||
-      (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'run ci kkt-runner'))
+      github.event_name == 'pull_request' &&
+      ((github.event.action == 'labeled' && github.event.label.name == 'run ci kkt-runner') ||
+      (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'run ci kkt-runner')))
     uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
     with:
       versions: '["1"]'
@@ -48,9 +48,9 @@ jobs:
   test-gpu-occidata:
     # See the comment on test-cpu-github above.
     if: >
-      github.event_name != 'pull_request' ||
-      (github.event.action == 'labeled' && github.event.label.name == 'run ci occidata-runner') ||
-      (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'run ci occidata-runner'))
+      github.event_name == 'pull_request' &&
+      ((github.event.action == 'labeled' && github.event.label.name == 'run ci occidata-runner') ||
+      (github.event.action != 'labeled' && contains(github.event.pull_request.labels.*.name, 'run ci occidata-runner')))
     uses: control-toolbox/CTActions/.github/workflows/ci.yml@main
     with:
       versions: '["1"]'
@@ -59,3 +59,15 @@ jobs:
       use_ct_registry: true
     secrets:
       SSH_KEY: ${{ secrets.SSH_KEY }}
+
+  # On a push (main, tags): a single GPU run, on kkt unless it is offline, else occidata
+  # (CTActions ci-gpu.yml). A busy kkt is waited for.
+  test-gpu-main:
+    if: github.event_name != 'pull_request'
+    uses: control-toolbox/CTActions/.github/workflows/ci-gpu.yml@main
+    with:
+      use_ct_registry: true
+    secrets:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      CT_RUNNERS_CLIENT_ID: ${{ secrets.CT_RUNNERS_CLIENT_ID }}
+      CT_RUNNERS_PRIVATE_KEY: ${{ secrets.CT_RUNNERS_PRIVATE_KEY }}
