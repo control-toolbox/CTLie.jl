@@ -3,8 +3,11 @@
 #   npx serve docs/build/1 --listen 5173
 # to serve the documentation (option 2 — Julia only):
 #   julia --project=docs -e 'using LiveServer; LiveServer.serve(dir="docs/build/1", single_page=true)'
-pushfirst!(LOAD_PATH, joinpath(@__DIR__))
-pushfirst!(LOAD_PATH, joinpath(@__DIR__, ".."))
+# Append (not prepend): docs/Manifest.toml must win for shared deps; the repo root is only
+# needed to find the local CTLie. Prepending it lets the root environment shadow docs/ and
+# breaks the precompilation of extensions on weak dependencies installed only in docs/.
+push!(LOAD_PATH, joinpath(@__DIR__))
+push!(LOAD_PATH, joinpath(@__DIR__, ".."))
 
 using Documenter
 using DocumenterVitepress
