@@ -14,7 +14,7 @@ const VERBOSE = isdefined(Main, :TestData) ? Main.TestData.VERBOSE : true
 const SHOWTIMING = isdefined(Main, :TestData) ? Main.TestData.SHOWTIMING : true
 
 function test_ad_dg()
-    Test.@testset "ad() - Lie Derivative" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - Lie Derivative" verbose = VERBOSE showtiming = SHOWTIMING begin
         # Autonomous
         X(x) = [x[2], -x[1]]
         f(x) = x[1]^2 + x[2]^2
@@ -32,7 +32,7 @@ function test_ad_dg()
         Test.@test Lf_na(2.0, [1.0, 2.0]) ≈ 8.0 atol = 1e-6
     end
 
-    Test.@testset "ad() - Lie Bracket" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - Lie Bracket" verbose = VERBOSE showtiming = SHOWTIMING begin
         # Autonomous
         X(x) = [x[2], 0.0]
         Y(x) = [0.0, x[1]]
@@ -44,7 +44,7 @@ function test_ad_dg()
         Test.@test isapprox(XY([1.0, 2.0]), [-1.0, 2.0]; atol=1e-6)
     end
 
-    Test.@testset "ad() - VectorField/VectorField" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - VectorField/VectorField" verbose = VERBOSE showtiming = SHOWTIMING begin
         X = Data.VectorField(x -> [x[2], -x[1]]; is_autonomous=true, is_variable=false)
         Y = Data.VectorField(x -> [x[1], x[2]]; is_autonomous=true, is_variable=false)
         Z = CTLie.ad(X, Y)
@@ -63,7 +63,8 @@ function test_ad_dg()
         Test.@test isapprox(Z(x0), [0.0, 0.0]; atol=1e-6)
     end
 
-    Test.@testset "ad() - VectorField/Function (Lie derivative)" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - VectorField/Function (Lie derivative)" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         X = Data.VectorField(x -> [x[2], -x[1]]; is_autonomous=true, is_variable=false)
         f(x) = x[1]^2 + x[2]^2
         Xf = CTLie.ad(X, f)
@@ -76,7 +77,7 @@ function test_ad_dg()
         Test.@test Xf(x0) ≈ 0.0 atol = 1e-6
     end
 
-    Test.@testset "ad() - Errors: HVF guard" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - Errors: HVF guard" verbose = VERBOSE showtiming = SHOWTIMING begin
         hvf = Data.HamiltonianVectorField(
             (x, p) -> (x, -p); is_autonomous=true, is_variable=false
         )
@@ -92,7 +93,7 @@ function test_ad_dg()
         end
     end
 
-    Test.@testset "ad() - Errors: InPlace guard" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - Errors: InPlace guard" verbose = VERBOSE showtiming = SHOWTIMING begin
         ip_vf = Data.VectorField(
             (dx, x) -> (dx .= [x[2], -x[1]]); is_autonomous=true, is_inplace=true
         )
@@ -107,14 +108,15 @@ function test_ad_dg()
         end
     end
 
-    Test.@testset "ad() - Errors: TD/VD mismatch" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - Errors: TD/VD mismatch" verbose = VERBOSE showtiming = SHOWTIMING begin
         X = Data.VectorField(x -> [x[2], -x[1]]; is_autonomous=true, is_variable=false)
         Y = Data.VectorField((t, x) -> [x[1], x[2]]; is_autonomous=false, is_variable=false)
 
         Test.@test_throws Exceptions.PreconditionError CTLie.ad(X, Y)
     end
 
-    Test.@testset "ad() - Backend: custom ad_backend kwarg" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - Backend: custom ad_backend kwarg" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         X(x) = [x[2], -x[1]]
         f(x) = x[1]^2 + x[2]^2
 
@@ -128,7 +130,8 @@ function test_ad_dg()
         Test.@test isapprox(Xf1(x0), Xf2(x0); atol=1e-5)
     end
 
-    Test.@testset "ad() - Backend: dg_ad_backend! global" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - Backend: dg_ad_backend! global" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         X(x) = [x[2], -x[1]]
         Y(x) = [x[1], x[2]]
 
@@ -151,7 +154,7 @@ function test_ad_dg()
         end
     end
 
-    Test.@testset "ad() - Type-Based API" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - Type-Based API" verbose = VERBOSE showtiming = SHOWTIMING begin
         # Autonomous, Fixed
         X(x) = [x[2], -x[1]]
         f(x) = x[1]^2 + x[2]^2
@@ -167,7 +170,7 @@ function test_ad_dg()
         Test.@test Lf_na_typed(2.0, [1.0, 2.0]) ≈ Lf_na_kwargs(2.0, [1.0, 2.0]) atol = 1e-6
     end
 
-    Test.@testset "ad() - Scalar x (Float64)" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - Scalar x (Float64)" verbose = VERBOSE showtiming = SHOWTIMING begin
         # Autonomous, scalar x
         X_s(x) = 2.0 * x
         f_s(x) = x^2
@@ -185,7 +188,8 @@ function test_ad_dg()
         Test.@test Lf_na_s(2.0, 3.0) ≈ 36.0 atol = 1e-6
     end
 
-    Test.@testset "ad() - NonFixed (is_variable=true)" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - NonFixed (is_variable=true)" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         # Autonomous, NonFixed
         X_nf(x, v) = [x[2] * v, -x[1]]
         f_nf(x, v) = x[1]^2 + x[2]^2 + v
@@ -205,7 +209,8 @@ function test_ad_dg()
         Test.@test Lf_na_nf(2.0, [1.0, 2.0], 3.0) ≈ 24.0 atol = 1e-6
     end
 
-    Test.@testset "ad() - VectorField/VectorField NonAutonomous" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - VectorField/VectorField NonAutonomous" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         X = Data.VectorField(
             (t, x) -> [t * x[2], -x[1]]; is_autonomous=false, is_variable=false
         )
@@ -225,7 +230,8 @@ function test_ad_dg()
         Test.@test isapprox(Z(2.0, [1.0, 2.0]), [0.0, 0.0]; atol=1e-6)
     end
 
-    Test.@testset "ad() - VectorField/Function NonAutonomous" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - VectorField/Function NonAutonomous" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         X = Data.VectorField(
             (t, x) -> [t * x[2], -x[1]]; is_autonomous=false, is_variable=false
         )
@@ -240,7 +246,8 @@ function test_ad_dg()
         Test.@test Xf(2.0, [1.0, 2.0]) ≈ 8.0 atol = 1e-6
     end
 
-    Test.@testset "ad() - VectorField/VectorField NonFixed" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - VectorField/VectorField NonFixed" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         X = Data.VectorField(
             (x, v) -> [x[2] * v, -x[1]]; is_autonomous=true, is_variable=true
         )
@@ -260,7 +267,8 @@ function test_ad_dg()
         Test.@test isapprox(Z([1.0, 2.0], 3.0), [0.0, 0.0]; atol=1e-6)
     end
 
-    Test.@testset "ad() - VectorField/Function NonFixed" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - VectorField/Function NonFixed" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         X = Data.VectorField(
             (x, v) -> [x[2] * v, -x[1]]; is_autonomous=true, is_variable=true
         )
@@ -275,7 +283,7 @@ function test_ad_dg()
         Test.@test Xf([1.0, 2.0], 3.0) ≈ 12.0 atol = 1e-6
     end
 
-    Test.@testset "ad() - Backend: fake ADType" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - Backend: fake ADType" verbose = VERBOSE showtiming = SHOWTIMING begin
         # Use AutoForwardDiff as a concrete ADType, wrapped in a DifferentiationInterface
         X(x) = [x[2], -x[1]]
         f(x) = x[1]^2 + x[2]^2
@@ -296,7 +304,7 @@ function test_ad_dg()
         Test.@test isapprox(Xf1(x0), Xf2(x0); atol=1e-5)
     end
 
-    Test.@testset "ad() - MRI Bloch Equations" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - MRI Bloch Equations" verbose = VERBOSE showtiming = SHOWTIMING begin
         # Physical constants for magnetic resonance imaging
         Γ = 2.0  # Relaxation rate
         γ = 1.0  # Gyromagnetic ratio
@@ -315,12 +323,13 @@ function test_ad_dg()
         x = [1.0, 2.0, 3.0]
 
         # Verify known analytical results for Bloch equations
-        Test.@test F01(x) ≈ -[0.0, γ - δ * x[3], -δ * x[2]] atol=1e-6
-        Test.@test F02(x) ≈ -[-γ + δ * x[3], 0.0, δ * x[1]] atol=1e-6
-        Test.@test F12(x) ≈ -[-x[2], x[1], 0.0] atol=1e-6
+        Test.@test F01(x) ≈ -[0.0, γ - δ * x[3], -δ * x[2]] atol = 1e-6
+        Test.@test F02(x) ≈ -[-γ + δ * x[3], 0.0, δ * x[1]] atol = 1e-6
+        Test.@test F12(x) ≈ -[-x[2], x[1], 0.0] atol = 1e-6
     end
 
-    Test.@testset "ad() - Lie Bracket Intrinsic Definition" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - Lie Bracket Intrinsic Definition" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         # Verify intrinsic definition: [X, Y]·f = X·(Y·f) - Y·(X·f)
         X(x) = [x[2]^2, -2x[1] * x[2]]
         Y(x) = [x[1] * (1 + x[2]), 3x[2]^3]
@@ -341,10 +350,11 @@ function test_ad_dg()
         result_commutator = X_dot_Yf(x_test) - Y_dot_Xf(x_test)
 
         # Both methods should give the same result
-        Test.@test result_direct ≈ result_commutator atol=1e-6
+        Test.@test result_direct ≈ result_commutator atol = 1e-6
     end
 
-    Test.@testset "ad() - Nested Brackets Jacobi Identity" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - Nested Brackets Jacobi Identity" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         # [X, [Y, Z]] + [Y, [Z, X]] + [Z, [X, Y]] = 0
         X(x) = [0, x[3], -x[2]]
         Y(x) = [-x[3], 0, x[1]]
@@ -363,7 +373,8 @@ function test_ad_dg()
     # Phase 5: Ad callable struct — concrete type + @inferred
     # ====================================================================
 
-    Test.@testset "ad() - concrete type Ad (Lie derivative, Autonomous/Fixed)" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - concrete type Ad (Lie derivative, Autonomous/Fixed)" verbose =
+        VERBOSE showtiming = SHOWTIMING begin
         Xad(x) = [x[2], -x[1]]
         fad(x) = x[1]^2 + x[2]^2
         a = CTLie.ad(Xad, fad)
@@ -377,7 +388,8 @@ function test_ad_dg()
         }
     end
 
-    Test.@testset "ad() - concrete type Ad (Lie bracket, Autonomous/Fixed)" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - concrete type Ad (Lie bracket, Autonomous/Fixed)" verbose =
+        VERBOSE showtiming = SHOWTIMING begin
         Xad(x) = [x[2], -x[1]]
         Yad(x) = [x[1], x[2]]
         a = CTLie.ad(Xad, Yad)
@@ -391,7 +403,8 @@ function test_ad_dg()
         }
     end
 
-    Test.@testset "ad() - @inferred scalar (Lie derivative)" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - @inferred scalar (Lie derivative)" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         Xad(x) = [x[2], -x[1]]
         fad(x) = x[1]^2 + x[2]^2
         a = CTLie.ad(Xad, fad)
@@ -400,7 +413,8 @@ function test_ad_dg()
         Test.@test_nowarn Test.@inferred a(x0)
     end
 
-    Test.@testset "ad() - @inferred vector (Lie bracket)" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - @inferred vector (Lie bracket)" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         Xad(x) = [x[2], -x[1]]
         Yad(x) = [x[1], x[2]]
         a = CTLie.ad(Xad, Yad)
@@ -409,7 +423,8 @@ function test_ad_dg()
         Test.@test_nowarn Test.@inferred a(x0)
     end
 
-    Test.@testset "ad() - @inferred scalar (Lie derivative, NonAutonomous/Fixed)" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "ad() - @inferred scalar (Lie derivative, NonAutonomous/Fixed)" verbose =
+        VERBOSE showtiming = SHOWTIMING begin
         X_na(t, x) = [t * x[2], -x[1]]
         f_na(t, x) = t + x[1]^2
         a = CTLie.ad(X_na, f_na; is_autonomous=false)

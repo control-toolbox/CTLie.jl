@@ -46,9 +46,9 @@ for (name, decoys) in (
 
         lie_xy() = @Lie [X, Y]
         lie_nested() = @Lie [[X, Y], X]
-        lie_naut() = @Lie [Xn, Yn] is_autonomous=false
+        lie_naut() = @Lie [Xn, Yn] is_autonomous = false
         poisson_hg() = @Lie {H, G}
-        unknown_kw() = @Lie [X, Y] bad_kw=1
+        unknown_kw() = @Lie [X, Y] bad_kw = 1
         bad_arg() = @Lie [X, Y] oops
     end
 end
@@ -70,7 +70,8 @@ function test_macro_hygiene_dg()
 
     for M in (HygieneBare, HygieneDecoy)
         # =====================================================================
-        Test.@testset "$(nameof(M)) — caller binds neither CTLie nor CTBase correctly" verbose=VERBOSE showtiming=SHOWTIMING begin
+        Test.@testset "$(nameof(M)) — caller binds neither CTLie nor CTBase correctly" verbose =
+            VERBOSE showtiming = SHOWTIMING begin
             if M === HygieneBare
                 Test.@test !isdefined(M, :CTLie)
                 Test.@test !isdefined(M, :CTBase)
@@ -81,28 +82,33 @@ function test_macro_hygiene_dg()
         end
 
         # =====================================================================
-        Test.@testset "$(nameof(M)) — Lie bracket [X, Y]" verbose=VERBOSE showtiming=SHOWTIMING begin
+        Test.@testset "$(nameof(M)) — Lie bracket [X, Y]" verbose = VERBOSE showtiming =
+            SHOWTIMING begin
             ref = CTLie.ad(vf(M.X), vf(M.Y))
-            Test.@test M.lie_xy()(x0) ≈ ref(x0) atol=1e-6
+            Test.@test M.lie_xy()(x0) ≈ ref(x0) atol = 1e-6
         end
 
-        Test.@testset "$(nameof(M)) — nested Lie bracket [[X, Y], X]" verbose=VERBOSE showtiming=SHOWTIMING begin
+        Test.@testset "$(nameof(M)) — nested Lie bracket [[X, Y], X]" verbose = VERBOSE showtiming =
+            SHOWTIMING begin
             ref = CTLie.ad(CTLie.ad(vf(M.X), vf(M.Y)), vf(M.X))
-            Test.@test M.lie_nested()(x0) ≈ ref(x0) atol=1e-6
+            Test.@test M.lie_nested()(x0) ≈ ref(x0) atol = 1e-6
         end
 
-        Test.@testset "$(nameof(M)) — Lie bracket with is_autonomous=false" verbose=VERBOSE showtiming=SHOWTIMING begin
+        Test.@testset "$(nameof(M)) — Lie bracket with is_autonomous=false" verbose =
+            VERBOSE showtiming = SHOWTIMING begin
             ref = CTLie.ad(vfn(M.Xn), vfn(M.Yn))
-            Test.@test M.lie_naut()(t0, x0) ≈ ref(t0, x0) atol=1e-6
+            Test.@test M.lie_naut()(t0, x0) ≈ ref(t0, x0) atol = 1e-6
         end
 
-        Test.@testset "$(nameof(M)) — Poisson bracket {H, G}" verbose=VERBOSE showtiming=SHOWTIMING begin
+        Test.@testset "$(nameof(M)) — Poisson bracket {H, G}" verbose = VERBOSE showtiming =
+            SHOWTIMING begin
             ref = CTLie.Poisson(ham(M.H), ham(M.G))
-            Test.@test M.poisson_hg()(x0, p0) ≈ ref(x0, p0) atol=1e-6
+            Test.@test M.poisson_hg()(x0, p0) ≈ ref(x0, p0) atol = 1e-6
         end
 
         # =====================================================================
-        Test.@testset "$(nameof(M)) — error paths do not need CTBase" verbose=VERBOSE showtiming=SHOWTIMING begin
+        Test.@testset "$(nameof(M)) — error paths do not need CTBase" verbose = VERBOSE showtiming =
+            SHOWTIMING begin
             e = Test.@test_throws Exceptions.IncorrectArgument M.unknown_kw()
             Test.@test e.value.got == "bad_kw"
             e = Test.@test_throws Exceptions.IncorrectArgument M.bad_arg()
@@ -110,12 +116,13 @@ function test_macro_hygiene_dg()
         end
 
         # =====================================================================
-        Test.@testset "$(nameof(M)) — expansion holds no bare caller-resolved name" verbose=VERBOSE showtiming=SHOWTIMING begin
+        Test.@testset "$(nameof(M)) — expansion holds no bare caller-resolved name" verbose =
+            VERBOSE showtiming = SHOWTIMING begin
             for ex in (
                 :(@Lie [X, Y]),
                 :(@Lie {H, G}),
-                :(@Lie [X, Y] is_autonomous=false is_variable=true),
-                :(@Lie [X, Y] bad_kw=1),
+                :(@Lie [X, Y] is_autonomous = false is_variable = true),
+                :(@Lie [X, Y] bad_kw = 1),
                 :(@Lie [X, Y] oops),
             )
                 names = _symbols(macroexpand(M, ex))

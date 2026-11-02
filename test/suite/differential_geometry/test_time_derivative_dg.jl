@@ -18,12 +18,13 @@ function test_time_derivative_dg()
     # Plain Function
     # ====================================================================
 
-    Test.@testset "∂ₜ() - Function: TimeDeriv_F + value" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "∂ₜ() - Function: TimeDeriv_F + value" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         f(t, x) = t^2 + x[1]
         df = CTLie.∂ₜ(f)
         Test.@test df isa CTLie.TimeDeriv_F
         # ∂f/∂t = 2t → at t=3, x=[1,2]: 6.0
-        Test.@test df(3.0, [1.0, 2.0]) ≈ 6.0 atol=1e-6
+        Test.@test df(3.0, [1.0, 2.0]) ≈ 6.0 atol = 1e-6
         df(3.0, [1.0, 2.0])  # warm-up
         Test.@test_nowarn Test.@inferred df(3.0, [1.0, 2.0])
     end
@@ -32,7 +33,8 @@ function test_time_derivative_dg()
     # VectorField — 4 combinations TD×VD
     # ====================================================================
 
-    Test.@testset "∂ₜ() - NonAutonomous Fixed VectorField: functor + value + @inferred" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "∂ₜ() - NonAutonomous Fixed VectorField: functor + value + @inferred" verbose =
+        VERBOSE showtiming = SHOWTIMING begin
         X = Data.VectorField(
             (t, x) -> [t * x[2], -t * x[1]]; is_autonomous=false, is_variable=false
         )
@@ -52,7 +54,8 @@ function test_time_derivative_dg()
         Test.@test_nowarn Test.@inferred dX(t0, x0)
     end
 
-    Test.@testset "∂ₜ() - Autonomous Fixed VectorField → zero" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "∂ₜ() - Autonomous Fixed VectorField → zero" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         X = Data.VectorField(x -> [x[2], -x[1]]; is_autonomous=true, is_variable=false)
         dX = CTLie.∂ₜ(X)
         Test.@test dX isa Data.AbstractVectorField{
@@ -63,7 +66,8 @@ function test_time_derivative_dg()
         Test.@test_nowarn Test.@inferred dX(1.0, [1.0, 2.0])
     end
 
-    Test.@testset "∂ₜ() - Autonomous NonFixed VectorField → zero" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "∂ₜ() - Autonomous NonFixed VectorField → zero" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         X = Data.VectorField(
             (x, v) -> [v[1] * x[2], -x[1]]; is_autonomous=true, is_variable=true
         )
@@ -74,7 +78,8 @@ function test_time_derivative_dg()
         Test.@test isapprox(dX(1.0, [1.0, 2.0], [3.0]), [0.0, 0.0]; atol=1e-10)
     end
 
-    Test.@testset "∂ₜ() - NonAutonomous NonFixed VectorField" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "∂ₜ() - NonAutonomous NonFixed VectorField" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         # X(t, x, v) = [t*v[1]*x[2], -x[1]]  →  ∂X/∂t = [v[1]*x[2], 0]
         X = Data.VectorField(
             (t, x, v) -> [t * v[1] * x[2], -x[1]]; is_autonomous=false, is_variable=true
@@ -90,7 +95,8 @@ function test_time_derivative_dg()
     # Hamiltonian — 4 combinations TD×VD
     # ====================================================================
 
-    Test.@testset "∂ₜ() - NonAutonomous Fixed Hamiltonian → correct value" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "∂ₜ() - NonAutonomous Fixed Hamiltonian → correct value" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         H = Data.Hamiltonian(
             (t, x, p) -> t * (p' * x); is_autonomous=false, is_variable=false
         )
@@ -100,30 +106,33 @@ function test_time_derivative_dg()
         # ∂/∂t [t * p'x] = p'x
         x0 = [1.0, 2.0]
         p0 = [3.0, 4.0]
-        Test.@test dH(2.0, x0, p0) ≈ p0' * x0 atol=1e-6
+        Test.@test dH(2.0, x0, p0) ≈ p0' * x0 atol = 1e-6
         dH(2.0, x0, p0)  # warm-up
         Test.@test_nowarn Test.@inferred dH(2.0, x0, p0)
     end
 
-    Test.@testset "∂ₜ() - Autonomous Fixed Hamiltonian → zero" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "∂ₜ() - Autonomous Fixed Hamiltonian → zero" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         H = Data.Hamiltonian((x, p) -> p' * x; is_autonomous=true, is_variable=false)
         dH = CTLie.∂ₜ(H)
         Test.@test dH isa Data.AbstractHamiltonian{Traits.NonAutonomous,Traits.Fixed}
-        Test.@test dH(1.0, [1.0, 2.0], [3.0, 4.0]) ≈ 0.0 atol=1e-10
+        Test.@test dH(1.0, [1.0, 2.0], [3.0, 4.0]) ≈ 0.0 atol = 1e-10
         dH(1.0, [1.0, 2.0], [3.0, 4.0])  # warm-up
         Test.@test_nowarn Test.@inferred dH(1.0, [1.0, 2.0], [3.0, 4.0])
     end
 
-    Test.@testset "∂ₜ() - Autonomous NonFixed Hamiltonian → zero" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "∂ₜ() - Autonomous NonFixed Hamiltonian → zero" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         H = Data.Hamiltonian(
             (x, p, v) -> v[1] * p' * x; is_autonomous=true, is_variable=true
         )
         dH = CTLie.∂ₜ(H)
         Test.@test dH isa Data.AbstractHamiltonian{Traits.NonAutonomous,Traits.NonFixed}
-        Test.@test dH(1.0, [1.0, 2.0], [3.0, 4.0], [2.0]) ≈ 0.0 atol=1e-10
+        Test.@test dH(1.0, [1.0, 2.0], [3.0, 4.0], [2.0]) ≈ 0.0 atol = 1e-10
     end
 
-    Test.@testset "∂ₜ() - NonAutonomous NonFixed Hamiltonian" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "∂ₜ() - NonAutonomous NonFixed Hamiltonian" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         # H(t, x, p, v) = t * v[1] * p[1]  →  ∂H/∂t = v[1]*p[1]
         H = Data.Hamiltonian(
             (t, x, p, v) -> t * v[1] * p[1]; is_autonomous=false, is_variable=true
@@ -133,14 +142,15 @@ function test_time_derivative_dg()
         x0 = [1.0]
         p0 = [3.0]
         v0 = [4.0]
-        Test.@test dH(t0, x0, p0, v0) ≈ v0[1] * p0[1] atol=1e-6
+        Test.@test dH(t0, x0, p0, v0) ≈ v0[1] * p0[1] atol = 1e-6
     end
 
     # ====================================================================
     # HamiltonianVectorField — 4 combinations TD×VD
     # ====================================================================
 
-    Test.@testset "∂ₜ() - NonAutonomous Fixed HamiltonianVectorField" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "∂ₜ() - NonAutonomous Fixed HamiltonianVectorField" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         # X(t,x,p) = (t*p, -t*x)  →  ∂X/∂t = (p, -x)
         X = Data.HamiltonianVectorField(
             (t, x, p) -> (t * p, -t * x); is_autonomous=false, is_variable=false
@@ -154,11 +164,12 @@ function test_time_derivative_dg()
         x0 = [1.0]
         p0 = [3.0]
         dx, dp = dX(t0, x0, p0)
-        Test.@test dx ≈ p0 atol=1e-6
-        Test.@test dp ≈ -x0 atol=1e-6
+        Test.@test dx ≈ p0 atol = 1e-6
+        Test.@test dp ≈ -x0 atol = 1e-6
     end
 
-    Test.@testset "∂ₜ() - Autonomous Fixed HamiltonianVectorField → zero" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "∂ₜ() - Autonomous Fixed HamiltonianVectorField → zero" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         X = Data.HamiltonianVectorField(
             (x, p) -> (p, -x); is_autonomous=true, is_variable=false
         )
@@ -167,13 +178,14 @@ function test_time_derivative_dg()
             Traits.NonAutonomous,Traits.Fixed,Traits.OutOfPlace
         }
         dx, dp = dX(1.0, [1.0], [3.0])
-        Test.@test dx ≈ [0.0] atol=1e-10
-        Test.@test dp ≈ [0.0] atol=1e-10
+        Test.@test dx ≈ [0.0] atol = 1e-10
+        Test.@test dp ≈ [0.0] atol = 1e-10
         dX(1.0, [1.0], [3.0])  # warm-up
         Test.@test_nowarn Test.@inferred dX(1.0, [1.0], [3.0])
     end
 
-    Test.@testset "∂ₜ() - Autonomous NonFixed HamiltonianVectorField → zero" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "∂ₜ() - Autonomous NonFixed HamiltonianVectorField → zero" verbose =
+        VERBOSE showtiming = SHOWTIMING begin
         X = Data.HamiltonianVectorField(
             (x, p, v) -> (v[1] * p, -x); is_autonomous=true, is_variable=true
         )
@@ -182,11 +194,12 @@ function test_time_derivative_dg()
             Traits.NonAutonomous,Traits.NonFixed,Traits.OutOfPlace
         }
         dx, dp = dX(1.0, [1.0], [3.0], [2.0])
-        Test.@test dx ≈ [0.0] atol=1e-10
-        Test.@test dp ≈ [0.0] atol=1e-10
+        Test.@test dx ≈ [0.0] atol = 1e-10
+        Test.@test dp ≈ [0.0] atol = 1e-10
     end
 
-    Test.@testset "∂ₜ() - NonAutonomous NonFixed HamiltonianVectorField" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "∂ₜ() - NonAutonomous NonFixed HamiltonianVectorField" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         # X(t,x,p,v) = (t*v[1]*p, -x)  →  ∂X/∂t = (v[1]*p, 0)
         X = Data.HamiltonianVectorField(
             (t, x, p, v) -> (t * v[1] * p, -x); is_autonomous=false, is_variable=true
@@ -197,11 +210,12 @@ function test_time_derivative_dg()
         p0 = [3.0]
         v0 = [4.0]
         dx, dp = dX(t0, x0, p0, v0)
-        Test.@test dx ≈ v0[1] .* p0 atol=1e-6
-        Test.@test dp ≈ zeros(length(x0)) atol=1e-10
+        Test.@test dx ≈ v0[1] .* p0 atol = 1e-6
+        Test.@test dp ≈ zeros(length(x0)) atol = 1e-10
     end
 
-    Test.@testset "∂ₜ() - HamiltonianVectorField @inferred" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "∂ₜ() - HamiltonianVectorField @inferred" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         X = Data.HamiltonianVectorField(
             (t, x, p) -> (t * p, -t * x); is_autonomous=false, is_variable=false
         )
@@ -217,7 +231,8 @@ function test_time_derivative_dg()
     # Error guards
     # ====================================================================
 
-    Test.@testset "∂ₜ() - InPlace guard → IncorrectArgument" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "∂ₜ() - InPlace guard → IncorrectArgument" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         ip_vf = Data.VectorField((dx, x) -> (dx .= x); is_autonomous=true, is_inplace=true)
         e = Test.@test_throws Exceptions.IncorrectArgument CTLie.∂ₜ(ip_vf)
         # The error must name ∂ₜ (not ad)
