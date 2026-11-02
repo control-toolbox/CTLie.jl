@@ -30,7 +30,7 @@ _exprs(blk) = filter(x -> !(x isa LineNumberNode), blk.args)
 function test_macro_helpers_dg()
 
     # =========================================================================
-    Test.@testset "__parse_lie_opts" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "__parse_lie_opts" verbose = VERBOSE showtiming = SHOWTIMING begin
 
         # Defaults
         opts, err = CTLie.__parse_lie_opts()
@@ -101,7 +101,7 @@ function test_macro_helpers_dg()
     end
 
     # =========================================================================
-    Test.@testset "__lie_error" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "__lie_error" verbose = VERBOSE showtiming = SHOWTIMING begin
         ex = CTLie.__lie_error("msg", "got", "expected", "ctx")
         # `throw` and the exception type are referenced by GlobalRef, never by name
         Test.@test ex.args[1] == GlobalRef(Base, :throw)
@@ -115,7 +115,7 @@ function test_macro_helpers_dg()
     end
 
     # =========================================================================
-    Test.@testset "__transform_brackets" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "__transform_brackets" verbose = VERBOSE showtiming = SHOWTIMING begin
         opts = (
             TD=:Autonomous,
             VD=:Fixed,
@@ -187,7 +187,7 @@ function test_macro_helpers_dg()
     end
 
     # =========================================================================
-    Test.@testset "_as_vf" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "_as_vf" verbose = VERBOSE showtiming = SHOWTIMING begin
 
         # Function → VectorField with correct traits
         vf = CTLie._as_vf(_f1, Traits.Autonomous, Traits.Fixed)
@@ -206,7 +206,7 @@ function test_macro_helpers_dg()
     end
 
     # =========================================================================
-    Test.@testset "_as_ham" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "_as_ham" verbose = VERBOSE showtiming = SHOWTIMING begin
 
         # Function → Hamiltonian with correct traits
         h = CTLie._as_ham(_h1, Traits.Autonomous, Traits.Fixed)
@@ -224,7 +224,7 @@ function test_macro_helpers_dg()
     end
 
     # =========================================================================
-    Test.@testset "_check_td" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "_check_td" verbose = VERBOSE showtiming = SHOWTIMING begin
         vf_auto = _vf(_f1, Traits.Autonomous, Traits.Fixed)
         vf_nonaut = _vf(_f_naut, Traits.NonAutonomous, Traits.Fixed)
 
@@ -251,7 +251,7 @@ function test_macro_helpers_dg()
     end
 
     # =========================================================================
-    Test.@testset "_check_vd" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "_check_vd" verbose = VERBOSE showtiming = SHOWTIMING begin
         vf_fixed = _vf(_f1, Traits.Autonomous, Traits.Fixed)
         vf_nonfixed = _vf((x, v) -> _f1(x), Traits.Autonomous, Traits.NonFixed)
 
@@ -278,7 +278,7 @@ function test_macro_helpers_dg()
     end
 
     # =========================================================================
-    Test.@testset "_lie_mac" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "_lie_mac" verbose = VERBOSE showtiming = SHOWTIMING begin
         vf1 = _vf(_f1, Traits.Autonomous, Traits.Fixed)
         vf2 = _vf(_f2, Traits.Autonomous, Traits.Fixed)
         backend = CTBase.Core.NotProvided
@@ -347,7 +347,7 @@ function test_macro_helpers_dg()
     end
 
     # =========================================================================
-    Test.@testset "_poisson_mac" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "_poisson_mac" verbose = VERBOSE showtiming = SHOWTIMING begin
         ham1 = _ham(_h1, Traits.Autonomous, Traits.Fixed)
         ham2 = _ham(_h2, Traits.Autonomous, Traits.Fixed)
         backend = CTBase.Core.NotProvided

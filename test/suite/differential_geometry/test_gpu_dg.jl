@@ -62,7 +62,8 @@ const _SEL1 = [0.0 1.0; 0.0 0.0]   # x ↦ [x2, 0]
 const _SEL2 = [0.0 0.0; 1.0 0.0]   # x ↦ [0, x1]
 
 function test_gpu_dg()
-    Test.@testset "GPU differential geometry (device execution)" verbose=VERBOSE showtiming=SHOWTIMING begin
+    Test.@testset "GPU differential geometry (device execution)" verbose = VERBOSE showtiming =
+        SHOWTIMING begin
         if Main.TestCapabilities.ON_GPU_RUNNER
             Test.@test Main.TestCapabilities.CUDA_FUNCTIONAL   # fails loudly if the GPU runner lost its device
             # One failure says it all: the device testsets below would each add a CuArray error.
@@ -153,7 +154,7 @@ function test_gpu_dg()
             Cg = _dev(_SEL2)
             X = Data.VectorField(x -> Bg * x; is_autonomous=true, is_variable=false)
             Y = Data.VectorField(x -> Cg * x; is_autonomous=true, is_variable=false)
-            mac = CTLie.@Lie [X, Y] ad_backend=GPU_BACKEND
+            mac = CTLie.@Lie [X, Y] ad_backend = GPU_BACKEND
             # @Lie expands to a Lie bracket internally — same Mooncake/CuArray
             # pushforward limitation as "ad() Lie bracket on device" above.
             Test.@test_broken begin
