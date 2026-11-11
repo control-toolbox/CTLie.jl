@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📚 Documentation
 
+- Documentation previews now deploy only when requested with the
+  `documentation push preview` label ([#81](https://github.com/control-toolbox/CTLie.jl/issues/81)).
 - ct-conventions pinned at `v0.7.0` in `AGENTS.md`: the release rules `REL1`–`REL7` in the
   index, and a *Recurring tasks* section pointing to the release recipe of ct-agents.
 - ct-agents pinned at `v0.2.0` and ct-conventions at `v0.7.1` in `AGENTS.md`: the recipes (the
