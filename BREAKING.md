@@ -4,6 +4,10 @@ This document describes breaking changes in CTLie.jl releases and how to migrate
 
 ---
 
+## Non-breaking note (Unreleased)
+
+- **Documentation and CI only**: the `Release` caller and the pins of ct-conventions and ct-agents. **No breaking change**; no migration required.
+
 ## [0.3.0] - 2026-10-10
 
 ### Guard errors are `IncorrectArgument`, not `NotImplemented`
